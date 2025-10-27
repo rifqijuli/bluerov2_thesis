@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  imu_bridge:
+    build: ./ros_bridge
+    container_name: ros_bridge
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - ROS_MASTER_URI=http://localhost:11311
+    tty: true
+
+  consumer:
+    build: ./ros_consumer
+    container_name: ros_consumer
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      - ROS_MASTER_URI=http://localhost:11311
+    tty: true
