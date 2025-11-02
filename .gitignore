@@ -1,0 +1,14 @@
+# Ignore virtual environment
+bluerovenv/
+
+# Ignore Python cache files
+_pycache_/
+*.pyc
+*.pyo
+
+# Ignore VSCode settings (optional)
+.vscode/
+
+# Ignore Jupyter or test logs (optional)
+*.ipynb_checkpoints/
+*.log
