@@ -6,6 +6,9 @@ _pycache_/
 *.pyc
 *.pyo
 
+# Ignore FUnIE-GAN original github
+FUnIE-GAN/
+
 # Ignore VSCode settings (optional)
 .vscode/
 
