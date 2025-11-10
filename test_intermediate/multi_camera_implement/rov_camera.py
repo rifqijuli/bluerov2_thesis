@@ -19,7 +19,7 @@ class Video():
         latest_frame (np.ndarray): Latest retrieved video frame
     """
 
-    def __init__(self, port=5600):
+    def __init__(self, port=5601):
         """Summary
 
         Args:

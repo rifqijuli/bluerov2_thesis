@@ -24,7 +24,7 @@ BlueRov video capture class
 """
 
 class cameraOpt:
-    isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
+    isROVCamera = True  # Set to True to use ROV camera, False for local webcam    
 
 if __name__ == '__main__':
     # FUnIE-GAN
@@ -97,22 +97,28 @@ if __name__ == '__main__':
 
         # Run YOLO11 tracking on the frame, persisting tracks between frames
         # Only track person
-        #results_original = model.track(frame, persist=True)[0]
+        # Visualize the results on the frame
+        # Tracker for original using yolo_track module and center difference
+        try:
+            results_original = model.track(frame, persist=True,conf=0.1, iou=0.3, classes=[39])[0]
+            annotated_frame_original = yolo_track.draw_tracker(results_original, track_history)
+        except Exception as e:
+            print(f"No object detection in the frame")
+            annotated_frame_original = frame
 
         # Track All
-        results_original = model.track(frame, persist=True)
+        #results_original = model.track(frame, persist=True)
         #results_enhanced = model.track(out_bgr, persist=True)
 
         #FIRST I WILL TRACK AND DETECT ALL OF THEM, WHEN I CLICK, 
         #I CHOOSE THE ARRAY INDEX OF THE PERSON I WANT TO TRACK
         #THEN I WILL ONLY TRACK THAT PERSON USING THE TRACK ID
 
-        # Visualize the results on the frame
-        # Tracker for original using yolo_track module and center difference
-        #annotated_frame_original = yolo_track.draw_tracker(results_original, track_history)
+        
+
 
         # Tracker for original using yolo_track module with no center difference
-        annotated_frame_original = results_original[0].plot()
+        #annotated_frame_original = results_original[0].plot()
         #annotated_frame_enhanced = results_enhanced[0].plot()
 
         # Show both
@@ -121,6 +127,6 @@ if __name__ == '__main__':
         cv2.imshow("YOLO11 Tracking Original", annotated_frame_original)
         #cv2.imshow("YOLO11 Tracking Enhanced", annotated_frame_enhanced)
         # Allow frame to display, and check if user wants to quit
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if cv2.waitKey(50) & 0xFF == ord('q'):
             break
     cv2.destroyAllWindows()
