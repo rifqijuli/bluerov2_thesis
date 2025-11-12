@@ -22,7 +22,7 @@ class coordinate:
         y_diff = self.y_coord - frame_center_y
         return coord_difference(x_diff, y_diff, 0)
     
-def draw_tracker(model_result, track_history):
+def draw_tracker(model_result, track_history, main_frame=None, roi_object=None):
     # Get the boxes and track IDs
     if model_result.boxes and model_result.boxes.is_track:
         boxes = model_result.boxes.xywh.cpu()
@@ -34,7 +34,10 @@ def draw_tracker(model_result, track_history):
         # Plot the tracks
         for box, track_id in zip(boxes, track_ids):
             x, y, w, h = box
-            tracker_to_center(x, y, w, h, frame)
+            if main_frame is not None:
+                tracker_to_center(x, y, w, h, main_frame, roi_object)
+            else:
+                tracker_to_center(x, y, w, h, frame)
             track = track_history[track_id]
             track.append((float(x), float(y)))  # x, y center point
             if len(track) > 30:  # retain 30 tracks for 30 frames
@@ -49,8 +52,8 @@ def reset_tracker(track_history):
     track_history.clear()
 
 
-def tracker_to_center(x_coord, y_coord, width, height, frame):
+def tracker_to_center(x_coord, y_coord, width, height, frame, roi_object=None):
     # Calculate center of the bounding box
-    diff_to_center = coordinate(x_coord, y_coord, frame).difference_to_frame()
+    diff_to_center = coordinate((x_coord + roi_object.x) , (y_coord + roi_object.y), frame).difference_to_frame()
     print(f"Coordinate difference to center - X: {diff_to_center.x}, Y: {diff_to_center.y}, Z: {diff_to_center.z}")
     return True

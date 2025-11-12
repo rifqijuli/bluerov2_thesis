@@ -41,6 +41,15 @@ class roi_image:
         self.width = width
         self.height = height
 
+# Target frame size
+class frameSize:
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+    
+    def center(self):
+        return (self.width/2, self.height/2)
+
 #!/usr/bin/env python
 """
 BlueRov video capture class
@@ -70,6 +79,9 @@ if __name__ == '__main__':
     # YOLO Store the track history
     track_history = defaultdict(lambda: []) 
 
+    # Initiate resize frame size
+    targetFrame = frameSize(640, 480)
+
     while True:
         if cameraOpt.isROVCamera:
             if video.frame_available():
@@ -81,7 +93,8 @@ if __name__ == '__main__':
                 print("Can't receive frame (stream end?). Exiting ...")
                 break  
         # Wait for the next frame to become available
-        frame = cv2.resize(frame, (640, 480))
+        
+        frame = cv2.resize(frame, (targetFrame.width, targetFrame.height))
         
         try: #If ROI selected
             rect_img = frame[int(roi_obj.y):int(roi_obj.y+roi_obj.height), int(roi_obj.x):int(roi_obj.x+roi_obj.width)]
@@ -103,7 +116,7 @@ if __name__ == '__main__':
             # Change out_bgr to frame if want to track with normal video feed
             try:
                 results = model.track(out_bgr, persist=True,conf=0.6, iou=0.3, classes=[0])[0]
-                annotated_frame_original = yolo_track.draw_tracker(results, track_history)
+                annotated_frame_original = yolo_track.draw_tracker(results, track_history, frame, roi_obj)
             except Exception as e:
                 print(f"No object detection in the frame")
                 annotated_frame_original = out_bgr
@@ -121,6 +134,7 @@ if __name__ == '__main__':
             pass
         finally:
             # Show both
+            cv2.circle(frame, center=(int(targetFrame.center()[0]), int(targetFrame.center()[1])), radius=5, color=(0, 255, 255), thickness=-1)
             cv2.imshow("Original", frame)
 
             # Allow frame to display, and check if user wants to quit
