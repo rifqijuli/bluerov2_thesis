@@ -24,7 +24,7 @@ BlueRov video capture class
 """
 
 class cameraOpt:
-    isROVCamera = True  # Set to True to use ROV camera, False for local webcam    
+    isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
 
 if __name__ == '__main__':
     # FUnIE-GAN
@@ -100,7 +100,7 @@ if __name__ == '__main__':
         # Visualize the results on the frame
         # Tracker for original using yolo_track module and center difference
         try:
-            results_original = model.track(frame, persist=True,conf=0.1, iou=0.3, classes=[39])[0]
+            results_original = model.track(frame, persist=True,conf=0.1, iou=0.3, classes=[0])[0]
             annotated_frame_original = yolo_track.draw_tracker(results_original, track_history)
         except Exception as e:
             print(f"No object detection in the frame")
