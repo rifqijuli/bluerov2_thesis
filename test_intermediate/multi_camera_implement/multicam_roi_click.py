@@ -50,6 +50,41 @@ class frameSize:
     def center(self):
         return (self.width/2, self.height/2)
 
+# State management
+class State:
+    def __init__(self):
+        self.roi_selected = False
+        self.object_selected = False
+    
+    def toggle_roi(self):
+        self.roi_selected = not self.roi_selected
+    
+    def toggle_object(self):
+        self.object_selected = not self.object_selected
+
+class click_mouse_position:
+    x = 0
+    y = 0
+
+    def set_position(x_pos, y_pos):
+        click_mouse_position.x = x_pos
+        click_mouse_position.y = y_pos
+    
+    def is_within_object(object):
+        print(f"Object coords and size: X={object['x_coord']}, Y={object['y_coord']}, Width={object['width']}, Height={object['height']}")
+        if (click_mouse_position.x >= object['x_coord'] and click_mouse_position.x <= object['x_coord'] + object['width'] and
+            click_mouse_position.y >= object['y_coord'] and click_mouse_position.y <= object['y_coord'] + object['height']):
+            return ( object['track_id'])
+        else:
+            return False
+
+
+# mouse callback function
+def get_click(event,x,y,flags,param):
+    if event == cv2.EVENT_LBUTTONDBLCLK:
+        print(f"Clicked coordinates: X={x}, Y={y}")
+        click_mouse_position.set_position(x, y)
+
 #!/usr/bin/env python
 """
 BlueRov video capture class
@@ -63,6 +98,7 @@ if __name__ == '__main__':
     print('Initialising stream...')
     print('Press q to quit\nPress s to select ROI')
     waited = 0
+    system_state = State()
 
      # Create the video object
     if cameraOpt.isROVCamera:
@@ -115,30 +151,50 @@ if __name__ == '__main__':
             
             # Change out_bgr to frame if want to track with normal video feed
             try:
-                results = model.track(out_bgr, persist=True,conf=0.6, iou=0.3, classes=[0])[0]
-                annotated_frame_original = yolo_track.draw_tracker(results, track_history, frame, roi_obj)
+                results = model.track(rect_img, persist=True,conf=0.6, iou=0.3)
+                annotated_frame = results[0].plot()
+                track_objects = yolo_track.draw_tracker(results[0], track_history, frame, roi_obj)
+                '''
+                # handle multiple object detected
+                for each in track_objects:
+                    annotated_frame_original = each['frame']
+                    if each['detected_object'] is not None:
+                        detected_object = each['detected_object']
+                        print(f"Detected object at X={deteqcted_object['x_coord']}, Y={detected_object['y_coord']}, Width={detected_object['width']}, Height={detected_object['height']}")
+                    else:
+                        detected_object is None
+                '''
             except Exception as e:
                 print(f"No object detection in the frame")
-                annotated_frame_original = out_bgr
+                annotated_frame_original = rect_img
             
             #Put it back to frame
-            frame[int(roi_obj.y):int(roi_obj.y+roi_obj.height), int(roi_obj.x):int(roi_obj.x+roi_obj.width)] = annotated_frame_original
+            frame[int(roi_obj.y):int(roi_obj.y+roi_obj.height), int(roi_obj.x):int(roi_obj.x+roi_obj.width)] = annotated_frame
             cv2.rectangle(frame, 
                 (int(roi_obj.x), int(roi_obj.y)), 
                 (int(roi_obj.x + roi_obj.width), int(roi_obj.y + roi_obj.height)),
                 (0, 255, 255), 2)
             
-            #cv2.imshow('rect_img', annotated_frame_original)
+            #cv2.imshow('rect_img', annotated_frame)
+            #cv2.imshow('resct_img', annotated_frame_original_2)
         except:
             #print("sini")
             pass
         finally:
             # Show both
+            cv2.namedWindow('Original')
             cv2.circle(frame, center=(int(targetFrame.center()[0]), int(targetFrame.center()[1])), radius=5, color=(0, 255, 255), thickness=-1)
             cv2.imshow("Original", frame)
 
+            
+            if system_state.roi_selected:
+                cv2.setMouseCallback('Original', get_click)
+                for each in track_objects:
+                    isInObject = click_mouse_position.is_within_object(each['detected_object'])
+                    print(f"Is within object: {isInObject}")
+
             # Allow frame to display, and check if user wants to quit
-            key = cv2.waitKey(50)
+            key = cv2.waitKey(100)
             if key == ord('q'):
                 break
             elif key == ord('s'):
@@ -146,5 +202,6 @@ if __name__ == '__main__':
                 fromCenter = False
                 selected_roi = cv2.selectROI("Select ROI", frame, fromCenter, showCrosshair)
                 roi_obj = roi_image(selected_roi[0],selected_roi[1],selected_roi[2],selected_roi[3])
+                system_state.toggle_roi()
                 cv2.destroyWindow("Select ROI")
     cv2.destroyAllWindows()
