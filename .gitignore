@@ -4,6 +4,10 @@ bluerovenv/
 # Ignore FUnIE-GAN original github
 FUnIE-GAN/
 
+# Ignore ultralytics training dataset 
+# Common object underwater and stuff
+training/
+
 # Ignore Python cache files
 _pycache_/
 *.pyc
