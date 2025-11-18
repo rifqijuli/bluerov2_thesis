@@ -1,7 +1,9 @@
-numpy==2.3.4
+matplotlib==3.10.7
+numpy==2.3.5
 opencv_python==4.12.0.88
+pandas==2.3.3
 pymavlink==2.4.49
 sensor_msgs==5.3.6
-torch==2.9.0+cu126
-torchvision==0.24.0+cu126
-ultralytics==8.3.225
+torch==2.9.1+cu126
+torchvision==0.24.1+cu126
+ultralytics==8.3.228

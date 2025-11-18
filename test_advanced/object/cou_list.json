@@ -1,0 +1,28 @@
+{
+    "class" : {
+        "0": "Unknown Instance",
+        "1": "Scissors",
+        "2": "Plastic Cup",
+        "3": "Metal Rod",
+        "4": "Fork",
+        "5": "Bottle",
+        "6": "Soda Can",
+        "7": "Case",
+        "8": "Plastic Bag",
+        "9": "Cup",
+        "10": "Goggles",
+        "11": "Flipper",
+        "12": "LoCo",
+        "13": "Aqua",
+        "14": "Pipe",
+        "15": "Snorkel",
+        "16": "Spoon",
+        "17": "Lure",
+        "18": "Screwdriver",
+        "19": "Car",
+        "20": "Tripod",
+        "21": "ROV",
+        "22": "Knife",
+        "23": "Dive Weight"
+    }
+}
