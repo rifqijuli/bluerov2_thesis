@@ -21,7 +21,7 @@ class cameraOpt:
     isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
 
 class modelOpt:
-    isCOU = True
+    isCOU = False # Set to True if uses CoU dataset
 
 # Load the YOLO11 model
 if modelOpt.isCOU:
@@ -75,6 +75,21 @@ class State:
     def toggle_object(self):
         self.object_selected = not self.object_selected
 
+#Target object
+class target_object:
+    target_status = False
+    target_id = -1
+    target_class = -1
+
+    def set_target(selected_id, selected_class):
+        target_object.target_id = selected_id
+        target_object.target_class = selected_class
+    
+    def toggle_target():
+        target_object.target_status = not target_object.target_status
+
+
+#Mouse Position
 class click_mouse_position:
     x = 0
     y = 0
@@ -88,6 +103,10 @@ class click_mouse_position:
         print(f"Mouse Poisition: X={click_mouse_position.x}, Y={click_mouse_position.y}")
         if (click_mouse_position.x >= object['x_coord'] and click_mouse_position.x <= object['x_coord'] + object['width'] and
             click_mouse_position.y >= object['y_coord'] and click_mouse_position.y <= object['y_coord'] + object['height']):
+            target_object.set_target(object['track_id'], object['obj_class'])
+            target_object.toggle_target()
+            if system_state.roi_selected is True:
+                system_state.toggle_roi()
             return ( object['track_id'])
         else:
             return False
@@ -95,6 +114,7 @@ class click_mouse_position:
     def reset():
         click_mouse_position.x = 0
         click_mouse_position.y = 0
+
 
 
 # mouse callback function
@@ -143,8 +163,14 @@ if __name__ == '__main__':
         # Wait for the next frame to become available
         
         frame = cv2.resize(frame, (targetFrame.width, targetFrame.height))
-        
+
         try: #If ROI selected
+            if target_object.target_status is True:
+                results = model.track(frame, persist=True,conf=0.6, iou=0.3, classes=target_object.target_class)
+                annotated_frame = results[0].plot()
+                track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_object.target_id)
+                frame = track_objects[0]['frame']
+
             if system_state.roi_selected:
                 rect_img = frame[int(roi_obj.y):int(roi_obj.y+roi_obj.height), int(roi_obj.x):int(roi_obj.x+roi_obj.width)]
                 # Do process to the selected image here
@@ -165,21 +191,12 @@ if __name__ == '__main__':
                 # Change out_bgr to frame if want to track with normal video feed
                 try:
                     results = model.track(rect_img, persist=True,conf=0.6, iou=0.3)
-                    results_2 = model.track(out_bgr, persist=True,conf=0.6, iou=0.3)
+                    #results_2 = model.track(out_bgr, persist=True,conf=0.6, iou=0.3)
                     #results = model.track(source="https://youtu.be/LNwODJXcvt4", conf=0.3, iou=0.5, show=True)
                     annotated_frame = results[0].plot()
-                    annotated_frame_2 = results_2[0].plot()
+                    #annotated_frame_2 = results_2[0].plot()
                     track_objects = yolo_track.draw_tracker(results[0], track_history, frame, roi_obj)
-                    '''
-                    # handle multiple object detected
-                    for each in track_objects:
-                        annotated_frame_original = each['frame']
-                        if each['detected_object'] is not None:
-                            detected_object = each['detected_object']
-                            print(f"Detected object at X={deteqcted_object['x_coord']}, Y={detected_object['y_coord']}, Width={detected_object['width']}, Height={detected_object['height']}")
-                        else:
-                            detected_object is None
-                    '''
+
                 except Exception as e:
                     print(f"No object detection in the frame")
                     annotated_frame_original = rect_img
@@ -191,10 +208,9 @@ if __name__ == '__main__':
                     (int(roi_obj.x + roi_obj.width), int(roi_obj.y + roi_obj.height)),
                     (0, 255, 255), 2)
                 
-                cv2.imshow('rect_img', annotated_frame_2)
-                #cv2.imshow('resct_img', annotated_frame_original_2)
+                #cv2.imshow('rect_img', annotated_frame_2)
+                #cv2.imshow('resct_img', track_objects[0]['frame'])
         except:
-            #print("sini")
             pass
         finally:
             # Show both
@@ -205,8 +221,9 @@ if __name__ == '__main__':
                 cv2.setMouseCallback('Original', get_click)
                 try:
                     for each in track_objects:
-                        isInObject = click_mouse_position.is_within_object(each['detected_object'])
-                        print(f"Is within object: {isInObject}")
+                        if target_object.target_status is False:
+                            isInObject = click_mouse_position.is_within_object(each['detected_object'])
+                            print(f"Is within object: {isInObject}")
                 except:
                     print("No object")
             click_mouse_position.reset()

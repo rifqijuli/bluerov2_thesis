@@ -32,20 +32,22 @@ class detected_object_all:
         self.width = width
         self.height = height
     
-def draw_tracker(model_result, track_history, main_frame=None, roi_object=None):
+def draw_tracker(model_result, track_history, main_frame=None, roi_object=None, target_id=None):
     # Get the boxes and track IDs
     if model_result.boxes and model_result.boxes.is_track:
         boxes = model_result.boxes.xywh.cpu()
         track_ids = model_result.boxes.id.int().cpu().tolist()
+        classes = model_result.boxes.cls.int().cpu().tolist()
 
         # Visualize the result on the frame
         frame = model_result[0].plot()
         obj_return = []
         # Plot the tracks. For is to detect more than 1 object
-        for box, track_id in zip(boxes, track_ids):
+        for box, track_id, obj_class in zip(boxes, track_ids, classes):
             x, y, w, h = box
+            print("sampecuy")
             if main_frame is not None:
-                detected_object = tracker_to_center(x, y, w, h, main_frame, roi_object, track_id)
+                detected_object = tracker_to_center(x, y, w, h, main_frame, roi_object, track_id, obj_class)
             else:
                 detected_object = tracker_to_center(x, y, w, h, frame)
             track = track_history[track_id]
@@ -54,6 +56,7 @@ def draw_tracker(model_result, track_history, main_frame=None, roi_object=None):
                 track.pop(0)
 
             # Draw the tracking lines
+            
             points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
             cv2.polylines(frame, [points], isClosed=False, color=(230, 230, 230), thickness=10)
             #cv2.imshow(f"check_{track_id}", frame)
@@ -67,17 +70,23 @@ def reset_tracker(track_history):
     track_history.clear()
 
 
-def tracker_to_center(x_coord, y_coord, width, height, frame, roi_object=None, track_id=None):
+def tracker_to_center(x_coord, y_coord, width, height, frame, roi_object=None, track_id=None, obj_class=None):
     # Calculate center of the bounding box
-    diff_to_center = coordinate((x_coord + roi_object.x) , (y_coord + roi_object.y), frame).difference_to_frame()
+    if roi_object is None:
+        diff_to_center = coordinate(x_coord, y_coord, frame).difference_to_frame()
+    else:
+        diff_to_center = coordinate((x_coord + roi_object.x) , (y_coord + roi_object.y), frame).difference_to_frame()
+        x_coord = x_coord + roi_object.x - width / 2
+        y_coord = y_coord + roi_object.y - height / 2
     print(f"Coordinate difference to center - X: {diff_to_center.x}, Y: {diff_to_center.y}, Z: {diff_to_center.z}, id : {track_id}")
     return ({
         'x_diff': diff_to_center.x,
         'y_diff': diff_to_center.y,
         'z_diff': diff_to_center.z,
-        'x_coord': x_coord + roi_object.x - width / 2,
-        'y_coord': y_coord + roi_object.y - height / 2,
+        'x_coord': x_coord,
+        'y_coord': y_coord,
         'width': width,
         'height': height,
-        'track_id':track_id
+        'track_id':track_id,
+        'obj_class': obj_class
     })
