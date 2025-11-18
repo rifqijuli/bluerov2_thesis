@@ -21,19 +21,13 @@ class cameraOpt:
     isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
 
 class modelOpt:
-    isCOCO = False
-    isCOU = False
-
-    def toggleCOCO():
-        modelOpt.isCOCO = True
-        modelOpt.isCOU = False
-    
-    def toggleCOU():
-        modelOpt.isCOCO = False
-        modelOpt.isCOU = True
+    isCOU = True
 
 # Load the YOLO11 model
-model = YOLO("object_detection_model/yolo11n_cou.pt")
+if modelOpt.isCOU:
+    model = YOLO("object_detection_model/yolo11n_cou.pt")
+else:
+    model = YOLO("object_detection_model/yolo11n.pt")
 
 # FUnIE-GAN
 # --- Load pretrained FUnIE-GAN model ---
@@ -172,7 +166,7 @@ if __name__ == '__main__':
                 try:
                     results = model.track(rect_img, persist=True,conf=0.6, iou=0.3)
                     results_2 = model.track(out_bgr, persist=True,conf=0.6, iou=0.3)
-                    results = model.track(source="https://youtu.be/LNwODJXcvt4", conf=0.3, iou=0.5, show=True)
+                    #results = model.track(source="https://youtu.be/LNwODJXcvt4", conf=0.3, iou=0.5, show=True)
                     annotated_frame = results[0].plot()
                     annotated_frame_2 = results_2[0].plot()
                     track_objects = yolo_track.draw_tracker(results[0], track_history, frame, roi_obj)
