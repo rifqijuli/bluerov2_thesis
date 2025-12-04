@@ -13,110 +13,6 @@ from image_enhancement import funie
 
 from image_enhancement.nets.funiegan import GeneratorFunieGAN as Generator  # adjust import path to match your repo
 
-"""
-BlueRov video capture class
-"""
-
-class cameraOpt:
-    isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
-
-class modelOpt:
-    isCOU = False # Set to True if uses CoU dataset
-
-# Load the YOLO11 model
-if modelOpt.isCOU:
-    model = YOLO("object_detection_model/yolo11n_cou.pt")
-else:
-    model = YOLO("object_detection_model/yolo11n.pt")
-
-# FUnIE-GAN
-# --- Load pretrained FUnIE-GAN model ---
-device = "cuda" if torch.cuda.is_available() else "cpu"
-model_path = "image_enhancement/funie_generator.pth"  # change if different
-G = Generator().to(device)
-G.load_state_dict(torch.load(model_path, map_location=device))
-G.eval()
-
-# --- Define transforms ---
-to_tensor = T.Compose([
-    T.ToPILImage(),
-    T.Resize((256, 256)),
-    T.ToTensor()
-])
-#OR.. Still cant remove this funie gan to other files
-#img_enhance = funie.funie()
-
-#ROI image
-class roi_image:
-    def __init__(self, x, y, width, height):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-
-# Target frame size
-class frameSize:
-    def __init__(self, width, height):
-        self.width = width
-        self.height = height
-    
-    def center(self):
-        return (self.width/2, self.height/2)
-
-# State management
-class State:
-    def __init__(self):
-        self.roi_selected = False
-        self.object_selected = False
-    
-    def toggle_roi(self):
-        self.roi_selected = not self.roi_selected
-    
-    def toggle_object(self):
-        self.object_selected = not self.object_selected
-
-#Target object
-class target_object:
-    target_status = False
-    target_id = -1
-    target_class = -1
-
-    def set_target(selected_id, selected_class):
-        target_object.target_id = selected_id
-        target_object.target_class = selected_class
-    
-    def toggle_target():
-        target_object.target_status = not target_object.target_status
-
-
-#Mouse Position
-class click_mouse_position:
-    x = 0
-    y = 0
-
-    def set_position(x_pos, y_pos):
-        click_mouse_position.x = x_pos
-        click_mouse_position.y = y_pos
-    
-    def is_within_object(object):
-        print(f"Object coords and size: X={object['x_coord']}, Y={object['y_coord']}, Width={object['width']}, Height={object['height']}")
-        print(f"Mouse Poisition: X={click_mouse_position.x}, Y={click_mouse_position.y}")
-        if (click_mouse_position.x >= object['x_coord'] and click_mouse_position.x <= object['x_coord'] + object['width'] and
-            click_mouse_position.y >= object['y_coord'] and click_mouse_position.y <= object['y_coord'] + object['height']):
-            target_object.set_target(object['track_id'], object['obj_class'])
-            target_object.toggle_target()
-            if system_state.roi_selected is True:
-                system_state.toggle_roi()
-            return ( object['track_id'])
-        else:
-            return False
-    
-    def reset():
-        click_mouse_position.x = 0
-        click_mouse_position.y = 0
-
-
-
 # mouse callback function
 def get_click(event,x,y,flags,param):
     if event == cv2.EVENT_LBUTTONDBLCLK:
@@ -125,7 +21,112 @@ def get_click(event,x,y,flags,param):
 
 #!/usr/bin/env python
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
+def image_main(cameraOpt = False, modelOpt = False):
+
+
+    """
+    BlueRov video capture class
+    """
+
+    class cameraOpt:
+        isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
+
+    class modelOpt:
+        isCOU = False # Set to True if uses CoU dataset
+
+    # Load the YOLO11 model
+    if modelOpt.isCOU:
+        model = YOLO("object_detection_model/yolo11n_cou.pt")
+    else:
+        model = YOLO("object_detection_model/yolo11n.pt")
+
+    # FUnIE-GAN
+    # --- Load pretrained FUnIE-GAN model ---
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model_path = "image_enhancement/funie_generator.pth"  # change if different
+    G = Generator().to(device)
+    G.load_state_dict(torch.load(model_path, map_location=device))
+    G.eval()
+
+    # --- Define transforms ---
+    to_tensor = T.Compose([
+        T.ToPILImage(),
+        T.Resize((256, 256)),
+        T.ToTensor()
+    ])
+    #OR.. Still cant remove this funie gan to other files
+    #img_enhance = funie.funie()
+
+    #ROI image
+    class roi_image:
+        def __init__(self, x, y, width, height):
+            self.x = x
+            self.y = y
+            self.width = width
+            self.height = height
+
+    # Target frame size
+    class frameSize:
+        def __init__(self, width, height):
+            self.width = width
+            self.height = height
+        
+        def center(self):
+            return (self.width/2, self.height/2)
+
+    # State management
+    class State:
+        def __init__(self):
+            self.roi_selected = False
+            self.object_selected = False
+        
+        def toggle_roi(self):
+            self.roi_selected = not self.roi_selected
+        
+        def toggle_object(self):
+            self.object_selected = not self.object_selected
+
+    #Target object
+    class target_object:
+        target_status = False
+        target_id = -1
+        target_class = -1
+
+        def set_target(selected_id, selected_class):
+            target_object.target_id = selected_id
+            target_object.target_class = selected_class
+        
+        def toggle_target():
+            target_object.target_status = not target_object.target_status
+
+
+    #Mouse Position
+    class click_mouse_position:
+        x = 0
+        y = 0
+
+        def set_position(x_pos, y_pos):
+            click_mouse_position.x = x_pos
+            click_mouse_position.y = y_pos
+        
+        def is_within_object(object):
+            print(f"Object coords and size: X={object['x_coord']}, Y={object['y_coord']}, Width={object['width']}, Height={object['height']}")
+            print(f"Mouse Poisition: X={click_mouse_position.x}, Y={click_mouse_position.y}")
+            if (click_mouse_position.x >= object['x_coord'] and click_mouse_position.x <= object['x_coord'] + object['width'] and
+                click_mouse_position.y >= object['y_coord'] and click_mouse_position.y <= object['y_coord'] + object['height']):
+                target_object.set_target(object['track_id'], object['obj_class'])
+                target_object.toggle_target()
+                if system_state.roi_selected is True:
+                    system_state.toggle_roi()
+                return ( object['track_id'])
+            else:
+                return False
+        
+        def reset():
+            click_mouse_position.x = 0
+            click_mouse_position.y = 0
+
 
     print('Initialising stream...')
     print('Press q to quit\nPress s to select ROI\nPress e to remove ROI')
