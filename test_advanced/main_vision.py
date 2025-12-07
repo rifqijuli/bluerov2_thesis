@@ -10,21 +10,14 @@ import string
 from tracking import yolo_track
 from collections import defaultdict
 from image_enhancement import funie
+import runner
 
 from image_enhancement.nets.funiegan import GeneratorFunieGAN as Generator  # adjust import path to match your repo
-
-# mouse callback function
-def get_click(event,x,y,flags,param):
-    if event == cv2.EVENT_LBUTTONDBLCLK:
-        print(f"Clicked coordinates: X={x}, Y={y}")
-        click_mouse_position.set_position(x, y)
 
 #!/usr/bin/env python
 
 #if __name__ == '__main__':
 def image_main(cameraOpt = False, modelOpt = False):
-
-
     """
     BlueRov video capture class
     """
@@ -57,6 +50,12 @@ def image_main(cameraOpt = False, modelOpt = False):
     ])
     #OR.. Still cant remove this funie gan to other files
     #img_enhance = funie.funie()
+
+    # mouse callback function
+    def get_click(event,x,y,flags,param):
+        if event == cv2.EVENT_LBUTTONDBLCLK:
+            print(f"Clicked coordinates: X={x}, Y={y}")
+            click_mouse_position.set_position(x, y)
 
     #ROI image
     class roi_image:
@@ -119,6 +118,9 @@ def image_main(cameraOpt = False, modelOpt = False):
                 target_object.toggle_target()
                 if system_state.roi_selected is True:
                     system_state.toggle_roi()
+                    
+                    #Send back state to runner
+                    runner.isObjectSelected.set_state(True)
                 return ( object['track_id'])
             else:
                 return False
@@ -167,10 +169,13 @@ def image_main(cameraOpt = False, modelOpt = False):
 
         try: #If ROI selected
             if target_object.target_status is True:
+                # When Object is Selected
+                # if (runner.program_state.get_state() == 'FREE'): <-- If you want to set only when FREE
                 results = model.track(frame, persist=True,conf=0.6, iou=0.3, classes=target_object.target_class)
                 annotated_frame = results[0].plot()
                 track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_object.target_id)
                 frame = track_objects[0]['frame']
+                runner.differenceInHorizontalHeading.set_value(track_objects[0]['detected_object']['x_diff'])
 
             if system_state.roi_selected:
                 rect_img = frame[int(roi_obj.y):int(roi_obj.y+roi_obj.height), int(roi_obj.x):int(roi_obj.x+roi_obj.width)]
@@ -233,6 +238,9 @@ def image_main(cameraOpt = False, modelOpt = False):
             if key == ord('q'):
                 break
             elif key == ord('s'):
+                #Send back state to runner
+                runner.isObjectSelected.set_state(False)
+
                 showCrosshair = False
                 fromCenter = False
                 selected_roi = cv2.selectROI("Select ROI", frame, fromCenter, showCrosshair)
@@ -242,6 +250,9 @@ def image_main(cameraOpt = False, modelOpt = False):
                 cv2.destroyWindow("Select ROI")
             elif key == ord('e'):
                 if system_state.roi_selected is True:
+                    #Send back state to runner
+                    runner.isObjectSelected.set_state(False)
+
                     system_state.toggle_roi()
                 cv2.destroyAllWindows()
     cv2.destroyAllWindows()
