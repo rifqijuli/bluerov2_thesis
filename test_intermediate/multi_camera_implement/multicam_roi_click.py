@@ -91,7 +91,7 @@ BlueRov video capture class
 """
 
 class cameraOpt:
-    isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
+    isROVCamera = True  # Set to True to use ROV camera, False for local webcam    
 
 if __name__ == '__main__':
 

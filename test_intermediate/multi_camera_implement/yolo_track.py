@@ -37,6 +37,7 @@ def draw_tracker(model_result, track_history, main_frame=None, roi_object=None):
     if model_result.boxes and model_result.boxes.is_track:
         boxes = model_result.boxes.xywh.cpu()
         track_ids = model_result.boxes.id.int().cpu().tolist()
+        print("kalo disini")
 
         # Visualize the result on the frame
         frame = model_result[0].plot()

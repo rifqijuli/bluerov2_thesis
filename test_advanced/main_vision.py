@@ -234,7 +234,7 @@ def image_main(cameraOpt = False, modelOpt = False):
                     print("No object")
             click_mouse_position.reset()
             # Allow frame to display, and check if user wants to quit
-            key = cv2.waitKey(100)
+            key = cv2.waitKey(50)
             if key == ord('q'):
                 break
             elif key == ord('s'):
