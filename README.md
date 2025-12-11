@@ -11,22 +11,37 @@ git clone git@github.com:rifqijuli/bluerov2_thesis.git
 ```
 
 ## install this for Gstreamer plugin
+
+For Ubuntu 22.04
 ```bash 
 sudo apt install python3-gi python3-gi-cairo gir1.2-gobject-2.0 gir1.2-gst-plugins-base-1.0 gir1.2-gstreamer-1.0 libgirepository1.0-dev
 ```
 
+For Ubuntu 24
+```bash 
+sudo apt install libgirepository-2.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-4.0
+```
+
 ## Make virtual environment
 ```bash 
-python3 -m venv --system-site-packages .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
 ```
 
 Now we are inside Virtual Environment.
 
-## Check Gi for Gstreamer
+## Install PyGObject
 ```bash 
+pip3 install pycairo 
+pip3 install PyGObject
 python3 -c "import gi; print('gi imported OK')"
+```
+
+If you encounter an error for PyGObject, use older version
+
+```bash
+pip3 install "PyGObject<3.51.0"
 ```
 
 ## Install requirements on pip
