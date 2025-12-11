@@ -1,6 +1,6 @@
 # Ignore virtual environment
 bluerovenv/
--venv/
+.venv/
 
 # Ignore FUnIE-GAN original github
 FUnIE-GAN/
