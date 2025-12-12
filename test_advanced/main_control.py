@@ -42,16 +42,20 @@ def main_control():
     # set depth hold
     depth_control.set_depth_hold(master)
 
-
+    # Set PID Constant Kp, Ki, Kd, and target
+    pid = pid_control.PIDController(1.0,0.0,0.0,0.0)
     yawErrorPixel = runner.horizontalHeadingDifference.get_value()
 
-    while yawErrorPixel <= 10:
+    while abs(yawErrorPixel) >= 10:
+        # Get Target Yaw Correction
         yawErrorDegree = pixelToDegree(yawErrorPixel, "yaw")
-        pid = pid_control.PIDController(1,0,0,0)
+        
         currentYaw = attitude_control.get_current_yaw(master)
-        targetYaw = pid.compute(yawErrorDegree, 0) + currentYaw
+        targetYaw = pid.compute(yawErrorDegree, dt=1.0) + currentYaw
+
+        # Correct Yaw
         attitude_control.set_target_attitude(roll_angle, pitch_angle, targetYaw)
-        runner.program_state.set_state_to_free
+        runner.program_state.set_state_to_free()
         time.sleep(1) # wait for a second
         yawErrorPixel = runner.horizontalHeadingDifference.get_value()
 
