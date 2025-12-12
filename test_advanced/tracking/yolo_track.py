@@ -45,7 +45,6 @@ def draw_tracker(model_result, track_history, main_frame=None, roi_object=None, 
         # Plot the tracks. For is to detect more than 1 object
         for box, track_id, obj_class in zip(boxes, track_ids, classes):
             x, y, w, h = box
-            print("sampecuy")
             if main_frame is not None:
                 detected_object = tracker_to_center(x, y, w, h, main_frame, roi_object, track_id, obj_class)
             else:

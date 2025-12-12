@@ -11,6 +11,10 @@ from tracking import yolo_track
 from collections import defaultdict
 from image_enhancement import funie
 import runner
+import logging
+
+log = logging.getLogger("Main Vision")
+log.info("Main Vision started")
 
 from image_enhancement.nets.funiegan import GeneratorFunieGAN as Generator  # adjust import path to match your repo
 
@@ -110,12 +114,16 @@ def image_main(cameraOpt = False, modelOpt = False):
             click_mouse_position.y = y_pos
         
         def is_within_object(object):
-            print(f"Object coords and size: X={object['x_coord']}, Y={object['y_coord']}, Width={object['width']}, Height={object['height']}")
-            print(f"Mouse Poisition: X={click_mouse_position.x}, Y={click_mouse_position.y}")
+            #log.info(f"Object coords and size: X={object['x_coord']}, Y={object['y_coord']}, Width={object['width']}, Height={object['height']}")
+            #log.info(f"Mouse Poisition: X={click_mouse_position.x}, Y={click_mouse_position.y}")
             if (click_mouse_position.x >= object['x_coord'] and click_mouse_position.x <= object['x_coord'] + object['width'] and
                 click_mouse_position.y >= object['y_coord'] and click_mouse_position.y <= object['y_coord'] + object['height']):
                 target_object.set_target(object['track_id'], object['obj_class'])
-                target_object.toggle_target()
+                
+                # Set selecting target to True
+                if target_object.target_status is False:
+                    target_object.toggle_target()
+                
                 if system_state.roi_selected is True:
                     system_state.toggle_roi()
                     
@@ -130,8 +138,10 @@ def image_main(cameraOpt = False, modelOpt = False):
             click_mouse_position.y = 0
 
 
-    print('Initialising stream...')
-    print('Press q to quit\nPress s to select ROI\nPress e to remove ROI')
+    log.info('Initialising stream...')
+    log.info('Press q to quit')
+    log.info('Press s to select ROI')
+    log.info('Press e to remove ROI')
     waited = 0
     system_state = State()
 
@@ -141,11 +151,11 @@ def image_main(cameraOpt = False, modelOpt = False):
         # Add port= if is necessary to use a different one
         while not video.frame_available():
             waited += 1
-            print('\r  Frame not available (x{})'.format(waited), end='')
+            log.info('\r  Frame not available (x{})'.format(waited), end='')
             cv2.waitKey(30)
-        print('\nSuccess!\nStarting streaming - press "q" to quit.')
+        log.info('\nSuccess!\nStarting streaming - press "q" to quit.')
     else:
-        video = cv2.VideoCapture(0)
+        video = cv2.VideoCapture(-1)
 
     # YOLO Store the track history
     track_history = defaultdict(lambda: []) 
@@ -161,7 +171,7 @@ def image_main(cameraOpt = False, modelOpt = False):
         else:
             ret, frame = video.read()
             if not ret:
-                print("Can't receive frame (stream end?). Exiting ...")
+                log.info("Can't receive frame (stream end?). Exiting ...")
                 break  
         # Wait for the next frame to become available
         
@@ -175,7 +185,11 @@ def image_main(cameraOpt = False, modelOpt = False):
                 annotated_frame = results[0].plot()
                 track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_object.target_id)
                 frame = track_objects[0]['frame']
-                runner.differenceInHorizontalHeading.set_value(track_objects[0]['detected_object']['x_diff'])
+
+                # Set Heading Difference to runner
+                runner.horizontalHeadingDifference.set_value(track_objects[0]['detected_object']['x_diff'])
+                runner.verticalHeadingDifference.set_value(track_objects[0]['detected_object']['y_diff'])
+                runner.program_state.set_state_to_busy()
 
             if system_state.roi_selected:
                 rect_img = frame[int(roi_obj.y):int(roi_obj.y+roi_obj.height), int(roi_obj.x):int(roi_obj.x+roi_obj.width)]
@@ -204,7 +218,7 @@ def image_main(cameraOpt = False, modelOpt = False):
                     track_objects = yolo_track.draw_tracker(results[0], track_history, frame, roi_obj)
 
                 except Exception as e:
-                    print(f"No object detection in the frame")
+                    log.info(f"No object detection in the frame")
                     annotated_frame_original = rect_img
                 
                 #Put it back to frame
@@ -229,9 +243,9 @@ def image_main(cameraOpt = False, modelOpt = False):
                     for each in track_objects:
                         if target_object.target_status is False:
                             isInObject = click_mouse_position.is_within_object(each['detected_object'])
-                            print(f"Is within object: {isInObject}")
+                            #log.info(f"Is within object: {isInObject}")
                 except:
-                    print("No object")
+                    log.info("No object")
             click_mouse_position.reset()
             # Allow frame to display, and check if user wants to quit
             key = cv2.waitKey(50)
@@ -240,6 +254,9 @@ def image_main(cameraOpt = False, modelOpt = False):
             elif key == ord('s'):
                 #Send back state to runner
                 runner.isObjectSelected.set_state(False)
+
+                if target_object.target_status is True:
+                    target_object.toggle_target()
 
                 showCrosshair = False
                 fromCenter = False

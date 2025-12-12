@@ -1,6 +1,13 @@
 import main_vision as vision
 import multiprocessing as mp
 import time
+import logging
+
+log = logging.getLogger("runner")
+
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
+log.info("Runner started")
 
 class program_state():
     state = 'FREE'
@@ -8,11 +15,11 @@ class program_state():
     def get_state():
         return program_state.state
     
-    def set_state_to_busy(state):
+    def set_state_to_busy():
         program_state.state = 'BUSY'
         return program_state.state
     
-    def set_state_to_free(state):
+    def set_state_to_free():
         program_state.state = 'FREE'
         return program_state.state
 
@@ -28,25 +35,44 @@ class isObjectSelected:
         return isObjectSelected.state
 
 #Difference in Horizontal Heading
-class differenceInHorizontalHeading:
+class horizontalHeadingDifference:
     value = 0.0
 
     def get_value():
-        return differenceInHorizontalHeading.value
+        return horizontalHeadingDifference.value
     
     def set_value(new_value):
         try:
             float(new_value)
             if program_state.state == 'FREE':
-                differenceInHorizontalHeading.value = new_value
-                program_state.state = 'BUSY'
-                print(f"New Value has been set")
+                horizontalHeadingDifference.value = new_value
+                log.info(f"New Value [Horizontal Heading] has been set")
             else:
-                print("Value has been set already.")
-            return differenceInHorizontalHeading.value
+                log.info("Value [Horizontal Heading] has been set already.")
+            return horizontalHeadingDifference.value
         except ValueError:
-            print("Input must be a number.")
-            return differenceInHorizontalHeading.value
+            log.info("Input must be a number.")
+            return horizontalHeadingDifference.value
+        
+#Difference in Vertical Heading
+class verticalHeadingDifference:
+    value = 0.0
+
+    def get_value():
+        return verticalHeadingDifference.value
+    
+    def set_value(new_value):
+        try:
+            float(new_value)
+            if program_state.state == 'FREE':
+                verticalHeadingDifference.value = new_value
+                log.info(f"New Value [Vertical Heading] has been set")
+            else:
+                log.info("Value [Vertical Heading] has been set already.")
+            return verticalHeadingDifference.value
+        except ValueError:
+            log.info("Input must be a number.")
+            return verticalHeadingDifference.value
 
 class Process(mp.Process):
     def __init__(self, id, flag):
@@ -58,10 +84,10 @@ class Process(mp.Process):
         time.sleep(1)
         match self.flag:
             case "image":
-                print("I'm the process with id: {}".format(self.id))
+                log.info("I'm the process with id: {}".format(self.id))
                 vision.image_main()
             case "control":
-                print("I'm the process with id: {}".format(self.id))
+                log.info("I'm the process with id: {}".format(self.id))
         
 if __name__ == '__main__':
     p = Process(0,"image")
