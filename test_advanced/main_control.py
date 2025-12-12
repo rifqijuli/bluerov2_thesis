@@ -13,16 +13,11 @@ from specs import loader as spec
 import runner as runner
 from control import attitude_control, depth_control, pid_control
 
-def pixelToDegree(value,flag, isPositive = True):
+def pixelToDegree(value,flag):
     specs = spec.load_specs("specification.yaml")
     
     horizontalFOV, verticalFOV = spec.get_camera_fov(specs)
     imgWidth, imgHeight = spec.get_vision_resolution(specs)
-
-    if value < 0:
-        isPositive = False
-
-    value = abs(value)
 
     match flag:
         case "yaw":
@@ -30,10 +25,7 @@ def pixelToDegree(value,flag, isPositive = True):
         case "pitch":
             convertedValue = value / (imgHeight/verticalFOV)
 
-    if isPositive is True:
-        return convertedValue
-    else:
-        return -abs(convertedValue)
+    return convertedValue
 
 def main_control():
 
