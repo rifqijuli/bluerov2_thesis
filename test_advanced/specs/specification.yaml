@@ -1,0 +1,8 @@
+camera:
+  name: bluerov_low_light_usb
+  fov_horizontal_deg: 80.0
+  fov_vertical_deg: 64.0
+
+vision:
+  input_width: 640
+  input_height: 480
