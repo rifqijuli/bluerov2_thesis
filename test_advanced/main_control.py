@@ -42,13 +42,21 @@ def main_control():
     # set depth hold
     depth_control.set_depth_hold(master)
 
-    yawErrorPixel = runner.horizontalHeadingDifference.get_value()
-    yawErrorDegree = pixelToDegree(yawErrorPixel, "yaw")
-    pid = pid_control.PIDController(10,0,0,0)
-    pid.compute(yawErrorDegree, 0)
 
-    # go for a spin
-    # (set target yaw from 0 to 500 degrees in steps of 10, one update per second)
+    yawErrorPixel = runner.horizontalHeadingDifference.get_value()
+
+    while yawErrorPixel <= 10:
+        yawErrorDegree = pixelToDegree(yawErrorPixel, "yaw")
+        pid = pid_control.PIDController(1,0,0,0)
+        currentYaw = attitude_control.get_current_yaw(master)
+        targetYaw = pid.compute(yawErrorDegree, 0) + currentYaw
+        attitude_control.set_target_attitude(roll_angle, pitch_angle, targetYaw)
+        runner.program_state.set_state_to_free
+        time.sleep(1) # wait for a second
+        yawErrorPixel = runner.horizontalHeadingDifference.get_value()
+
+
+    # go to target yaw
     roll_angle = pitch_angle = 0
     for yaw_angle in range(0, 500, 10):
         attitude_control.set_target_attitude(roll_angle, pitch_angle, yaw_angle)
