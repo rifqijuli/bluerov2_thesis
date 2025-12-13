@@ -1,7 +1,9 @@
 import main_vision as vision
+import main_control as control
 import multiprocessing as mp
 import time
 import logging
+from misc import stateLoader as stateLoad
 
 log = logging.getLogger("runner")
 
@@ -88,9 +90,26 @@ class Process(mp.Process):
                 vision.image_main()
             case "control":
                 log.info("I'm the process with id: {}".format(self.id))
+                #control.main_control()
+            case "dummy":
+                log.info("I'm the process with id: {}".format(self.id))
+                while True:
+                    time.sleep(1)
+                    progState = stateLoad.load_state()
+                    currentState = stateLoad.getProgramState(progState)
+                    log.info(f"MANNTAAPPPUU DJIWAAAAQUUUU : {currentState}")
+                    time.sleep(5)
+                    stateLoad.setProgramState(False)
+                    progState = stateLoad.load_state()
+                    currentState = stateLoad.getProgramState(progState)
+                    log.info(f"JADIDII GUININN REKK : {currentState}")
+                    print(program_state.set_state_to_free())
+                    print(horizontalHeadingDifference.get_value())
         
 if __name__ == '__main__':
     p = Process(0,"image")
     p.start()
     p = Process(1,"control")
+    p.start()
+    p = Process(2,"dummy")
     p.start()

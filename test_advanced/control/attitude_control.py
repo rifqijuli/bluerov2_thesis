@@ -8,8 +8,6 @@ import math
 from pymavlink import mavutil
 # Imports for attitude
 from pymavlink.quaternion import QuaternionBase
-import pid_control as control
-from .. import runner as runner
 
 def set_target_attitude(roll, pitch, yaw, master, boot_time):
     """ Sets the target attitude while in depth-hold mode.

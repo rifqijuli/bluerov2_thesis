@@ -4,8 +4,6 @@ import math
 from pymavlink import mavutil
 # Imports for attitude
 from pymavlink.quaternion import QuaternionBase
-import pid_control as control
-from .. import runner as runner
 
 # Depth hold class
 def set_depth_hold(master):

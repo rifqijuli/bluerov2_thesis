@@ -12,6 +12,7 @@ from collections import defaultdict
 from image_enhancement import funie
 import runner
 import logging
+from misc import stateLoader as stateLoad
 
 log = logging.getLogger("Main Vision")
 log.info("Main Vision started")
@@ -164,6 +165,8 @@ def image_main(cameraOpt = False, modelOpt = False):
     targetFrame = frameSize(640, 480)
 
     while True:
+        progState = stateLoad.load_state()
+        currentState = stateLoad.getProgramState(progState)
         if cameraOpt.isROVCamera:
             if video.frame_available():
                 # Only retrieve and display a frame if it's new
@@ -187,9 +190,18 @@ def image_main(cameraOpt = False, modelOpt = False):
                 frame = track_objects[0]['frame']
 
                 # Set Heading Difference to runner
-                runner.horizontalHeadingDifference.set_value(track_objects[0]['detected_object']['x_diff'])
-                runner.verticalHeadingDifference.set_value(track_objects[0]['detected_object']['y_diff'])
-                runner.program_state.set_state_to_busy()
+                horizontal_diff = track_objects[0]['detected_object']['x_diff']
+                vertical_diff = track_objects[0]['detected_object']['y_diff']
+
+                if abs(horizontal_diff) >= 50:
+                    if currentState == False:
+                        runner.horizontalHeadingDifference.set_value(horizontal_diff)
+                        runner.verticalHeadingDifference.set_value(vertical_diff)
+                        stateLoad.setProgramState(True)
+                else:
+                    if currentState == True:
+                        stateLoad.setProgramState(False)
+                    log.info("Yaw position accepted")
 
             if system_state.roi_selected:
                 rect_img = frame[int(roi_obj.y):int(roi_obj.y+roi_obj.height), int(roi_obj.x):int(roi_obj.x+roi_obj.width)]
