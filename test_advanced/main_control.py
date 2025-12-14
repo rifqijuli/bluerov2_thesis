@@ -37,9 +37,7 @@ def main_control():
     master.wait_heartbeat()
 
     while True:
-        progState = stateLoad.load_state()
-        currentState = stateLoad.getProgramState(progState)
-        if currentState == True:
+        if runner.program_state.get_state() == True:
 
             # arm ArduSub autopilot and wait until confirmed
             master.arducopter_arm()
@@ -70,12 +68,12 @@ def main_control():
 
                 # Correct Yaw
                 attitude_control.set_target_attitude(roll_angle, pitch_angle, targetYaw)
-                stateLoad.setProgramState(False)
+                runner.program_state.set_state_to_free()
                 time.sleep(1) # wait for a second
                 yawErrorPixel = runner.horizontalHeadingDifference.get_value()
 
             # If Yaw already correct
-            stateLoad.setProgramState(False)
+            runner.program_state.set_state_to_free()
 
             # set a depth target
             depth_control.set_target_depth(-0.5)  # target depth of 0.5m below the water surface

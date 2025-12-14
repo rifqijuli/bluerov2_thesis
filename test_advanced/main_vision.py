@@ -165,8 +165,7 @@ def image_main(cameraOpt = False, modelOpt = False):
     targetFrame = frameSize(640, 480)
 
     while True:
-        progState = stateLoad.load_state()
-        currentState = stateLoad.getProgramState(progState)
+        is_main_state_busy = runner.program_state.get_busy_state()
         if cameraOpt.isROVCamera:
             if video.frame_available():
                 # Only retrieve and display a frame if it's new
@@ -194,13 +193,13 @@ def image_main(cameraOpt = False, modelOpt = False):
                 vertical_diff = track_objects[0]['detected_object']['y_diff']
 
                 if abs(horizontal_diff) >= 50:
-                    if currentState == False:
+                    if is_main_state_busy == False: #Is Free
                         runner.horizontalHeadingDifference.set_value(horizontal_diff)
                         runner.verticalHeadingDifference.set_value(vertical_diff)
-                        stateLoad.setProgramState(True)
+                        runner.program_state.set_state_to_busy()
                 else:
-                    if currentState == True:
-                        stateLoad.setProgramState(False)
+                    if is_main_state_busy == True: #Is Busy
+                        runner.program_state.set_state_to_free()
                     log.info("Yaw position accepted")
 
             if system_state.roi_selected:

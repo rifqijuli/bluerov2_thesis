@@ -4,6 +4,7 @@ import multiprocessing as mp
 import time
 import logging
 from misc import stateLoader as stateLoad
+from misc import heading_difference_loader as heading_difference_loader
 
 log = logging.getLogger("runner")
 
@@ -12,24 +13,25 @@ logging.basicConfig(level=logging.INFO,
 log.info("Runner started")
 
 class program_state():
-    state = 'FREE'
 
-    def get_state():
-        return program_state.state
+    def get_busy_state():
+        progState = stateLoad.load_state()
+        currentState = stateLoad.getProgramState(progState)
+        return currentState
     
     def set_state_to_busy():
-        program_state.state = 'BUSY'
-        return program_state.state
+        stateLoad.setProgramState(True)
+        return program_state.get_busy_state()
     
     def set_state_to_free():
-        program_state.state = 'FREE'
-        return program_state.state
+        stateLoad.setProgramState(False)
+        return program_state.get_busy_state()
 
 #Target object State
 class isObjectSelected:
     state = False
 
-    def get_state():
+    def get_busy_state():
         return isObjectSelected.state
     
     def set_state(state):
@@ -38,23 +40,34 @@ class isObjectSelected:
 
 #Difference in Horizontal Heading
 class horizontalHeadingDifference:
-    value = 0.0
 
-    def get_value():
-        return horizontalHeadingDifference.value
+    def get_value(flag):
+        load_difference = heading_difference_loader.load_difference()
+        current_yaw_difference = heading_difference_loader.get_yaw_difference(load_difference)
+        pixel_difference, degree_difference = current_yaw_difference
+        match flag:
+            case "pixel":
+                return pixel_difference
+            case "degree":
+                return degree_difference
+            case "all":
+                return {
+                    pixel_difference : pixel_difference,
+                    degree_difference : degree_difference
+                }
     
     def set_value(new_value):
         try:
             float(new_value)
-            if program_state.state == 'FREE':
-                horizontalHeadingDifference.value = new_value
+            if program_state.get_busy_state() == False:
+                heading_difference_loader.set_yaw_difference(pixel_difference=new_value)
                 log.info(f"New Value [Horizontal Heading] has been set")
             else:
                 log.info("Value [Horizontal Heading] has been set already.")
-            return horizontalHeadingDifference.value
+            return horizontalHeadingDifference.get_value("pixel")
         except ValueError:
             log.info("Input must be a number.")
-            return horizontalHeadingDifference.value
+            return horizontalHeadingDifference.get_value("pixel")
         
 #Difference in Vertical Heading
 class verticalHeadingDifference:
@@ -66,7 +79,7 @@ class verticalHeadingDifference:
     def set_value(new_value):
         try:
             float(new_value)
-            if program_state.state == 'FREE':
+            if program_state.get_busy_state() == False:
                 verticalHeadingDifference.value = new_value
                 log.info(f"New Value [Vertical Heading] has been set")
             else:
@@ -95,16 +108,12 @@ class Process(mp.Process):
                 log.info("I'm the process with id: {}".format(self.id))
                 while True:
                     time.sleep(1)
-                    progState = stateLoad.load_state()
-                    currentState = stateLoad.getProgramState(progState)
-                    log.info(f"MANNTAAPPPUU DJIWAAAAQUUUU : {currentState}")
+                    log.info(f"MANNTAAPPPUU DJIWAAAAQUUUU : {program_state.get_busy_state()}")
                     time.sleep(5)
+                    program_state.set_state_to_free()
                     stateLoad.setProgramState(False)
-                    progState = stateLoad.load_state()
-                    currentState = stateLoad.getProgramState(progState)
-                    log.info(f"JADIDII GUININN REKK : {currentState}")
-                    print(program_state.set_state_to_free())
-                    print(horizontalHeadingDifference.get_value())
+                    log.info(f"JADIDII GUININN REKK : {program_state.get_busy_state()}")
+                    log.info(f"Perbedaan jadi sekian : {horizontalHeadingDifference.get_value('pixel')}")
         
 if __name__ == '__main__':
     p = Process(0,"image")
