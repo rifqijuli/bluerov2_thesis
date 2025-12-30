@@ -37,7 +37,7 @@ def main_control():
     master.wait_heartbeat()
 
     while True:
-        if runner.program_state.get_state() == True:
+        if runner.program_state.get_busy_state() == True:
 
             # arm ArduSub autopilot and wait until confirmed
             master.arducopter_arm()
@@ -47,7 +47,7 @@ def main_control():
             depth_control.set_depth_hold(master)
 
             # Set PID Constant Kp, Ki, Kd, and target
-            pid = pid_control.PIDController(1.0,0.0,0.0,0.0)
+            yaw_pid = pid_control.PIDController(1.0,0.0,0.0,0.0)
             yawErrorPixel = runner.horizontalHeadingDifference.get_value()
             timePrev = time.time()
 
@@ -64,12 +64,14 @@ def main_control():
                 # Get Target Yaw Correction
                 yawErrorDegree = pixelToDegree(yawErrorPixel, "yaw")
                 currentYaw = attitude_control.get_current_yaw(master)
-                targetYaw = pid.compute(yawErrorDegree, dt) + currentYaw
+                targetYaw = yaw_pid.compute(yawErrorDegree, dt) + currentYaw
 
                 # Correct Yaw
                 attitude_control.set_target_attitude(roll_angle, pitch_angle, targetYaw)
+
+                # Might introduce race condition.
                 runner.program_state.set_state_to_free()
-                time.sleep(1) # wait for a second
+                time.sleep(0.5) # wait for half a second. The best is if wait until the new value has been set.
                 yawErrorPixel = runner.horizontalHeadingDifference.get_value()
 
             # If Yaw already correct

@@ -56,7 +56,7 @@ class horizontalHeadingDifference:
                     degree_difference : degree_difference
                 }
     
-    def set_value(new_value):
+    def set_pixel_value(new_value):
         try:
             float(new_value)
             if program_state.get_busy_state() == False:
@@ -69,25 +69,63 @@ class horizontalHeadingDifference:
             log.info("Input must be a number.")
             return horizontalHeadingDifference.get_value("pixel")
         
-#Difference in Vertical Heading
-class verticalHeadingDifference:
-    value = 0.0
-
-    def get_value():
-        return verticalHeadingDifference.value
-    
-    def set_value(new_value):
+    def set_degree_value(new_value):
         try:
             float(new_value)
             if program_state.get_busy_state() == False:
-                verticalHeadingDifference.value = new_value
+                heading_difference_loader.set_yaw_difference(degree_difference=new_value)
+                log.info(f"New Value [Horizontal Heading] has been set")
+            else:
+                log.info("Value [Horizontal Heading] has been set already.")
+            return horizontalHeadingDifference.get_value("degree")
+        except ValueError:
+            log.info("Input must be a number.")
+            return horizontalHeadingDifference.get_value("degree")
+        
+        
+#Difference in Vertical Heading
+class verticalHeadingDifference:
+
+    def get_value(flag):
+        load_difference = heading_difference_loader.load_difference()
+        current_pitch_difference = heading_difference_loader.get_pitch_difference(load_difference)
+        pixel_difference, degree_difference = current_pitch_difference
+        match flag:
+            case "pixel":
+                return pixel_difference
+            case "degree":
+                return degree_difference
+            case "all":
+                return {
+                    pixel_difference : pixel_difference,
+                    degree_difference : degree_difference
+                }
+    
+    def set_pixel_value(new_value):
+        try:
+            float(new_value)
+            if program_state.get_busy_state() == False:
+                heading_difference_loader.set_pitch_difference(pixel_difference=new_value)
                 log.info(f"New Value [Vertical Heading] has been set")
             else:
                 log.info("Value [Vertical Heading] has been set already.")
-            return verticalHeadingDifference.value
+            return verticalHeadingDifference.get_value("pixel")
         except ValueError:
             log.info("Input must be a number.")
-            return verticalHeadingDifference.value
+            return verticalHeadingDifference.get_value("pixel")
+
+    def set_degree_value(new_value):
+        try:
+            float(new_value)
+            if program_state.get_busy_state() == False:
+                heading_difference_loader.set_pitch_difference(degree_difference=new_value)
+                log.info(f"New Value [Vertical Heading] has been set")
+            else:
+                log.info("Value [Vertical Heading] has been set already.")
+            return verticalHeadingDifference.get_value("degree")
+        except ValueError:
+            log.info("Input must be a number.")
+            return verticalHeadingDifference.get_value("degree")
 
 class Process(mp.Process):
     def __init__(self, id, flag):
@@ -107,13 +145,12 @@ class Process(mp.Process):
             case "dummy":
                 log.info("I'm the process with id: {}".format(self.id))
                 while True:
-                    time.sleep(1)
-                    log.info(f"MANNTAAPPPUU DJIWAAAAQUUUU : {program_state.get_busy_state()}")
+                    time.sleep(0.5)
+                    log.info(f"Perbedaan jadi sekian : {horizontalHeadingDifference.get_value('pixel')}")
+                    log.info(f"Harusnya Sibuk (True) : {program_state.get_busy_state()}")
                     time.sleep(5)
                     program_state.set_state_to_free()
-                    stateLoad.setProgramState(False)
-                    log.info(f"JADIDII GUININN REKK : {program_state.get_busy_state()}")
-                    log.info(f"Perbedaan jadi sekian : {horizontalHeadingDifference.get_value('pixel')}")
+                    log.info(f"Harusnya Free (False) : {program_state.get_busy_state()}")
         
 if __name__ == '__main__':
     p = Process(0,"image")

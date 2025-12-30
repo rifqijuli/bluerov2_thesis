@@ -31,11 +31,13 @@ def image_main(cameraOpt = False, modelOpt = False):
         isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
 
     class modelOpt:
-        isCOU = False # Set to True if uses CoU dataset
+        isCOU = True # Set to True if uses CoU dataset
 
     # Load the YOLO11 model
     if modelOpt.isCOU:
-        model = YOLO("object_detection_model/yolo11n_cou.pt")
+        #model = YOLO("object_detection_model/yolo11n_cou.pt")
+        #model = YOLO("object_detection_model/yolo11s_best_401.pt")
+        model = YOLO("object_detection_model/yolo11n_best_401.pt")
     else:
         model = YOLO("object_detection_model/yolo11n.pt")
 
@@ -152,7 +154,7 @@ def image_main(cameraOpt = False, modelOpt = False):
         # Add port= if is necessary to use a different one
         while not video.frame_available():
             waited += 1
-            log.info('\r  Frame not available (x{})'.format(waited), end='')
+            print('\r  Frame not available (x{})'.format(waited), end='')
             cv2.waitKey(30)
         log.info('\nSuccess!\nStarting streaming - press "q" to quit.')
     else:
@@ -194,8 +196,8 @@ def image_main(cameraOpt = False, modelOpt = False):
 
                 if abs(horizontal_diff) >= 50:
                     if is_main_state_busy == False: #Is Free
-                        runner.horizontalHeadingDifference.set_value(horizontal_diff)
-                        runner.verticalHeadingDifference.set_value(vertical_diff)
+                        runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
+                        runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
                         runner.program_state.set_state_to_busy()
                 else:
                     if is_main_state_busy == True: #Is Busy
