@@ -62,5 +62,13 @@ Go to https://docs.ultralytics.com/quickstart/ and follow the guide. In my case,
 ```bash 
 pip3 install -U ultralytics
 ```
-
+## Running the program
+Everytime you're done with the program, don't forget to deactivate your environment.
+```bash 
+deactivate
+```
+And if you want to resume or start the program, don't forget to activate your environment.
+```bash 
+source .venv/bin/activate
+```
 

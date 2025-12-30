@@ -1,6 +1,6 @@
 task: detect
 mode: train
-model: yolo11n.pt
+model: yolo11s.pt
 data: YOLO/dataset.yaml
 epochs: 100
 time: null
@@ -10,7 +10,7 @@ imgsz: 640
 save: true
 save_period: -1
 cache: false
-device: null
+device: cpu
 workers: 8
 project: null
 name: train
@@ -103,4 +103,4 @@ auto_augment: randaugment
 erasing: 0.4
 cfg: null
 tracker: botsort.yaml
-save_dir: /home/rifqijuli/Documents/bluerov2/bluerov2_thesis/runs/detect/train
+save_dir: /home/rifqi/Documents/bluerov2_thesis/runs/detect/train
