@@ -64,7 +64,9 @@ def main_control():
                 # Get Target Yaw Correction
                 yawErrorDegree = pixelToDegree(yawErrorPixel, "yaw")
                 currentYaw = attitude_control.get_current_yaw(master)
-                targetYaw = yaw_pid.compute(yawErrorDegree, dt) + currentYaw
+
+                #targetYaw must be in degree from 0 to 360
+                targetYaw = (yaw_pid.compute(yawErrorDegree, dt) + currentYaw) % 360
 
                 # Correct Yaw
                 attitude_control.set_target_attitude(roll_angle, pitch_angle, targetYaw)

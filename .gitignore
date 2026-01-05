@@ -9,6 +9,7 @@ FUnIE-GAN/
 # Common object underwater and stuff
 training/
 training_2/
+runs/
 
 # Ignore Python cache files
 _pycache_/
