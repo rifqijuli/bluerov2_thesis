@@ -13,6 +13,9 @@ from image_enhancement import funie
 import runner
 import logging
 from misc import stateLoader as stateLoad
+from misc import specLoader as spec
+
+specs = spec.load_specs()
 
 log = logging.getLogger("Main Vision")
 log.info("Main Vision started")
@@ -250,17 +253,17 @@ def image_main(cameraOpt = False, modelOpt = False):
 
                 # Third approach - only use 1 set flag
                 
-                if abs(distance) >= 50:
+                if abs(distance) >= spec.get_tolerance_pixels(specs):
                     if is_main_state_busy == False: #Is Free
                         runner.program_state.set_state_to_busy()
-                        if abs(horizontal_diff) >= 50:
+                        if abs(horizontal_diff) >= spec.get_tolerance_pixels(specs):
                             runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
                         else:
                             log.info("Set yaw difference back to default")
                             runner.horizontalHeadingDifference.set_pixel_value(0.0) # Reset to 0
                             log.info("Yaw position accepted")
                         
-                        if abs(vertical_diff) >= 50:
+                        if abs(vertical_diff) >= spec.get_tolerance_pixels(specs):
                             runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
                         else:
                             log.info("Set pitch difference back to default")

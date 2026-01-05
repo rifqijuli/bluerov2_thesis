@@ -15,7 +15,7 @@ import runner as runner
 from control import attitude_control, depth_control, pid_control
 
 def main_control():
-    specs = spec.load_specs("specification.yaml")
+    specs = spec.load_specs()
     def pixelToDegree(value,flag):
         horizontalFOV, verticalFOV = spec.get_camera_fov(specs)
         imgWidth, imgHeight = spec.get_vision_resolution(specs)
@@ -52,7 +52,7 @@ def main_control():
             # Temporary, focus on yaw
             roll_angle = pitch_angle = 0
 
-            while yawErrorPixel > abs(spec.get_tolerance_pixels(specs)[0]):
+            while yawErrorPixel > abs(spec.get_tolerance_pixels(specs)):
 
                 # Get Time
                 timeNow = time.time()
@@ -82,7 +82,7 @@ def main_control():
             heightErrorPixel = runner.verticalHeadingDifference.get_value()
             timePrev = time.time()
 
-            while heightErrorPixel > abs(spec.get_tolerance_pixels(specs)[1]):
+            while heightErrorPixel > abs(spec.get_tolerance_pixels(specs)):
 
                 # Get Time
                 timeNow = time.time()
