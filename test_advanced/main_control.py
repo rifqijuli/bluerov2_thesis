@@ -15,10 +15,8 @@ import runner as runner
 from control import attitude_control, depth_control, pid_control
 
 def main_control():
-
+    specs = spec.load_specs("specification.yaml")
     def pixelToDegree(value,flag):
-        specs = spec.load_specs("specification.yaml")
-        
         horizontalFOV, verticalFOV = spec.get_camera_fov(specs)
         imgWidth, imgHeight = spec.get_vision_resolution(specs)
 
@@ -54,7 +52,7 @@ def main_control():
             # Temporary, focus on yaw
             roll_angle = pitch_angle = 0
 
-            while abs(yawErrorPixel) >= 50:
+            while yawErrorPixel > abs(spec.get_tolerance_pixels(specs)[0]):
 
                 # Get Time
                 timeNow = time.time()
@@ -72,15 +70,44 @@ def main_control():
                 attitude_control.set_target_attitude(roll_angle, pitch_angle, targetYaw)
 
                 # Might introduce race condition.
+                # set Main state to free so that new difference value can be set
                 runner.program_state.set_state_to_free()
+ 
                 time.sleep(0.5) # wait for half a second. The best is if wait until the new value has been set.
                 yawErrorPixel = runner.horizontalHeadingDifference.get_value()
+                # End of while loop for yaw correction
+            
+            # Set PID Constant Kp, Ki, Kd, and target
+            height_pid = pid_control.PIDController(1.0,0.0,0.0,0.0)
+            heightErrorPixel = runner.verticalHeadingDifference.get_value()
+            timePrev = time.time()
+
+            while heightErrorPixel > abs(spec.get_tolerance_pixels(specs)[1]):
+
+                # Get Time
+                timeNow = time.time()
+                dt = timeNow - timePrev
+                timePrev = timeNow
+
+                # Get Target Height Correction
+                currentHeight = attitude_control.get_current_depth(master)
+                
+                targetHeight = currentHeight + height_pid.compute(heightErrorPixel, dt)
+
+                # set a depth target
+                depth_control.set_target_depth(targetHeight)  # target depth of 0.5m below the water surface
+
+                # set Main state to free so that new difference value can be set
+                runner.program_state.set_state_to_free()
+
+                time.sleep(0.5) # wait for half a second. The best is if wait until the new value has been set.
+                heightErrorPixel = runner.verticalHeadingDifference.get_value()
+                # End of while loop for height correction
 
             # If Yaw already correct
-            runner.program_state.set_state_to_free()
+            # runner.program_state.set_state_to_free()
 
-            # set a depth target
-            depth_control.set_target_depth(-0.5)  # target depth of 0.5m below the water surface
+
 
             # clean up (disarm) at the end --> if disarmed, depth hold will also released and rov will just sink
             # master.arducopter_disarm()

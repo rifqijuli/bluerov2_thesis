@@ -6,3 +6,7 @@ camera:
 vision:
   input_width: 640
   input_height: 480
+
+tolerance:
+  horizontal_pixel: 50
+  vertical_pixel: 50

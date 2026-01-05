@@ -60,6 +60,7 @@ def set_target_attitude(roll, pitch, yaw):
 
 # Create the connection
 master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
+#master = mavutil.mavlink_connection('tcp:127.0.0.1:5760')
 boot_time = time.time()
 # Wait a heartbeat before sending commands
 master.wait_heartbeat()
@@ -67,7 +68,7 @@ master.wait_heartbeat()
 # arm ArduSub autopilot and wait until confirmed
 master.arducopter_arm()
 master.motors_armed_wait()
-'''
+
 # set the desired operating mode
 DEPTH_HOLD = 'ALT_HOLD'
 DEPTH_HOLD_MODE = master.mode_mapping()[DEPTH_HOLD]
@@ -75,23 +76,42 @@ while not master.wait_heartbeat().custom_mode == DEPTH_HOLD_MODE:
     master.set_mode(DEPTH_HOLD)
 
 # set a depth target
-set_target_depth(-0.5)  # target depth of 0.5m below the water surface
+set_target_depth(-0)  # target depth of 0.5m below the water surface
 
-THE GO FOR A SPIN MUST BE DONE IN DEPTH HOLD MODE.
-CAN ONLY BE TESTED IN SIMULATED ENVIRONMENT OR REAL ENVIRONMENT WITH TETHERED ROV
-'''
+while True:  # wait until we reach target depth (0.5m):
+    msg = master.recv_match(type='VFR_HUD', blocking=True, timeout=1)
+
+    # In ArduSub: msg.alt is depth (m, positive down)
+    depth_m = msg.alt
+    print(f"Current Depth: {depth_m} meters")
+    time.sleep(0.5)
+
+print("Depth hold mode set. Target depth: 0.5m")
 # go for a spin
 # (set target yaw from 0 to 500 degrees in steps of 10, one update per second)
+'''
 roll_angle = pitch_angle = 0
 for yaw_angle in range(0, 500, 10):
     set_target_attitude(roll_angle, pitch_angle, yaw_angle)
     time.sleep(1) # wait for a second
+    print(f"Yaw angle set to: {yaw_angle} degrees")
 
 # spin the other way with 3x larger steps
 for yaw_angle in range(500, 0, -30):
     set_target_attitude(roll_angle, pitch_angle, yaw_angle)
     time.sleep(1)
+    print(f"Yaw angle set to: {yaw_angle} degrees")
+'''
+set_target_attitude(0, 0, 180)
+
+msg = master.recv_match(type='ATTITUDE', blocking=True, timeout=1)
+
+# msg.yaw is in radians, format to degree
+yaw_rad = msg.yaw
+yaw_deg = math.degrees(yaw_rad)
+print(f"Current Yaw: {yaw_deg} degrees")
+
 
 # clean up (disarm) at the end
-master.arducopter_disarm()
-master.motors_disarmed_wait()
+#master.arducopter_disarm()
+#master.motors_disarmed_wait()

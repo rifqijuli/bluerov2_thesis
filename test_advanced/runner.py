@@ -84,12 +84,19 @@ class horizontalHeadingDifference:
     
     def set_pixel_value(new_value):
         try:
+            # Approach 1
+            '''
             float(new_value)
             if program_state.get_yaw_busy_state() == False:
                 heading_difference_loader.set_yaw_difference(pixel_difference=new_value)
                 log.info(f"New Value [Horizontal Heading] has been set")
             else:
                 log.info("Value [Horizontal Heading] has been set already.")
+            '''
+            # Approach 2
+            heading_difference_loader.set_yaw_difference(pixel_difference=new_value)
+            log.info(f"New Value [Horizontal Heading] has been set")
+
             return horizontalHeadingDifference.get_value("pixel")
         except ValueError:
             log.info("Input must be a number.")
@@ -98,11 +105,18 @@ class horizontalHeadingDifference:
     def set_degree_value(new_value):
         try:
             float(new_value)
+            # Approach 1
+            '''
             if program_state.get_yaw_busy_state() == False:
                 heading_difference_loader.set_yaw_difference(degree_difference=new_value)
                 log.info(f"New Value [Horizontal Heading] has been set")
             else:
                 log.info("Value [Horizontal Heading] has been set already.")
+            '''
+            # Approach 2
+            heading_difference_loader.set_yaw_difference(degree_difference=new_value)
+            log.info(f"New Value [Horizontal Heading] has been set")
+
             return horizontalHeadingDifference.get_value("degree")
         except ValueError:
             log.info("Input must be a number.")
@@ -130,11 +144,20 @@ class verticalHeadingDifference:
     def set_pixel_value(new_value):
         try:
             float(new_value)
+
+            # Approach 1
+            '''
             if program_state.get_pitch_busy_state() == False:
                 heading_difference_loader.set_pitch_difference(pixel_difference=new_value)
                 log.info(f"New Value [Vertical Heading] has been set")
             else:
                 log.info("Value [Vertical Heading] has been set already.")
+            '''
+            
+            # Approach 2
+            heading_difference_loader.set_pitch_difference(pixel_difference=new_value)
+            log.info(f"New Value [Vertical Heading] has been set")
+
             return verticalHeadingDifference.get_value("pixel")
         except ValueError:
             log.info("Input must be a number.")
@@ -143,11 +166,19 @@ class verticalHeadingDifference:
     def set_degree_value(new_value):
         try:
             float(new_value)
+
+            # Approach 1
+            '''
             if program_state.get_pitch_busy_state() == False:
                 heading_difference_loader.set_pitch_difference(degree_difference=new_value)
                 log.info(f"New Value [Vertical Heading] has been set")
             else:
                 log.info("Value [Vertical Heading] has been set already.")
+            '''
+            # Approach 2
+            heading_difference_loader.set_pitch_difference(degree_difference=new_value)
+            log.info(f"New Value [Vertical Heading] has been set")
+
             return verticalHeadingDifference.get_value("degree")
         except ValueError:
             log.info("Input must be a number.")

@@ -28,7 +28,7 @@ def image_main(cameraOpt = False, modelOpt = False):
     """
 
     class cameraOpt:
-        isROVCamera = True  # Set to True to use ROV camera, False for local webcam    
+        isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
 
     class modelOpt:
         isCOU = False # Set to True if uses CoU dataset
@@ -202,6 +202,8 @@ def image_main(cameraOpt = False, modelOpt = False):
                 distance = np.linalg.norm(p2 - p1)
                 log.info(f"Distance to target: {distance} pixels")
 
+                # First approach - only set when main state is FREE
+                '''
                 if abs(distance) >= 50:
                     if is_main_state_busy == False: #Is Free
                         runner.program_state.set_state_to_busy()
@@ -235,11 +237,44 @@ def image_main(cameraOpt = False, modelOpt = False):
                         log.info("Set yaw difference back to default")
                         runner.horizontalHeadingDifference.set_pixel_value(0.0) # Reset to 0
                         runner.program_state.set_yaw_state_to_free()
-                                                
+
                         runner.program_state.set_state_to_free()
-                    log.info("Position accepted")
+                    log.info("All Position accepted")
+                '''
 
+                # Second approach - always set
+                '''
+                runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
+                runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
+                '''
 
+                # Third approach - only use 1 set flag
+                
+                if abs(distance) >= 50:
+                    if is_main_state_busy == False: #Is Free
+                        runner.program_state.set_state_to_busy()
+                        if abs(horizontal_diff) >= 50:
+                            runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
+                        else:
+                            log.info("Set yaw difference back to default")
+                            runner.horizontalHeadingDifference.set_pixel_value(0.0) # Reset to 0
+                            log.info("Yaw position accepted")
+                        
+                        if abs(vertical_diff) >= 50:
+                            runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
+                        else:
+                            log.info("Set pitch difference back to default")
+                            runner.verticalHeadingDifference.set_pixel_value(0.0) # Reset to 0
+                            log.info("Pitch position accepted")
+                else:
+                    log.info("Set pitch difference back to default")
+                    runner.verticalHeadingDifference.set_pixel_value(0.0) # Reset to 0
+
+                    log.info("Set yaw difference back to default")
+                    runner.horizontalHeadingDifference.set_pixel_value(0.0) # Reset to 0
+
+                    runner.program_state.set_state_to_free()
+                    log.info("All Position accepted")
 
             if system_state.roi_selected:
                 rect_img = frame[int(roi_obj.y):int(roi_obj.y+roi_obj.height), int(roi_obj.x):int(roi_obj.x+roi_obj.width)]
