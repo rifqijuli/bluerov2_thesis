@@ -38,8 +38,8 @@ def draw_tracker(model_result, track_history, main_frame=None, roi_object=None, 
         boxes = model_result.boxes.xywh.cpu()
         track_ids = model_result.boxes.id.int().cpu().tolist()
         classes = model_result.boxes.cls.int().cpu().tolist()
-        print(f"Isinya adalah: {model_result.boxes}")
-        print(f"sekian dan terima kasih")
+        #print(f"Isinya adalah: {model_result.boxes}")
+        #print(f"sekian dan terima kasih")
 
         # Visualize the result on the frame
         frame = model_result[0].plot()

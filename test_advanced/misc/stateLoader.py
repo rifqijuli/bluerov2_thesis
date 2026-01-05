@@ -17,9 +17,13 @@ def load_state(path: str | Path = DEFAULT_PATH):
 
     return data
 
-def getProgramState(state):
-    currState = state["state"]
-    return currState["isBusy"]
+def getProgramState(state: dict | None):
+    # Safe default if file is empty or missing keys
+    if not state or "state" not in state:
+        return False
+
+    curr_state = state["state"]
+    return bool(curr_state.get("isBusy", False))
 
 def setProgramState(is_busy: bool, path: str | Path = DEFAULT_PATH):
     path = Path(path)
@@ -33,6 +37,54 @@ def setProgramState(is_busy: bool, path: str | Path = DEFAULT_PATH):
     if "state" not in data:
         data["state"] = {}
     data["state"]["isBusy"] = bool(is_busy)
+
+    with path.open("w") as f:
+        yaml.safe_dump(data, f)
+
+def get_pitch_state(state: dict | None):
+    # Safe default if file is empty or missing keys
+    if not state or "state" not in state:
+        return False
+
+    curr_state = state["state"]
+    return bool(curr_state.get("isPitchStateBusy", False))
+
+def get_yaw_state(state: dict | None):
+    # Safe default if file is empty or missing keys
+    if not state or "state" not in state:
+        return False
+
+    curr_state = state["state"]
+    return bool(curr_state.get("isYawStateBusy", False))
+
+def set_yaw_state(is_busy: bool, path: str | Path = DEFAULT_PATH):
+    path = Path(path)
+
+    if path.exists():
+        with path.open("r") as f:
+            data = yaml.safe_load(f) or {}
+    else:
+        data = {}
+
+    if "state" not in data:
+        data["state"] = {}
+    data["state"]["isYawStateBusy"] = bool(is_busy)
+
+    with path.open("w") as f:
+        yaml.safe_dump(data, f)
+
+def set_pitch_state(is_busy: bool, path: str | Path = DEFAULT_PATH):
+    path = Path(path)
+
+    if path.exists():
+        with path.open("r") as f:
+            data = yaml.safe_load(f) or {}
+    else:
+        data = {}
+
+    if "state" not in data:
+        data["state"] = {}
+    data["state"]["isPitchStateBusy"] = bool(is_busy)
 
     with path.open("w") as f:
         yaml.safe_dump(data, f)

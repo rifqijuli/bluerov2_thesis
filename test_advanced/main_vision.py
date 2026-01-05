@@ -28,10 +28,10 @@ def image_main(cameraOpt = False, modelOpt = False):
     """
 
     class cameraOpt:
-        isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
+        isROVCamera = True  # Set to True to use ROV camera, False for local webcam    
 
     class modelOpt:
-        isCOU = True # Set to True if uses CoU dataset
+        isCOU = False # Set to True if uses CoU dataset
 
     # Load the YOLO11 model
     if modelOpt.isCOU:
@@ -168,6 +168,8 @@ def image_main(cameraOpt = False, modelOpt = False):
 
     while True:
         is_main_state_busy = runner.program_state.get_busy_state()
+        is_yaw_state_busy = runner.program_state.get_yaw_busy_state()
+        is_pitch_state_busy = runner.program_state.get_pitch_busy_state()
         if cameraOpt.isROVCamera:
             if video.frame_available():
                 # Only retrieve and display a frame if it's new
@@ -194,15 +196,50 @@ def image_main(cameraOpt = False, modelOpt = False):
                 horizontal_diff = track_objects[0]['detected_object']['x_diff']
                 vertical_diff = track_objects[0]['detected_object']['y_diff']
 
-                if abs(horizontal_diff) >= 50:
+                p1 = np.array((0, 0))
+                p2 = np.array((horizontal_diff, vertical_diff))
+
+                distance = np.linalg.norm(p2 - p1)
+                log.info(f"Distance to target: {distance} pixels")
+
+                if abs(distance) >= 50:
                     if is_main_state_busy == False: #Is Free
-                        runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
-                        runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
                         runner.program_state.set_state_to_busy()
+                        if abs(horizontal_diff) >= 50:
+                            if is_yaw_state_busy == False: #Is Free
+                                runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
+                                runner.program_state.set_yaw_state_to_busy()
+                        else:
+                            if is_yaw_state_busy == True: #Is Busy
+                                log.info("Set yaw difference back to default")
+                                runner.horizontalHeadingDifference.set_pixel_value(0.0) # Reset to 0
+                                runner.program_state.set_yaw_state_to_free()
+                            log.info("Yaw position accepted")
+                        
+                        if abs(vertical_diff) >= 50:
+                            if is_pitch_state_busy == False: #Is Free
+                                runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
+                                runner.program_state.set_pitch_state_to_busy()
+                        else:
+                            if is_pitch_state_busy == True: #Is Busy
+                                log.info("Set pitch difference back to default")
+                                runner.verticalHeadingDifference.set_pixel_value(0.0) # Reset to 0
+                                runner.program_state.set_pitch_state_to_free()
+                            log.info("Pitch position accepted")
                 else:
                     if is_main_state_busy == True: #Is Busy
+                        log.info("Set pitch difference back to default")
+                        runner.verticalHeadingDifference.set_pixel_value(0.0) # Reset to 0
+                        runner.program_state.set_pitch_state_to_free()
+
+                        log.info("Set yaw difference back to default")
+                        runner.horizontalHeadingDifference.set_pixel_value(0.0) # Reset to 0
+                        runner.program_state.set_yaw_state_to_free()
+                                                
                         runner.program_state.set_state_to_free()
-                    log.info("Yaw position accepted")
+                    log.info("Position accepted")
+
+
 
             if system_state.roi_selected:
                 rect_img = frame[int(roi_obj.y):int(roi_obj.y+roi_obj.height), int(roi_obj.x):int(roi_obj.x+roi_obj.width)]

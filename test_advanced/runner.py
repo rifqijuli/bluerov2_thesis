@@ -26,6 +26,32 @@ class program_state():
     def set_state_to_free():
         stateLoad.setProgramState(False)
         return program_state.get_busy_state()
+    
+    def get_yaw_busy_state():
+        progState = stateLoad.load_state()
+        currentState = stateLoad.get_yaw_state(progState)
+        return currentState
+    
+    def get_pitch_busy_state():
+        progState = stateLoad.load_state()
+        currentState = stateLoad.get_pitch_state(progState)
+        return currentState
+    
+    def set_yaw_state_to_busy():
+        stateLoad.set_yaw_state(True)
+        return program_state.get_yaw_busy_state()
+    
+    def set_yaw_state_to_free():
+        stateLoad.set_yaw_state(False)
+        return program_state.get_yaw_busy_state()
+    
+    def set_pitch_state_to_busy():
+        stateLoad.set_pitch_state(True)
+        return program_state.get_pitch_busy_state()
+    
+    def set_pitch_state_to_free():
+        stateLoad.set_pitch_state(False)
+        return program_state.get_pitch_busy_state()
 
 #Target object State
 class isObjectSelected:
@@ -59,7 +85,7 @@ class horizontalHeadingDifference:
     def set_pixel_value(new_value):
         try:
             float(new_value)
-            if program_state.get_busy_state() == False:
+            if program_state.get_yaw_busy_state() == False:
                 heading_difference_loader.set_yaw_difference(pixel_difference=new_value)
                 log.info(f"New Value [Horizontal Heading] has been set")
             else:
@@ -72,7 +98,7 @@ class horizontalHeadingDifference:
     def set_degree_value(new_value):
         try:
             float(new_value)
-            if program_state.get_busy_state() == False:
+            if program_state.get_yaw_busy_state() == False:
                 heading_difference_loader.set_yaw_difference(degree_difference=new_value)
                 log.info(f"New Value [Horizontal Heading] has been set")
             else:
@@ -104,7 +130,7 @@ class verticalHeadingDifference:
     def set_pixel_value(new_value):
         try:
             float(new_value)
-            if program_state.get_busy_state() == False:
+            if program_state.get_pitch_busy_state() == False:
                 heading_difference_loader.set_pitch_difference(pixel_difference=new_value)
                 log.info(f"New Value [Vertical Heading] has been set")
             else:
@@ -117,7 +143,7 @@ class verticalHeadingDifference:
     def set_degree_value(new_value):
         try:
             float(new_value)
-            if program_state.get_busy_state() == False:
+            if program_state.get_pitch_busy_state() == False:
                 heading_difference_loader.set_pitch_difference(degree_difference=new_value)
                 log.info(f"New Value [Vertical Heading] has been set")
             else:
@@ -150,6 +176,8 @@ class Process(mp.Process):
                     log.info(f"Harusnya Sibuk (True) : {program_state.get_busy_state()}")
                     time.sleep(5)
                     program_state.set_state_to_free()
+                    program_state.set_yaw_state_to_free()
+                    program_state.set_pitch_state_to_free()
                     log.info(f"Harusnya Free (False) : {program_state.get_busy_state()}")
         
 if __name__ == '__main__':
