@@ -34,7 +34,7 @@ def image_main(cameraOpt = False, modelOpt = False):
         isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
 
     class modelOpt:
-        isCOU = False # Set to True if uses CoU dataset
+        isCOU = True # Set to True if uses CoU dataset
 
     # Load the YOLO11 model
     if modelOpt.isCOU:
@@ -259,22 +259,20 @@ def image_main(cameraOpt = False, modelOpt = False):
                         if abs(horizontal_diff) >= spec.get_tolerance_pixels(specs):
                             runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
                         else:
-                            log.info("Set yaw difference back to default")
-                            runner.horizontalHeadingDifference.set_pixel_value(0.0) # Reset to 0
+                            runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
                             log.info("Yaw position accepted")
                         
                         if abs(vertical_diff) >= spec.get_tolerance_pixels(specs):
                             runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
                         else:
-                            log.info("Set pitch difference back to default")
-                            runner.verticalHeadingDifference.set_pixel_value(0.0) # Reset to 0
+                            runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
                             log.info("Pitch position accepted")
                 else:
-                    log.info("Set pitch difference back to default")
-                    runner.verticalHeadingDifference.set_pixel_value(0.0) # Reset to 0
+                    #log.info("Set pitch difference back to default")
+                    #runner.verticalHeadingDifference.set_pixel_value(0.0) # Reset to 0
 
-                    log.info("Set yaw difference back to default")
-                    runner.horizontalHeadingDifference.set_pixel_value(0.0) # Reset to 0
+                    #log.info("Set yaw difference back to default")
+                    #runner.horizontalHeadingDifference.set_pixel_value(0.0) # Reset to 0
 
                     runner.program_state.set_state_to_free()
                     log.info("All Position accepted")
@@ -338,6 +336,7 @@ def image_main(cameraOpt = False, modelOpt = False):
             # Allow frame to display, and check if user wants to quit
             key = cv2.waitKey(50)
             if key == ord('q'):
+                runner.program_state.set_state_to_free()
                 break
             elif key == ord('s'):
                 #Send back state to runner

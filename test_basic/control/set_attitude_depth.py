@@ -78,6 +78,7 @@ while not master.wait_heartbeat().custom_mode == DEPTH_HOLD_MODE:
 # set a depth target
 set_target_depth(-0)  # target depth of 0.5m below the water surface
 
+'''
 while True:  # wait until we reach target depth (0.5m):
     msg = master.recv_match(type='VFR_HUD', blocking=True, timeout=1)
 
@@ -85,6 +86,8 @@ while True:  # wait until we reach target depth (0.5m):
     depth_m = msg.alt
     print(f"Current Depth: {depth_m} meters")
     time.sleep(0.5)
+'''
+
 
 print("Depth hold mode set. Target depth: 0.5m")
 # go for a spin

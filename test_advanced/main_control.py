@@ -10,6 +10,10 @@ from pymavlink import mavutil
 from pymavlink.quaternion import QuaternionBase
 from misc import specLoader as spec
 from misc import stateLoader as stateLoad
+import logging
+
+log = logging.getLogger("Main Control")
+log.info("Main Control started")
 
 import runner as runner
 from control import attitude_control, depth_control, pid_control
@@ -36,6 +40,7 @@ def main_control():
 
     while True:
         if runner.program_state.get_busy_state() == True:
+            log.info("Control State: BUSY")
 
             # arm ArduSub autopilot and wait until confirmed
             master.arducopter_arm()
@@ -46,14 +51,15 @@ def main_control():
 
             # Set PID Constant Kp, Ki, Kd, and target
             yaw_pid = pid_control.PIDController(1.0,0.0,0.0,0.0)
-            yawErrorPixel = runner.horizontalHeadingDifference.get_value()
+            yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
             timePrev = time.time()
 
             # Temporary, focus on yaw
             roll_angle = pitch_angle = 0
 
-            while yawErrorPixel > abs(spec.get_tolerance_pixels(specs)):
-
+            while abs(yawErrorPixel) > abs(spec.get_tolerance_pixels(specs)):
+                log.info("Yaw Error Pixel: {}".format(yawErrorPixel))
+                
                 # Get Time
                 timeNow = time.time()
                 dt = timeNow - timePrev
@@ -64,25 +70,27 @@ def main_control():
                 currentYaw = attitude_control.get_current_yaw(master)
 
                 #targetYaw must be in degree from 0 to 360
-                targetYaw = (yaw_pid.compute(yawErrorDegree, dt) + currentYaw) % 360
+                targetYaw = ((-1 * yaw_pid.compute(yawErrorDegree, dt)) + currentYaw) % 360
 
                 # Correct Yaw
-                attitude_control.set_target_attitude(roll_angle, pitch_angle, targetYaw)
+                attitude_control.set_target_attitude(roll_angle, pitch_angle, targetYaw, master, boot_time)
 
                 # Might introduce race condition.
                 # set Main state to free so that new difference value can be set
                 runner.program_state.set_state_to_free()
- 
+
                 time.sleep(0.5) # wait for half a second. The best is if wait until the new value has been set.
-                yawErrorPixel = runner.horizontalHeadingDifference.get_value()
+                yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
                 # End of while loop for yaw correction
             
+            runner.program_state.set_state_to_free()
             # Set PID Constant Kp, Ki, Kd, and target
+            '''
             height_pid = pid_control.PIDController(1.0,0.0,0.0,0.0)
-            heightErrorPixel = runner.verticalHeadingDifference.get_value()
+            heightErrorPixel = runner.verticalHeadingDifference.get_value("pixel")
             timePrev = time.time()
-
-            while heightErrorPixel > abs(spec.get_tolerance_pixels(specs)):
+            
+            while abs(heightErrorPixel) > abs(spec.get_tolerance_pixels(specs)):
 
                 # Get Time
                 timeNow = time.time()
@@ -103,7 +111,7 @@ def main_control():
                 time.sleep(0.5) # wait for half a second. The best is if wait until the new value has been set.
                 heightErrorPixel = runner.verticalHeadingDifference.get_value()
                 # End of while loop for height correction
-
+            '''
             # If Yaw already correct
             # runner.program_state.set_state_to_free()
 

@@ -198,7 +198,7 @@ class Process(mp.Process):
                 vision.image_main()
             case "control":
                 log.info("I'm the process with id: {}".format(self.id))
-                #control.main_control()
+                control.main_control()
             case "dummy":
                 log.info("I'm the process with id: {}".format(self.id))
                 while True:
@@ -216,5 +216,5 @@ if __name__ == '__main__':
     p.start()
     p = Process(1,"control")
     p.start()
-    p = Process(2,"dummy")
-    p.start()
+    #p = Process(2,"dummy")
+    #p.start()
