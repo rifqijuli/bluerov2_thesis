@@ -54,11 +54,15 @@ def main_control():
             yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
             timePrev = time.time()
 
+            pitch_pid = pid_control.PIDController(1.0,0.0,0.0,0.0)
+            pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
+
             # Temporary, focus on yaw
             roll_angle = pitch_angle = 0
 
             while abs(yawErrorPixel) > abs(spec.get_tolerance_pixels(specs)):
                 log.info("Yaw Error Pixel: {}".format(yawErrorPixel))
+                log.info("Pitch Error Pixel: {}".format(pitch_error_pixel))
                 
                 # Get Time
                 timeNow = time.time()
@@ -69,11 +73,18 @@ def main_control():
                 yawErrorDegree = pixelToDegree(yawErrorPixel, "yaw")
                 currentYaw = attitude_control.get_current_yaw(master)
 
+                # Get Target Pitch Correction
+                pitch_error_degree = pixelToDegree(pitch_error_pixel, "pitch")
+                current_pitch = attitude_control.get_current_pitch(master)
+
                 #targetYaw must be in degree from 0 to 360
                 targetYaw = ((-1 * yaw_pid.compute(yawErrorDegree, dt)) + currentYaw) % 360
 
+                #targetPitch must be in degree from -90 to 90
+                targetPitch = (pitch_pid.compute(pitch_error_degree, dt) + current_pitch) % 360
+
                 # Correct Yaw
-                attitude_control.set_target_attitude(roll_angle, pitch_angle, targetYaw, master, boot_time)
+                attitude_control.set_target_attitude(roll_angle, targetPitch, targetYaw, master, boot_time)
 
                 # Might introduce race condition.
                 # set Main state to free so that new difference value can be set
@@ -81,6 +92,7 @@ def main_control():
 
                 time.sleep(0.5) # wait for half a second. The best is if wait until the new value has been set.
                 yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
+                pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
                 # End of while loop for yaw correction
 
                 # If somehow the state already free, break the loop and wait for the next busy state

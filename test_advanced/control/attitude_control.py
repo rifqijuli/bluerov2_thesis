@@ -35,6 +35,16 @@ def get_current_yaw(master):
     yaw_deg = math.degrees(yaw_rad)
     return yaw_deg
 
+def get_current_pitch(master):
+    msg = master.recv_match(type='ATTITUDE', blocking=True, timeout=1)
+    if not msg:
+        return None
+    
+    # msg.pitch is in radians, format to degree
+    pitch_rad = msg.pitch
+    pitch_deg = math.degrees(pitch_rad)
+    return pitch_deg
+
 def get_current_depth(master):
     # Blocks up to 1 s waiting for latest HUD data
     msg = master.recv_match(type='VFR_HUD', blocking=True, timeout=1)
