@@ -40,7 +40,8 @@ def image_main(cameraOpt = False, modelOpt = False):
     if modelOpt.isCOU:
         #model = YOLO("object_detection_model/yolo11n_cou.pt")
         #model = YOLO("object_detection_model/yolo11s_best_401.pt")
-        model = YOLO("object_detection_model/yolo11n_best_401.pt")
+        #model = YOLO("object_detection_model/yolo11n_best_401.pt")
+        model = YOLO("object_detection_model/yolo26n_cou.pt")
     else:
         model = YOLO("object_detection_model/yolo11n.pt")
 
@@ -190,7 +191,7 @@ def image_main(cameraOpt = False, modelOpt = False):
             if target_object.target_status is True:
                 # When Object is Selected
                 # if (runner.program_state.get_state() == 'FREE'): <-- If you want to set only when FREE
-                results = model.track(frame, persist=True,conf=0.6, iou=0.3, classes=target_object.target_class)
+                results = model.track(frame, persist=True,conf=0.5, iou=0.7, classes=target_object.target_class)
                 annotated_frame = results[0].plot()
                 track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_object.target_id)
                 frame = track_objects[0]['frame']

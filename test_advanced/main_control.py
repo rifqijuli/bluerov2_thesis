@@ -82,7 +82,12 @@ def main_control():
                 time.sleep(0.5) # wait for half a second. The best is if wait until the new value has been set.
                 yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
                 # End of while loop for yaw correction
-            
+
+                # If somehow the state already free, break the loop and wait for the next busy state
+                if runner.program_state.get_busy_state() == False:
+                    log.info("Control State: FREE")
+                    break
+
             runner.program_state.set_state_to_free()
             # Set PID Constant Kp, Ki, Kd, and target
             '''
