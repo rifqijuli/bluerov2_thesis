@@ -16,9 +16,9 @@ start_time = time.time()
 while time.time() - start_time < 10:
     master.mav.manual_control_send(
         master.target_system,
-        1000,  # Forward MAX
+        500,  # Forward MAX
         0,     # No strafe
-        500,   # Neutral vertical
+        0,   # Neutral vertical
         0,     # No yaw
         0      # No buttons
     )

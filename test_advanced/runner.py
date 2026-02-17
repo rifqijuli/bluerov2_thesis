@@ -1,5 +1,6 @@
 import main_vision as vision
 import main_control as control
+import main_state as state
 import multiprocessing as mp
 import time
 import logging
@@ -27,19 +28,17 @@ class Process(mp.Process):
             case "control":
                 log.info("I'm the process with id: {}".format(self.id))
                 control.main_control()
-            '''
             case "dummy":
                 log.info("I'm the process with id: {}".format(self.id))
                 while True:
                     time.sleep(0.5)
-                    log.info(f"Perbedaan jadi sekian : {horizontalHeadingDifference.get_value('pixel')}")
-                    log.info(f"Harusnya Sibuk (True) : {program_state.get_busy_state()}")
+                    log.info(f"Perbedaan jadi sekian : {state.horizontalHeadingDifference.get_value('pixel')}")
+                    log.info(f"Harusnya Sibuk (True) : {state.program_state.get_busy_state()}")
                     time.sleep(5)
-                    program_state.set_state_to_free()
-                    program_state.set_yaw_state_to_free()
-                    program_state.set_pitch_state_to_free()
-                    log.info(f"Harusnya Free (False) : {program_state.get_busy_state()}")
-            '''
+                    state.program_state.set_state_to_free()
+                    state.program_state.set_yaw_state_to_free()
+                    state.program_state.set_pitch_state_to_free()
+                    log.info(f"Harusnya Free (False) : {state.program_state.get_busy_state()}")
         
 if __name__ == '__main__':
     p = Process(0,"image")

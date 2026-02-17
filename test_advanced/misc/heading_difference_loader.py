@@ -12,10 +12,18 @@ def load_difference(path: str | Path = DEFAULT_PATH):
     return data
 
 def get_yaw_difference(file):
+    if file is None or "yaw" not in file or file["yaw"] is None:
+        print("get_yaw_difference: invalid data, returning defaults")
+        return 0.0, 0.0  # pixel_diff, degree_diff defaults
+    
     difference = file["yaw"]
     return difference["pixel_difference"], difference["degree_difference"]
 
 def get_pitch_difference(file):
+    if file is None or "pitch" not in file or file["pitch"] is None:
+        print("get_pitch_difference: invalid data, returning defaults")
+        return 0.0, 0.0  # pixel_diff, degree_diff defaults
+    
     difference = file["pitch"]
     return difference["pixel_difference"], difference["degree_difference"]
 

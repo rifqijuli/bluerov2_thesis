@@ -191,7 +191,7 @@ def image_main(cameraOpt = False, modelOpt = False):
             if target_object.target_status is True:
                 # When Object is Selected
                 # if (runner.program_state.get_state() == 'FREE'): <-- If you want to set only when FREE
-                results = model.track(frame, persist=True,conf=0.5, iou=0.7, classes=target_object.target_class)
+                results = model.track(frame, persist=True,conf=0.8, iou=0.7, classes=target_object.target_class)
                 annotated_frame = results[0].plot()
                 track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_object.target_id)
                 frame = track_objects[0]['frame']
@@ -270,6 +270,8 @@ def image_main(cameraOpt = False, modelOpt = False):
                             log.info("Pitch position accepted")
                 else: # SET HERE TO READY FOR DISTANCE MEASUREMENT
                     log.info("All Position accepted")
+                    runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
+                    runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
 
                     # Only set to free when target is already near. Never set to free when still far, because attitude will always need correction and maintained.
                     # runner.program_state.set_state_to_free()
@@ -297,7 +299,7 @@ def image_main(cameraOpt = False, modelOpt = False):
                 
                 # Change out_bgr to frame if want to track with normal video feed
                 try:
-                    results = model.track(rect_img, persist=True,conf=0.6, iou=0.3)
+                    results = model.track(rect_img, persist=True,conf=0.8, iou=0.7)
                     #results_2 = model.track(out_bgr, persist=True,conf=0.6, iou=0.3)
                     #results = model.track(source="https://youtu.be/LNwODJXcvt4", conf=0.3, iou=0.5, show=True)
                     annotated_frame = results[0].plot()
