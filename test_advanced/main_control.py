@@ -15,7 +15,7 @@ import logging
 log = logging.getLogger("Main Control")
 log.info("Main Control started")
 
-import runner as runner
+import main_state as runner
 from control import attitude_control, depth_control, pid_control
 
 def main_control():
@@ -60,47 +60,43 @@ def main_control():
             # Temporary, focus on yaw
             roll_angle = pitch_angle = 0
 
-            while abs(yawErrorPixel) > abs(spec.get_tolerance_pixels(specs)):
-                log.info("Yaw Error Pixel: {}".format(yawErrorPixel))
-                log.info("Pitch Error Pixel: {}".format(pitch_error_pixel))
-                
-                # Get Time
-                timeNow = time.time()
-                dt = timeNow - timePrev
-                timePrev = timeNow
+            #while abs(yawErrorPixel) > abs(spec.get_tolerance_pixels(specs)) or abs(pitch_error_pixel) > abs(spec.get_tolerance_pixels(specs)):
+            log.info("Yaw Error Pixel: {}".format(yawErrorPixel))
+            log.info("Pitch Error Pixel: {}".format(pitch_error_pixel))
+            
+            # Get Time
+            timeNow = time.time()
+            dt = timeNow - timePrev
+            timePrev = timeNow
 
-                # Get Target Yaw Correction
-                yawErrorDegree = pixelToDegree(yawErrorPixel, "yaw")
-                currentYaw = attitude_control.get_current_yaw(master)
+            # Get Target Yaw Correction
+            yawErrorDegree = pixelToDegree(yawErrorPixel, "yaw")
+            currentYaw = attitude_control.get_current_yaw(master)
 
-                # Get Target Pitch Correction
-                pitch_error_degree = pixelToDegree(pitch_error_pixel, "pitch")
-                current_pitch = attitude_control.get_current_pitch(master)
+            # Get Target Pitch Correction
+            pitch_error_degree = pixelToDegree(pitch_error_pixel, "pitch")
+            current_pitch = attitude_control.get_current_pitch(master)
 
-                #targetYaw must be in degree from 0 to 360
-                targetYaw = ((-1 * yaw_pid.compute(yawErrorDegree, dt)) + currentYaw) % 360
+            #targetYaw must be in degree from 0 to 360
+            targetYaw = ((-1 * yaw_pid.compute(yawErrorDegree, dt)) + currentYaw) % 360
 
-                #targetPitch must be in degree from -90 to 90
-                targetPitch = (pitch_pid.compute(pitch_error_degree, dt) + current_pitch) % 360
+            #targetPitch must be in degree from -90 to 90
+            targetPitch = (pitch_pid.compute(pitch_error_degree, dt) + current_pitch) % 360
 
-                # Correct Yaw
-                attitude_control.set_target_attitude(roll_angle, targetPitch, targetYaw, master, boot_time)
+            # Correct Yaw
+            attitude_control.set_target_attitude(roll_angle, targetPitch, targetYaw, master, boot_time)
 
-                # Might introduce race condition.
-                # set Main state to free so that new difference value can be set
-                runner.program_state.set_state_to_free()
-
-                time.sleep(0.5) # wait for half a second. The best is if wait until the new value has been set.
-                yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
-                pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
-                # End of while loop for yaw correction
-
-                # If somehow the state already free, break the loop and wait for the next busy state
-                if runner.program_state.get_busy_state() == False:
-                    log.info("Control State: FREE")
-                    break
-
+            # Might introduce race condition.
+            # set Main state to free so that new difference value can be set
             runner.program_state.set_state_to_free()
+
+            time.sleep(0.5) # wait for half a second. The best is if wait until the new value has been set.
+            yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
+            pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
+
+            # set depth hold
+            # runner.program_state.set_state_to_free()
+
             # Set PID Constant Kp, Ki, Kd, and target
             '''
             height_pid = pid_control.PIDController(1.0,0.0,0.0,0.0)
@@ -137,3 +133,5 @@ def main_control():
             # clean up (disarm) at the end --> if disarmed, depth hold will also released and rov will just sink
             # master.arducopter_disarm()
             # master.motors_disarmed_wait()
+
+        depth_control.set_depth_hold(master)
