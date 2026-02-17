@@ -268,13 +268,7 @@ def image_main(cameraOpt = False, modelOpt = False):
                         else:
                             runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
                             log.info("Pitch position accepted")
-                else:
-                    #log.info("Set pitch difference back to default")
-                    #runner.verticalHeadingDifference.set_pixel_value(0.0) # Reset to 0
-
-                    #log.info("Set yaw difference back to default")
-                    #runner.horizontalHeadingDifference.set_pixel_value(0.0) # Reset to 0
-
+                else: # SET HERE TO READY FOR DISTANCE MEASUREMENT
                     log.info("All Position accepted")
 
                     # Only set to free when target is already near. Never set to free when still far, because attitude will always need correction and maintained.

@@ -11,6 +11,7 @@ log = logging.getLogger("Main State")
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
 log.info("Main State started")
+
 class program_state():
 
     def get_busy_state():

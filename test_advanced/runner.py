@@ -27,6 +27,7 @@ class Process(mp.Process):
             case "control":
                 log.info("I'm the process with id: {}".format(self.id))
                 control.main_control()
+            '''
             case "dummy":
                 log.info("I'm the process with id: {}".format(self.id))
                 while True:
@@ -38,6 +39,7 @@ class Process(mp.Process):
                     program_state.set_yaw_state_to_free()
                     program_state.set_pitch_state_to_free()
                     log.info(f"Harusnya Free (False) : {program_state.get_busy_state()}")
+            '''
         
 if __name__ == '__main__':
     p = Process(0,"image")
