@@ -32,12 +32,13 @@ class detected_object_all:
         self.width = width
         self.height = height
     
-def draw_tracker(model_result, track_history, main_frame=None, roi_object=None, target_id=None):
+def draw_tracker(model_result, track_history, main_frame=None, roi_object=None, target_id=None, tracks_file=None, frame_id=0):
     # Get the boxes and track IDs
     if model_result.boxes and model_result.boxes.is_track:
         boxes = model_result.boxes.xywh.cpu()
         track_ids = model_result.boxes.id.int().cpu().tolist()
         classes = model_result.boxes.cls.int().cpu().tolist()
+        confs = model_result.boxes.conf.cpu().numpy()
         #print(f"Isinya adalah: {model_result.boxes}")
         #print(f"sekian dan terima kasih")
 
@@ -45,7 +46,7 @@ def draw_tracker(model_result, track_history, main_frame=None, roi_object=None, 
         frame = model_result[0].plot()
         obj_return = []
         # Plot the tracks. For is to detect more than 1 object
-        for box, track_id, obj_class in zip(boxes, track_ids, classes):
+        for box, track_id, obj_class, conf in zip(boxes, track_ids, classes, confs):
             x, y, w, h = box
             if main_frame is not None:
                 detected_object = tracker_to_center(x, y, w, h, main_frame, roi_object, track_id, obj_class)
@@ -60,6 +61,9 @@ def draw_tracker(model_result, track_history, main_frame=None, roi_object=None, 
             
             points = np.hstack(track).astype(np.int32).reshape((-1, 1, 2))
             cv2.polylines(frame, [points], isClosed=False, color=(230, 230, 230), thickness=10)
+            if tracks_file is not None:
+                tracks_file.write(f'{frame_id},{int(track_id)},{x:.2f},{y:.2f},{w:.2f},{h:.2f},{conf:.2f},-1,-1,-1,-1,-1,-1,-1\n')
+                tracks_file.flush()  # ADD: force write immediately
             #cv2.imshow(f"check_{track_id}", frame)
             obj_return.append({
                 'frame': frame,

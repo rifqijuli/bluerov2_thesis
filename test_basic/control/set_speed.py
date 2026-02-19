@@ -18,7 +18,7 @@ while time.time() - start_time < 10:
         master.target_system,
         500,  # Forward MAX
         0,     # No strafe
-        0,   # Neutral vertical
+        300,   # Neutral vertical
         0,     # No yaw
         0      # No buttons
     )

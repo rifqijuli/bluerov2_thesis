@@ -10,3 +10,10 @@ def set_thruster_control(master, forward, strafe, vertical, yaw):
         yaw,      # Yaw (-1000-1000, 0 is neutral)
         0         # No buttons
     )
+
+def set_manual(master):
+    # set the desired operating mode
+    MANUAL = 'MANUAL'
+    MANUAL_MODE = master.mode_mapping()[MANUAL]
+    while not master.wait_heartbeat().custom_mode == MANUAL_MODE:
+        master.set_mode(MANUAL)

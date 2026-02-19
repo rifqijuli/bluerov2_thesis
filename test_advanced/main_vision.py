@@ -16,6 +16,7 @@ from misc import stateLoader as stateLoad
 from misc import specLoader as spec
 
 specs = spec.load_specs()
+tracks_file = open('live_pool_tracks.txt', 'w')  # MOT format
 
 log = logging.getLogger("Main Vision")
 log.info("Main Vision started")
@@ -29,6 +30,7 @@ def image_main(cameraOpt = False, modelOpt = False):
     """
     BlueRov video capture class
     """
+    frame_id = 0
 
     class cameraOpt:
         isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
@@ -193,7 +195,7 @@ def image_main(cameraOpt = False, modelOpt = False):
                 # if (runner.program_state.get_state() == 'FREE'): <-- If you want to set only when FREE
                 results = model.track(frame, persist=True,conf=0.8, iou=0.7, classes=target_object.target_class)
                 annotated_frame = results[0].plot()
-                track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_object.target_id)
+                track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_object.target_id, tracks_file=tracks_file, frame_id=frame_id)
                 frame = track_objects[0]['frame']
 
                 # Set Heading Difference to runner
@@ -322,6 +324,9 @@ def image_main(cameraOpt = False, modelOpt = False):
         except:
             pass
         finally:
+            # Tracker
+            if target_object.target_status is True:
+                frame_id += 1
             # Show both
             cv2.namedWindow('Original')
             cv2.circle(frame, center=(int(targetFrame.center()[0]), int(targetFrame.center()[1])), radius=5, color=(0, 255, 255), thickness=-1)

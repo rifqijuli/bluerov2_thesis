@@ -15,10 +15,13 @@ import logging
 log = logging.getLogger("Main Control")
 log.info("Main Control started")
 
+
 import main_state as runner
 from control import attitude_control, depth_control, pid_control, thruster_control
 
 def main_control():
+    is_forward = False
+
     specs = spec.load_specs()
     def pixelToDegree(value,flag):
         horizontalFOV, verticalFOV = spec.get_camera_fov(specs)
@@ -89,17 +92,24 @@ def main_control():
             # Might introduce race condition.
             # set Main state to free so that new difference value can be set
             runner.program_state.set_state_to_free()
-
+            
             time.sleep(0.5) # wait for half a second. The best is if wait until the new value has been set.
             yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
             pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
 
-            
             if abs(yawErrorPixel) < abs(spec.get_tolerance_pixels(specs)) and abs(pitch_error_pixel) < abs(spec.get_tolerance_pixels(specs)):
                 log.info("Target is within tolerance attitude.")
                 thruster_control.set_thruster_control(master, 500, 0, 500, 0) # Send neutral to stop cleanly
+                is_forward = True
             else:
-                log.info("Target is outside tolerance attitude.")
+                if is_forward is True:
+                    thruster_control.set_thruster_control(master, 0, 0, 500, 0) # Send neutral to stop cleanly
+                    time.sleep(5)
+                    # This is.. not optimal. its recursive. But it works for now.
+                    # Will implement something better in the future, maybe with state machine or something.
+                    main_control()
+                    is_forward = False
+                    break
                 #thruster_control.set_thruster_control(master, 0, 0, 500, 0) # Send neutral to stop cleanly
             
                 
