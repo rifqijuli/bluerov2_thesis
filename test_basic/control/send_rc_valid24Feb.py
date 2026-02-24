@@ -6,11 +6,16 @@ or radio), NOT the output channels going to thrusters and servos.
 
 # Import mavutil
 from pymavlink import mavutil
+import time
 
 # Create the connection
 master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
 # Wait a heartbeat before sending commands
 master.wait_heartbeat()
+
+# arm ArduSub autopilot and wait until confirmed
+master.arducopter_arm()
+master.motors_armed_wait()
 
 # Create a function to send RC values
 # More information about Joystick channels
@@ -34,19 +39,58 @@ def set_rc_channel_pwm(channel_id, pwm=1500):
         master.target_component,             # target_component
         *rc_channel_values)                  # RC channel list, in microseconds.
 
+# Send EVERY 0.05s (20Hz) for 10 seconds total
+start_time = time.time()
 
-# Set some roll
-set_rc_channel_pwm(2, 1600)
+n=[5,6,7,8]
 
+while time.time() - start_time < 3:
+
+    msg = master.recv_match(type='SERVO_OUTPUT_RAW', blocking=False)
+
+    # msg.pitch is in radians, format to degree
+    if msg:
+        servo_dict = msg.to_dict()
+        pwms = [
+            servo_dict.get('servo1_raw', 0),
+            servo_dict.get('servo2_raw', 0), 
+            servo_dict.get('servo3_raw', 0),
+            servo_dict.get('servo4_raw', 0),
+            servo_dict.get('servo5_raw', 0),
+            servo_dict.get('servo6_raw', 0),
+            servo_dict.get('servo7_raw', 0),
+            servo_dict.get('servo8_raw', 0)
+        ]
+        print("Thrusters PWM:", pwms)
+
+    # Set forward or backward
+    # set_rc_channel_pwm(5, 1600) # 1900 forward, 1500 neutral, 1100 backward. or maybe im wrong.
+ 
+    
+    # 1 is pitch up (1900) or down (1100)
+    # 2 is roll right (1900) or left (1100)
+    # 3 is vertical up (1900) or down (1100)
+    # 4 is yaw right (1900) or left (1100)
+    # 5 is forward (1900) or backward (1100)
+    # 6 is lateral right (1900) or left (1100)
+    #set_rc_channel_pwm(4, 1900) 
+    set_rc_channel_pwm(4, 1500) 
+
+    
 # Set some yaw
-set_rc_channel_pwm(4, 1600)
+#set_rc_channel_pwm(7, 1400)
 
 # The camera pwm value sets the servo speed of a sweep from the current angle to
 #  the min/max camera angle. It does not set the servo position.
 # Set camera tilt to 45º (max) with full speed
-set_rc_channel_pwm(8, 1900)
+#set_rc_channel_pwm(8, 1900)
 
 # Set channel 12 to 1500us
 # This can be used to control a device connected to a servo output by setting the
 # SERVO[N]_Function to RCIN12 (Where N is one of the PWM outputs)
-set_rc_channel_pwm(12, 1500)
+#set_rc_channel_pwm(12, 1500)
+
+time.sleep(1)
+# arm ArduSub autopilot and wait until confirmed
+
+#NAH THIS IS WEIRD BRO. IN SIMULATION, THIS CONTROL EACH THRUSTER. IN REAL, THIS CONTROL.. A SET OF MOVEMENT.

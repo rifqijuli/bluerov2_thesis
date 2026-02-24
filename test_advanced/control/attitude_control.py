@@ -54,3 +54,21 @@ def get_current_depth(master):
     # In ArduSub: msg.alt is depth (m, positive down)
     depth_m = msg.alt
     return depth_m
+
+def get_current_pwm(master):
+    msg = master.recv_match(type='SERVO_OUTPUT_RAW', blocking=True)
+    if not msg:
+        return None
+    
+    servo_dict = msg.to_dict()
+    pwms = [
+        servo_dict.get('servo1_raw', 0),
+        servo_dict.get('servo2_raw', 0), 
+        servo_dict.get('servo3_raw', 0),
+        servo_dict.get('servo4_raw', 0),
+        servo_dict.get('servo5_raw', 0),
+        servo_dict.get('servo6_raw', 0),
+        servo_dict.get('servo7_raw', 0),
+        servo_dict.get('servo8_raw', 0)
+    ]
+    return pwms

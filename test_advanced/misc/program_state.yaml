@@ -1,4 +1,2 @@
 state:
   isBusy: false
-  isPitchStateBusy: false
-  isYawStateBusy: false

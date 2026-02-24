@@ -34,6 +34,21 @@ def main_control():
                 convertedValue = value / (imgHeight/verticalFOV)
 
         return convertedValue
+    
+    def pixel_to_pwm(value, flag):
+        imgWidth, imgHeight = spec.get_vision_resolution(specs)
+        max_pwm = 1900
+        min_pwm = 1100
+        range_pwm = max_pwm - min_pwm
+
+        match flag:
+            case "yaw":
+                convertedValue = value * ((range_pwm/8)/(imgWidth/2))
+            case "pitch":
+                convertedValue = value * ((range_pwm/8)/(imgHeight/2))
+
+        pwm = convertedValue
+        return pwm
 
     # Create the connection
     master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
@@ -74,6 +89,7 @@ def main_control():
 
             # Get Target Yaw Correction
             yawErrorDegree = pixelToDegree(yawErrorPixel, "yaw")
+            yaw_error_pwm = pixel_to_pwm(yawErrorPixel, "yaw")
             currentYaw = attitude_control.get_current_yaw(master)
 
             # Get Target Pitch Correction
@@ -82,12 +98,16 @@ def main_control():
 
             #targetYaw must be in degree from 0 to 360
             targetYaw = ((-1 * yaw_pid.compute(yawErrorDegree, dt)) + currentYaw) % 360
+            target_yaw = yaw_pid.compute(abs(yaw_error_pwm), dt)
+            if (yaw_error_pwm < 0):
+                target_yaw = -target_yaw
 
             #targetPitch must be in degree from -90 to 90
             targetPitch = (pitch_pid.compute(pitch_error_degree, dt) + current_pitch) % 360
 
-            # Correct Yaw
-            attitude_control.set_target_attitude(roll_angle, targetPitch, targetYaw, master, boot_time)
+            # Correct attitude
+            # attitude_control.set_target_attitude(roll_angle, targetPitch, targetYaw, master, boot_time)
+            thruster_control.set_rc_channel_pwm(master, 4, int(1500 - target_yaw)) 
 
             # Might introduce race condition.
             # set Main state to free so that new difference value can be set
@@ -97,19 +117,26 @@ def main_control():
             yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
             pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
 
+            #Current PWM for debugging
+            get_current_pwm = attitude_control.get_current_pwm(master)
+            log.info("Current PWM: %s", get_current_pwm)
+            log.info("Yaw PWM Correction: %s", yaw_error_pwm)
+
             if abs(yawErrorPixel) < abs(spec.get_tolerance_pixels(specs)) and abs(pitch_error_pixel) < abs(spec.get_tolerance_pixels(specs)):
                 log.info("Target is within tolerance attitude.")
-                thruster_control.set_thruster_control(master, 500, 0, 500, 0) # Send neutral to stop cleanly
+                thruster_control.set_rc_channel_pwm(master, 5, 1600) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
+                #thruster_control.set_thruster_control(master, 500, 0, 500, 0) # Send neutral to stop cleanly
                 is_forward = True
             else:
                 if is_forward is True:
-                    thruster_control.set_thruster_control(master, 0, 0, 500, 0) # Send neutral to stop cleanly
-                    time.sleep(5)
+                    #thruster_control.set_thruster_control(master, 0, 0, 500, 0) # Send neutral to stop cleanly
+                    thruster_control.set_rc_channel_pwm(master, 5, 1500) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
+                    time.sleep(0.5) # wait for half a second to make sure the rov stop before correcting the attitude again. The best is if wait until the new value has been set.
                     # This is.. not optimal. its recursive. But it works for now.
                     # Will implement something better in the future, maybe with state machine or something.
-                    main_control()
+                    # main_control()
                     is_forward = False
-                    break
+                    #break
                 #thruster_control.set_thruster_control(master, 0, 0, 500, 0) # Send neutral to stop cleanly
             
                 

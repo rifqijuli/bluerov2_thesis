@@ -3,11 +3,9 @@ Example of how to set target depth in depth hold mode with pymavlink
 """
 
 import time
-import math
+
 # Import mavutil
 from pymavlink import mavutil
-# Imports for attitude
-from pymavlink.quaternion import QuaternionBase
 
 def set_target_depth(depth):
     """ Sets the target depth while in depth-hold mode.
@@ -42,32 +40,20 @@ def set_target_depth(depth):
         #  (all not supported yet, ignored in GCS Mavlink)
     )
 
-def set_target_attitude(roll, pitch, yaw):
-    """ Sets the target attitude while in depth-hold mode.
-
-    'roll', 'pitch', and 'yaw' are angles in degrees.
-
-    """
-    master.mav.set_attitude_target_send(
-        int(1e3 * (time.time() - boot_time)), # ms since boot
-        master.target_system, master.target_component,
-        # allow throttle to be controlled by depth_hold mode
-        mavutil.mavlink.ATTITUDE_TARGET_TYPEMASK_THROTTLE_IGNORE,
-        # -> attitude quaternion (w, x, y, z | zero-rotation is 1, 0, 0, 0)
-        QuaternionBase([math.radians(angle) for angle in (roll, pitch, yaw)]),
-        0, 0, 0, 0 # roll rate, pitch rate, yaw rate, thrust
-    )
 
 # Create the connection
 master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
-#master = mavutil.mavlink_connection('tcp:127.0.0.1:5760')
+print("Connected to mavlink!")
+
 boot_time = time.time()
 # Wait a heartbeat before sending commands
 master.wait_heartbeat()
+print("Heartbeat received from system (system %u component %u)" % (master.target_system, master.target_component))
 
 # arm ArduSub autopilot and wait until confirmed
 master.arducopter_arm()
-master.motors_armed_wait()
+time.sleep(5) # give it a few seconds to arm
+print("Armed!")
 
 # set the desired operating mode
 DEPTH_HOLD = 'ALT_HOLD'
@@ -76,49 +62,7 @@ while not master.wait_heartbeat().custom_mode == DEPTH_HOLD_MODE:
     master.set_mode(DEPTH_HOLD)
 
 # set a depth target
-set_target_depth(-1)  # target depth of 0.5m below the water surface
-time.sleep(5) # wait for a second
-
-'''
-while True:  # wait until we reach target depth (0.5m):
-    msg = master.recv_match(type='VFR_HUD', blocking=True, timeout=1)
-
-    # In ArduSub: msg.alt is depth (m, positive down)
-    depth_m = msg.alt
-    print(f"Current Depth: {depth_m} meters")
-    time.sleep(0.5)
-'''
-
-
-print("Depth hold mode set. Target depth: 0.5m")
-# go for a spin
-# (set target yaw from 0 to 500 degrees in steps of 10, one update per second)
-'''
-roll_angle = pitch_angle = 0
-for yaw_angle in range(0, 500, 10):
-    set_target_attitude(roll_angle, pitch_angle, yaw_angle)
-    time.sleep(1) # wait for a second
-    print(f"Yaw angle set to: {yaw_angle} degrees")
-
-# spin the other way with 3x larger steps
-for yaw_angle in range(500, 0, -30):
-    set_target_attitude(roll_angle, pitch_angle, yaw_angle)
-    time.sleep(1)
-    print(f"Yaw angle set to: {yaw_angle} degrees")
-'''
-#set_target_attitude(0, 0, 180)
-
-msg = master.recv_match(type='ATTITUDE', blocking=True, timeout=1)
-msg_alt = master.recv_match(type='VFR_HUD', blocking=True, timeout=1)
-
-# msg.yaw is in radians, format to degree
-yaw_rad = msg.yaw
-yaw_deg = math.degrees(yaw_rad)
-print(f"Current Yaw: {yaw_deg} degrees")
-
-alt = msg_alt.alt
-print(f"Current Altitude: {alt} meters")
-
+set_target_depth(-0.5)
 
 # clean up (disarm) at the end
 master.arducopter_disarm()
