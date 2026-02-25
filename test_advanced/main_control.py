@@ -21,8 +21,20 @@ from control import attitude_control, depth_control, pid_control, thruster_contr
 
 def main_control():
     is_forward = False
+    current_pitch_pwm = 1500
+    max_pwm = 1900
+    min_pwm = 1100
 
     specs = spec.load_specs()
+
+    def check_pwm(pwm):
+        if pwm > max_pwm:
+            return max_pwm
+        elif pwm < min_pwm:
+            return min_pwm
+        else:
+            return pwm
+
     def pixelToDegree(value,flag):
         horizontalFOV, verticalFOV = spec.get_camera_fov(specs)
         imgWidth, imgHeight = spec.get_vision_resolution(specs)
@@ -37,15 +49,13 @@ def main_control():
     
     def pixel_to_pwm(value, flag):
         imgWidth, imgHeight = spec.get_vision_resolution(specs)
-        max_pwm = 1900
-        min_pwm = 1100
         range_pwm = max_pwm - min_pwm
 
         match flag:
             case "yaw":
                 convertedValue = value * ((range_pwm/8)/(imgWidth/2))
             case "pitch":
-                convertedValue = value * ((range_pwm/8)/(imgHeight/2))
+                convertedValue = value * ((range_pwm/4)/(imgHeight/2))
 
         pwm = convertedValue
         return pwm
@@ -94,6 +104,7 @@ def main_control():
 
             # Get Target Pitch Correction
             pitch_error_degree = pixelToDegree(pitch_error_pixel, "pitch")
+            pitch_error_pwm = pixel_to_pwm(pitch_error_pixel, "pitch")
             current_pitch = attitude_control.get_current_pitch(master)
 
             #targetYaw must be in degree from 0 to 360
@@ -104,10 +115,19 @@ def main_control():
 
             #targetPitch must be in degree from -90 to 90
             targetPitch = (pitch_pid.compute(pitch_error_degree, dt) + current_pitch) % 360
+            target_pitch = pitch_pid.compute(abs(pitch_error_pwm), dt)
+            if (pitch_error_pwm < 0):
+                target_pitch = -target_pitch
 
             # Correct attitude
             # attitude_control.set_target_attitude(roll_angle, targetPitch, targetYaw, master, boot_time)
-            thruster_control.set_rc_channel_pwm(master, 4, int(1500 - target_yaw)) 
+            thruster_control.set_rc_channel_pwm(master, 4, check_pwm(int(1500 - target_yaw))) 
+            
+            # Update current pitch so it does not reset to 1500, but rather increase or decrease based on the error and correction.
+            current_pitch_pwm = current_pitch_pwm + target_pitch
+            thruster_control.set_rc_channel_pwm(master, 1, check_pwm(int(current_pitch_pwm)))
+            
+            #attitude_control.set_multi_rc_channel_pwm(master, {1: int(1500 + targetPitch), 4: int(1500 - target_yaw)})
 
             # Might introduce race condition.
             # set Main state to free so that new difference value can be set
@@ -122,6 +142,7 @@ def main_control():
             log.info("Current PWM: %s", get_current_pwm)
             log.info("Yaw PWM Correction: %s", yaw_error_pwm)
 
+            '''
             if abs(yawErrorPixel) < abs(spec.get_tolerance_pixels(specs)) and abs(pitch_error_pixel) < abs(spec.get_tolerance_pixels(specs)):
                 log.info("Target is within tolerance attitude.")
                 thruster_control.set_rc_channel_pwm(master, 5, 1600) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
@@ -138,6 +159,7 @@ def main_control():
                     is_forward = False
                     #break
                 #thruster_control.set_thruster_control(master, 0, 0, 500, 0) # Send neutral to stop cleanly
+            '''
             
                 
             # set depth hold

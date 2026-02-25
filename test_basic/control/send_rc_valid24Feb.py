@@ -38,11 +38,22 @@ def set_rc_channel_pwm(channel_id, pwm=1500):
         master.target_system,                # target_system
         master.target_component,             # target_component
         *rc_channel_values)                  # RC channel list, in microseconds.
+    
+def set_multi_rc_channel_pwm(channels_pwm):
+    rc_channel_values = [65535 for _ in range(18)]
+    for ch, pwm in channels_pwm.items():
+        if ch < 1 or ch > 18:
+            print(f"Channel {ch} does not exist.")
+            continue
+        rc_channel_values[ch - 1] = pwm
+        master.mav.rc_channels_override_send(
+            master.target_system,                # target_system
+            master.target_component,             # target_component
+            *rc_channel_values)                  # RC channel list, in microseconds.
 
 # Send EVERY 0.05s (20Hz) for 10 seconds total
 start_time = time.time()
 
-n=[5,6,7,8]
 
 while time.time() - start_time < 3:
 
@@ -73,8 +84,15 @@ while time.time() - start_time < 3:
     # 4 is yaw right (1900) or left (1100)
     # 5 is forward (1900) or backward (1100)
     # 6 is lateral right (1900) or left (1100)
-    #set_rc_channel_pwm(4, 1900) 
-    set_rc_channel_pwm(4, 1500) 
+    #set_rc_channel_pwm(4, 1500) 
+    set_rc_channel_pwm(1, 1500)
+
+    '''
+    set_multi_rc_channel_pwm({
+        1: 1200, # pitch
+        4: 1600, # yaw
+    })
+    '''
 
     
 # Set some yaw
@@ -89,6 +107,12 @@ while time.time() - start_time < 3:
 # This can be used to control a device connected to a servo output by setting the
 # SERVO[N]_Function to RCIN12 (Where N is one of the PWM outputs)
 #set_rc_channel_pwm(12, 1500)
+'''
+set_multi_rc_channel_pwm({
+    1: 1500, # pitch
+    4: 1500, # yaw
+})
+'''
 
 time.sleep(1)
 # arm ArduSub autopilot and wait until confirmed

@@ -72,3 +72,15 @@ def get_current_pwm(master):
         servo_dict.get('servo8_raw', 0)
     ]
     return pwms
+
+def set_multi_rc_channel_pwm(master, channels_pwm):
+    rc_channel_values = [65535 for _ in range(18)]
+    for ch, pwm in channels_pwm.items():
+        if ch < 1 or ch > 18:
+            print(f"Channel {ch} does not exist.")
+            continue
+        rc_channel_values[ch - 1] = pwm
+        master.mav.rc_channels_override_send(
+            master.target_system,               
+            master.target_component,             
+            *rc_channel_values)                  
