@@ -20,6 +20,10 @@ import main_state as runner
 from control import attitude_control, depth_control, pid_control, thruster_control
 
 def main_control():
+    class control_model():
+        is_depth = True # Set to True if yaw and depth, rather than attitude
+
+
     is_forward = False
     current_pitch_pwm = 1500
     max_pwm = 1900
@@ -123,11 +127,15 @@ def main_control():
             # attitude_control.set_target_attitude(roll_angle, targetPitch, targetYaw, master, boot_time)
             thruster_control.set_rc_channel_pwm(master, 4, check_pwm(int(1500 - target_yaw))) 
             
-            # Update current pitch so it does not reset to 1500, but rather increase or decrease based on the error and correction.
-            current_pitch_pwm = current_pitch_pwm + target_pitch
-            thruster_control.set_rc_channel_pwm(master, 1, check_pwm(int(current_pitch_pwm)))
+            match control_model.is_depth:
+                case True:
+                    thruster_control.set_rc_channel_pwm(master, 3, check_pwm(int(1500 + target_pitch)))
+                case False:
+                    # Update current pitch so it does not reset to 1500, but rather increase or decrease based on the error and correction.
+                    current_pitch_pwm = current_pitch_pwm + target_pitch
+                    thruster_control.set_rc_channel_pwm(master, 1, check_pwm(int(current_pitch_pwm)))
             
-            #attitude_control.set_multi_rc_channel_pwm(master, {1: int(1500 + targetPitch), 4: int(1500 - target_yaw)})
+            # attitude_control.set_multi_rc_channel_pwm(master, {1: int(1500 + targetPitch), 4: int(1500 - target_yaw)})
 
             # Might introduce race condition.
             # set Main state to free so that new difference value can be set
@@ -142,24 +150,24 @@ def main_control():
             log.info("Current PWM: %s", get_current_pwm)
             log.info("Yaw PWM Correction: %s", yaw_error_pwm)
 
-            '''
+            
             if abs(yawErrorPixel) < abs(spec.get_tolerance_pixels(specs)) and abs(pitch_error_pixel) < abs(spec.get_tolerance_pixels(specs)):
                 log.info("Target is within tolerance attitude.")
-                thruster_control.set_rc_channel_pwm(master, 5, 1600) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
+                thruster_control.set_rc_channel_pwm(master, 5, 1800) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
                 #thruster_control.set_thruster_control(master, 500, 0, 500, 0) # Send neutral to stop cleanly
                 is_forward = True
             else:
                 if is_forward is True:
                     #thruster_control.set_thruster_control(master, 0, 0, 500, 0) # Send neutral to stop cleanly
                     thruster_control.set_rc_channel_pwm(master, 5, 1500) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
-                    time.sleep(0.5) # wait for half a second to make sure the rov stop before correcting the attitude again. The best is if wait until the new value has been set.
+                    #time.sleep(0.5) # wait for half a second to make sure the rov stop before correcting the attitude again. The best is if wait until the new value has been set.
                     # This is.. not optimal. its recursive. But it works for now.
                     # Will implement something better in the future, maybe with state machine or something.
                     # main_control()
                     is_forward = False
                     #break
                 #thruster_control.set_thruster_control(master, 0, 0, 500, 0) # Send neutral to stop cleanly
-            '''
+            
             
                 
             # set depth hold

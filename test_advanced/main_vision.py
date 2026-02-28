@@ -32,20 +32,30 @@ def image_main(cameraOpt = False, modelOpt = False):
     """
     frame_id = 0
 
-    class cameraOpt:
-        isROVCamera = False  # Set to True to use ROV camera, False for local webcam    
-
-    class modelOpt:
-        isCOU = True # Set to True if uses CoU dataset
-
     # Load the YOLO11 model
-    if modelOpt.isCOU:
-        #model = YOLO("object_detection_model/yolo11n_cou.pt")
-        #model = YOLO("object_detection_model/yolo11s_best_401.pt")
-        #model = YOLO("object_detection_model/yolo11n_best_401.pt")
-        model = YOLO("object_detection_model/yolo26n_cou.pt")
-    else:
-        model = YOLO("object_detection_model/yolo11n.pt")
+    match modelOpt["dataset"]:
+        case "COU":
+            match modelOpt["which_model"]:
+                case "yolo11n":
+                    model = YOLO("object_detection_model/yolo11n_cou.pt")
+                case "yolo11s":
+                    model = YOLO("object_detection_model/yolo11s_cou.pt")
+                case "yolo26n":
+                    model = YOLO("object_detection_model/yolo26n_cou.pt")
+                case "yolo26s":
+                    model = YOLO("object_detection_model/yolo26s_cou.pt")
+        case "COCO":
+            match modelOpt["which_model"]:
+                case "yolo11n":
+                    model = YOLO("object_detection_model/yolo11n.pt")
+                case "yolo11s":
+                    model = YOLO("object_detection_model/yolo11s.pt")
+                case "yolo26n":
+                    model = YOLO("object_detection_model/yolo26n.pt")
+                case "yolo26s":
+                    model = YOLO("object_detection_model/yolo26s.pt")
+        
+    log.info(f"Model {modelOpt['which_model']} loaded successfully")
 
     # FUnIE-GAN
     # --- Load pretrained FUnIE-GAN model ---
@@ -155,7 +165,7 @@ def image_main(cameraOpt = False, modelOpt = False):
     system_state = State()
 
      # Create the video object
-    if cameraOpt.isROVCamera:
+    if cameraOpt == 'bluerov':
         video = rov_camera.Video()
         # Add port= if is necessary to use a different one
         while not video.frame_available():
@@ -176,7 +186,7 @@ def image_main(cameraOpt = False, modelOpt = False):
         is_main_state_busy = runner.program_state.get_busy_state()
         is_yaw_state_busy = runner.program_state.get_yaw_busy_state()
         is_pitch_state_busy = runner.program_state.get_pitch_busy_state()
-        if cameraOpt.isROVCamera:
+        if cameraOpt == 'bluerov':
             if video.frame_available():
                 # Only retrieve and display a frame if it's new
                 frame = video.frame()

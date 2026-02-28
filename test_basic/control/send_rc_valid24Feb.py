@@ -55,7 +55,7 @@ def set_multi_rc_channel_pwm(channels_pwm):
 start_time = time.time()
 
 
-while time.time() - start_time < 3:
+while time.time() - start_time < 10:
 
     msg = master.recv_match(type='SERVO_OUTPUT_RAW', blocking=False)
 
@@ -84,37 +84,16 @@ while time.time() - start_time < 3:
     # 4 is yaw right (1900) or left (1100)
     # 5 is forward (1900) or backward (1100)
     # 6 is lateral right (1900) or left (1100)
-    #set_rc_channel_pwm(4, 1500) 
-    set_rc_channel_pwm(1, 1500)
+    #set_rc_channel_pwm(1, 1500) 
+    
+    set_rc_channel_pwm(1, 1100)
 
-    '''
-    set_multi_rc_channel_pwm({
-        1: 1200, # pitch
-        4: 1600, # yaw
-    })
-    '''
+    if time.time() - start_time > 5:
+        set_multi_rc_channel_pwm({
+            1: 1100, # pitch
+            5: 1900, # thruster
+        })
+
+ 
 
     
-# Set some yaw
-#set_rc_channel_pwm(7, 1400)
-
-# The camera pwm value sets the servo speed of a sweep from the current angle to
-#  the min/max camera angle. It does not set the servo position.
-# Set camera tilt to 45º (max) with full speed
-#set_rc_channel_pwm(8, 1900)
-
-# Set channel 12 to 1500us
-# This can be used to control a device connected to a servo output by setting the
-# SERVO[N]_Function to RCIN12 (Where N is one of the PWM outputs)
-#set_rc_channel_pwm(12, 1500)
-'''
-set_multi_rc_channel_pwm({
-    1: 1500, # pitch
-    4: 1500, # yaw
-})
-'''
-
-time.sleep(1)
-# arm ArduSub autopilot and wait until confirmed
-
-#NAH THIS IS WEIRD BRO. IN SIMULATION, THIS CONTROL EACH THRUSTER. IN REAL, THIS CONTROL.. A SET OF MOVEMENT.
