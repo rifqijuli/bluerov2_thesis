@@ -86,14 +86,14 @@ while time.time() - start_time < 10:
     # 6 is lateral right (1900) or left (1100)
     #set_rc_channel_pwm(1, 1500) 
     
-    set_rc_channel_pwm(1, 1100)
+    #set_rc_channel_pwm(1, 1100)
+    set_rc_channel_pwm(4, 1428)
 
-    if time.time() - start_time > 5:
-        set_multi_rc_channel_pwm({
-            1: 1100, # pitch
-            5: 1900, # thruster
-        })
+    #if time.time() - start_time > 5:
+    #    set_multi_rc_channel_pwm({
+    #        1: 1100, # pitch
+    #        5: 1900, # thruster
+    #    })
 
  
 
-    

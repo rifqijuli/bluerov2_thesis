@@ -56,14 +56,15 @@ time.sleep(5) # give it a few seconds to arm
 print("Armed!")
 
 # set the desired operating mode
+print("Available modes:", list(master.mode_mapping().keys()))
 DEPTH_HOLD = 'ALT_HOLD'
 DEPTH_HOLD_MODE = master.mode_mapping()[DEPTH_HOLD]
 while not master.wait_heartbeat().custom_mode == DEPTH_HOLD_MODE:
     master.set_mode(DEPTH_HOLD)
 
 # set a depth target
-set_target_depth(-0.5)
+set_target_depth(-1)
 
 # clean up (disarm) at the end
-master.arducopter_disarm()
-master.motors_disarmed_wait()
+#master.arducopter_disarm()
+#master.motors_disarmed_wait()

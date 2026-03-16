@@ -194,7 +194,8 @@ def image_main(cameraOpt = False, modelOpt = False):
             ret, frame = video.read()
             if not ret:
                 log.info("Can't receive frame (stream end?). Exiting ...")
-                break  
+                break
+            frame = cv2.flip(frame, 1)  # Flip frame horizontally for correct orientation
         # Wait for the next frame to become available
         
         frame = cv2.resize(frame, (targetFrame.width, targetFrame.height))
