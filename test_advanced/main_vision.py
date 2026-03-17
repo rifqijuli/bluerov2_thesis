@@ -54,6 +54,16 @@ def image_main(cameraOpt = False, modelOpt = False):
                     model = YOLO("object_detection_model/yolo26n.pt")
                 case "yolo26s":
                     model = YOLO("object_detection_model/yolo26s.pt")
+        case "TrashCan":
+            match modelOpt["which_model"]:
+                case "yolo11n":
+                    model = YOLO("object_detection_model/yolo11n_tc.pt")
+                case "yolo11s":
+                    model = YOLO("object_detection_model/yolo11s_tc.pt")
+                case "yolo26n":
+                    model = YOLO("object_detection_model/yolo26n_tc.pt")
+                case "yolo26s":
+                    model = YOLO("object_detection_model/yolo26s_tc.pt")
         
     log.info(f"Model {modelOpt['which_model']} loaded successfully")
 
