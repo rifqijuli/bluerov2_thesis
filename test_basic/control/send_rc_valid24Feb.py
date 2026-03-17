@@ -55,7 +55,7 @@ def set_multi_rc_channel_pwm(channels_pwm):
 start_time = time.time()
 
 
-while time.time() - start_time < 10:
+while time.time() - start_time < 5:
 
     msg = master.recv_match(type='SERVO_OUTPUT_RAW', blocking=False)
 
@@ -87,7 +87,10 @@ while time.time() - start_time < 10:
     #set_rc_channel_pwm(1, 1500) 
     
     #set_rc_channel_pwm(1, 1100)
-    set_rc_channel_pwm(4, 1428)
+    set_rc_channel_pwm(4, 1400)
+    set_rc_channel_pwm(3, 1400)
+
+    time.sleep(0.03) # Sleep for 20ms to maintain 20Hz rate
 
     #if time.time() - start_time > 5:
     #    set_multi_rc_channel_pwm({

@@ -2,6 +2,7 @@ import main_vision as vision
 import main_control as control
 import main_state as state
 import main_cleaner as cleaner
+import main_rc_command as rc_command
 import multiprocessing as mp
 import time
 import logging
@@ -15,12 +16,14 @@ logging.basicConfig(level=logging.INFO,
 log.info("Runner started")
 
 class Process(mp.Process):
-    def __init__(self, id, flag, camera_opt=None, model_opt=None):
+    def __init__(self, id, flag, camera_opt=None, model_opt=None, rc_pwm=None):
         super(Process, self).__init__()
         self.id = id
         self.flag = flag
         self.camera_opt = camera_opt
         self.model_opt = model_opt or {}
+        self.rc_pwm = rc_pwm
+        
                
     def run(self):
         time.sleep(1)
@@ -29,13 +32,17 @@ class Process(mp.Process):
                 log.info("I'm the process with id: {}".format(self.id))
                 vision.image_main(
                     cameraOpt=self.camera_opt, 
-                    modelOpt=self.model_opt)
+                    modelOpt=self.model_opt,
+                    rc_pwm=self.rc_pwm)
             case "control":
                 log.info("I'm the process with id: {}".format(self.id))
-                control.main_control()
+                control.main_control(rc_pwm=self.rc_pwm )
             case "cleaner":
                 log.info("I'm the process with id: {}".format(self.id))
                 cleaner.main_cleaner()
+            case "rc_command":
+                log.info("I'm the process with id: {}".format(self.id))
+                rc_command.main_rc_command(rc_pwm=self.rc_pwm)
             case "dummy":
                 log.info("I'm the process with id: {}".format(self.id))
                 while True:

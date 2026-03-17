@@ -41,16 +41,23 @@ class RunnerGUI(tk.Tk):
 
     def start_main(self):
         if 0 not in self.procs or not self.procs[0].is_alive():
+
+            manager = mp.Manager()
+            rc_pwm = manager.list([65535] * 18)  # Shared PWM array
+
             self.procs[0] = Process(0, "image",
                                   camera_opt=self.camera_var.get(),
-                                  model_opt={"dataset": self.dataset_var.get(), "which_model": self.model_var.get()})
+                                  model_opt={"dataset": self.dataset_var.get(), "which_model": self.model_var.get()},
+                                  rc_pwm=rc_pwm)
             self.procs[0].start()
-            self.procs[1] = Process(1, "control")
+            self.procs[1] = Process(1, "control", rc_pwm=rc_pwm)
             self.procs[1].start()
+            self.procs[3] = Process(3, "rc_command", rc_pwm=rc_pwm)
+            self.procs[3].start()
             self.status_var.set("Main processes started")
 
     def stop_main(self):
-        for pid in [0, 1]:
+        for pid in [0, 1, 3]:  # Image, Control, RC Command
             if pid in self.procs and self.procs[pid].is_alive():
                 self.procs[pid].terminate()
                 self.procs[pid].join(timeout=1)

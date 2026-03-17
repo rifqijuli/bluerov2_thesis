@@ -11,18 +11,15 @@ from pymavlink.quaternion import QuaternionBase
 from misc import specLoader as spec
 from misc import stateLoader as stateLoad
 import logging
-import threading
 
 log = logging.getLogger("Main Control")
 log.info("Main Control started")
 
-rc_channel_values = [65535] * 18  # Shared PWM array
 
 import main_state as runner
 from control import attitude_control, depth_control, pid_control, thruster_control
 
-
-def main_control(rc_pwm):
+def main_control():
     class control_model():
         is_depth = True # Set to True if yaw and depth, rather than attitude
 
@@ -67,7 +64,20 @@ def main_control(rc_pwm):
         pwm = convertedValue
         return pwm
 
+    # Create the connection
+    master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
+    boot_time = time.time()
+    # Wait a heartbeat before sending commands
+    master.wait_heartbeat()
 
+
+    # arm ArduSub autopilot and wait until confirmed
+    master.arducopter_arm()
+    master.motors_armed_wait()
+
+    # set depth hold
+    #NEXT: APA COBA INI DIMATIIN DULU YA? KAN DEPTH CONTROLNYA BIKIN ERROR KEMARIN.
+    depth_control.set_depth_hold(master)
 
     while True:
         if runner.program_state.get_busy_state() == True:
@@ -97,21 +107,21 @@ def main_control(rc_pwm):
             # Get Target Yaw Correction
             yawErrorDegree = pixelToDegree(yawErrorPixel, "yaw")
             yaw_error_pwm = pixel_to_pwm(yawErrorPixel, "yaw")
-            #currentYaw = attitude_control.get_current_yaw(master)
+            currentYaw = attitude_control.get_current_yaw(master)
 
             # Get Target Pitch Correction
             pitch_error_degree = pixelToDegree(pitch_error_pixel, "pitch")
             pitch_error_pwm = pixel_to_pwm(pitch_error_pixel, "pitch")
-            #current_pitch = attitude_control.get_current_pitch(master)
+            current_pitch = attitude_control.get_current_pitch(master)
 
             #targetYaw must be in degree from 0 to 360
-            #targetYaw = ((-1 * yaw_pid.compute(yawErrorDegree, dt)) + currentYaw) % 360
+            targetYaw = ((-1 * yaw_pid.compute(yawErrorDegree, dt)) + currentYaw) % 360
             target_yaw = yaw_pid.compute(abs(yaw_error_pwm), dt)
             if (yaw_error_pwm < 0):
                 target_yaw = -target_yaw
 
             #targetPitch must be in degree from -90 to 90
-            #targetPitch = (pitch_pid.compute(pitch_error_degree, dt) + current_pitch) % 360
+            targetPitch = (pitch_pid.compute(pitch_error_degree, dt) + current_pitch) % 360
             target_pitch = pitch_pid.compute(abs(pitch_error_pwm), dt)
             if (pitch_error_pwm < 0):
                 target_pitch = -target_pitch
@@ -120,9 +130,7 @@ def main_control(rc_pwm):
             # attitude_control.set_target_attitude(roll_angle, targetPitch, targetYaw, master, boot_time)
             log.info(f"Correction pwm to : {int(1500 + target_yaw)}")
 
-            rc_pwm[3] = check_pwm(int(1500 - target_yaw))  # Update shared PWM array for yaw control
-            log.info(f"Updated RC PWM for Yaw: {rc_pwm[3]}")
-            #thruster_control.set_rc_channel_pwm(master, 4, check_pwm(int(1500 - target_yaw))) 
+            thruster_control.set_rc_channel_pwm(master, 4, check_pwm(int(1500 - target_yaw))) 
             
             """
             match control_model.is_depth:
@@ -148,8 +156,8 @@ def main_control(rc_pwm):
             pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
 
             #Current PWM for debugging
-            #get_current_pwm = attitude_control.get_current_pwm(master)
-            #log.info("Current PWM: %s", get_current_pwm)
+            get_current_pwm = attitude_control.get_current_pwm(master)
+            log.info("Current PWM: %s", get_current_pwm)
             log.info("Yaw PWM Correction: %s", yaw_error_pwm)
 
             
@@ -185,3 +193,5 @@ def main_control(rc_pwm):
             # clean up (disarm) at the end --> if disarmed, depth hold will also released and rov will just sink
             # master.arducopter_disarm()
             # master.motors_disarmed_wait()
+
+        depth_control.set_depth_hold(master)
