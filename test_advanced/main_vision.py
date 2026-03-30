@@ -26,7 +26,7 @@ from image_enhancement.nets.funiegan import GeneratorFunieGAN as Generator  # ad
 #!/usr/bin/env python
 
 #if __name__ == '__main__':
-def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None):
+def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_state_busy = None):
     """
     BlueRov video capture class
     """
@@ -278,8 +278,10 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None):
                 # Third approach - only use 1 set flag
                 
                 if abs(distance) >= spec.get_tolerance_pixels(specs):
-                    if is_main_state_busy == False: # Is Free
-                        runner.program_state.set_state_to_busy()
+                    #if is_main_state_busy == False: # Is Free
+                    if is_program_state_busy.value == 0: # Is Free
+                        #runner.program_state.set_state_to_busy()
+                        is_program_state_busy.value = 1 # Set to Busy
                         if abs(horizontal_diff) >= spec.get_tolerance_pixels(specs):
                             runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
                         else:
@@ -301,7 +303,8 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None):
 
                     # Just so that the program will always busy. Should be changed to distance in here.
                     # If this is not here, then the state will never be set to busy because the main state is only set to busy when the target is far, and if the target is near, the state will never be set to free, so it will be stuck in free state.
-                    runner.program_state.set_state_to_busy()
+                    #runner.program_state.set_state_to_busy()
+                    is_program_state_busy.value = 1 # Set to Busy
 
             if system_state.roi_selected:
                 rect_img = frame[int(roi_obj.y):int(roi_obj.y+roi_obj.height), int(roi_obj.x):int(roi_obj.x+roi_obj.width)]
@@ -365,7 +368,8 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None):
             # Allow frame to display, and check if user wants to quit
             key = cv2.waitKey(50)
             if key == ord('q'):
-                runner.program_state.set_state_to_free()
+                #runner.program_state.set_state_to_free()
+                is_program_state_busy.value = 0 # Set to Free
                 break
             elif key == ord('s'):
                 #Send back state to runner

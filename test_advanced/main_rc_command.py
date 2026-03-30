@@ -13,7 +13,7 @@ log = logging.getLogger("Main RC Command")
 log.info("Main RC Command started")
 
 
-def main_rc_command(rc_pwm):
+def main_rc_command(rc_pwm, is_program_state_busy):
     master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
     master.wait_heartbeat()
 
@@ -26,7 +26,7 @@ def main_rc_command(rc_pwm):
     depth_control.set_depth_hold(master)
 
     while True:
-        log.info(f"Sending RC command: {rc_pwm}")
+        #log.info(f"Sending RC command: {rc_pwm}")
         master.mav.rc_channels_override_send(
             master.target_system,                # target_system
             master.target_component,             # target_component

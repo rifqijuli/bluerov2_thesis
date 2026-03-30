@@ -22,7 +22,7 @@ import main_state as runner
 from control import attitude_control, depth_control, pid_control, thruster_control
 
 
-def main_control(rc_pwm):
+def main_control(rc_pwm, is_program_state_busy):
     class control_model():
         is_depth = True # Set to True if yaw and depth, rather than attitude
 
@@ -70,7 +70,8 @@ def main_control(rc_pwm):
 
 
     while True:
-        if runner.program_state.get_busy_state() == True:
+        #if runner.program_state.get_busy_state() == True:
+        if is_program_state_busy.value == 1:
             log.info("Control State: BUSY")
 
             # Set PID Constant Kp, Ki, Kd, and target
@@ -121,27 +122,26 @@ def main_control(rc_pwm):
             log.info(f"Correction pwm to : {int(1500 + target_yaw)}")
 
             rc_pwm[3] = check_pwm(int(1500 - target_yaw))  # Update shared PWM array for yaw control
-            log.info(f"Updated RC PWM for Yaw: {rc_pwm[3]}")
+            #log.info(f"Updated RC PWM for Yaw: {rc_pwm[3]}")
             #thruster_control.set_rc_channel_pwm(master, 4, check_pwm(int(1500 - target_yaw))) 
             
-            """
+            
             match control_model.is_depth:
                 case True:
-                    thruster_control.set_rc_channel_pwm(master, 3, check_pwm(int(1500 + target_pitch)))
+                    #thruster_control.set_rc_channel_pwm(master, 3, check_pwm(int(1500 + target_pitch)))
+                    rc_pwm[2] = check_pwm(int(1500 + target_pitch))
                 case False:
                     # Update current pitch so it does not reset to 1500, but rather increase or decrease based on the error and correction.
                     current_pitch_pwm = current_pitch_pwm + target_pitch
-                    thruster_control.set_rc_channel_pwm(master, 1, check_pwm(int(current_pitch_pwm)))  
-            """
-
-            
-
+                    #thruster_control.set_rc_channel_pwm(master, 1, check_pwm(int(current_pitch_pwm)))
+                    rc_pwm[0] = check_pwm(int(current_pitch_pwm))  
             
             # attitude_control.set_multi_rc_channel_pwm(master, {1: int(1500 + targetPitch), 4: int(1500 - target_yaw)})
 
             # Might introduce race condition.
             # set Main state to free so that new difference value can be set
-            runner.program_state.set_state_to_free()
+            #runner.program_state.set_state_to_free()
+            is_program_state_busy.value = 0 # Set to Free
             
             #time.sleep(0.02) # Sleep for 20ms.
             yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
@@ -157,13 +157,15 @@ def main_control(rc_pwm):
                 log.info("Target is within tolerance attitude.")
                 
                 #thruster_control.set_rc_channel_pwm(master, 5, 1800) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
-                
+                rc_pwm[4] = check_pwm(int(1600)) # Set forward
+
                 is_forward = True
             else:
                 if is_forward is True:
 
                     #thruster_control.set_rc_channel_pwm(master, 5, 1500) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
-                    
+                    rc_pwm[4] = check_pwm(int(1500)) # Set forward
+
                     #time.sleep(0.01) # 
                     # This is.. not optimal. its recursive. But it works for now.
                     # Will implement something better in the future, maybe with state machine or something.

@@ -16,13 +16,14 @@ logging.basicConfig(level=logging.INFO,
 log.info("Runner started")
 
 class Process(mp.Process):
-    def __init__(self, id, flag, camera_opt=None, model_opt=None, rc_pwm=None):
+    def __init__(self, id, flag, camera_opt=None, model_opt=None, rc_pwm=None, is_program_state_busy=None):
         super(Process, self).__init__()
         self.id = id
         self.flag = flag
         self.camera_opt = camera_opt
         self.model_opt = model_opt or {}
         self.rc_pwm = rc_pwm
+        self.is_program_state_busy = is_program_state_busy
         
                
     def run(self):
@@ -33,16 +34,18 @@ class Process(mp.Process):
                 vision.image_main(
                     cameraOpt=self.camera_opt, 
                     modelOpt=self.model_opt,
-                    rc_pwm=self.rc_pwm)
+                    rc_pwm=self.rc_pwm, 
+                    is_program_state_busy=self.is_program_state_busy)
             case "control":
                 log.info("I'm the process with id: {}".format(self.id))
-                control.main_control(rc_pwm=self.rc_pwm )
+                control.main_control(rc_pwm=self.rc_pwm, is_program_state_busy=self.is_program_state_busy)
             case "cleaner":
                 log.info("I'm the process with id: {}".format(self.id))
                 cleaner.main_cleaner()
             case "rc_command":
                 log.info("I'm the process with id: {}".format(self.id))
-                rc_command.main_rc_command(rc_pwm=self.rc_pwm)
+                rc_command.main_rc_command(rc_pwm=self.rc_pwm, 
+                                           is_program_state_busy=self.is_program_state_busy)
             case "dummy":
                 log.info("I'm the process with id: {}".format(self.id))
                 while True:
