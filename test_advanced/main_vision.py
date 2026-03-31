@@ -26,11 +26,13 @@ from image_enhancement.nets.funiegan import GeneratorFunieGAN as Generator  # ad
 #!/usr/bin/env python
 
 #if __name__ == '__main__':
-def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_state_busy = None):
+def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_state_busy = None, ping_distance = None):
     """
     BlueRov video capture class
     """
     frame_id = 0
+    confidence_threshold = 0.3
+    iou_threshold = 0.8
 
     # Load the YOLO11 model
     match modelOpt["dataset"]:
@@ -214,7 +216,7 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
             if target_object.target_status is True:
                 # When Object is Selected
                 # if (runner.program_state.get_state() == 'FREE'): <-- If you want to set only when FREE
-                results = model.track(frame, persist=True,conf=0.8, iou=0.7, classes=target_object.target_class)
+                results = model.track(frame, persist=True,conf=confidence_threshold, iou=iou_threshold, classes=target_object.target_class)
                 annotated_frame = results[0].plot()
                 track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_object.target_id, tracks_file=tracks_file, frame_id=frame_id)
                 frame = track_objects[0]['frame']
@@ -325,8 +327,8 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
                 
                 # Change out_bgr to frame if want to track with normal video feed
                 try:
-                    results = model.track(rect_img, persist=True,conf=0.8, iou=0.7)
-                    #results_2 = model.track(out_bgr, persist=True,conf=0.6, iou=0.3)
+                    results = model.track(rect_img, persist=True,conf=confidence_threshold, iou=iou_threshold)
+                    #results = model.track(out_bgr, persist=True,conf=confidence_threshold, iou=iou_threshold) #Funie GAN
                     #results = model.track(source="https://youtu.be/LNwODJXcvt4", conf=0.3, iou=0.5, show=True)
                     annotated_frame = results[0].plot()
                     #annotated_frame_2 = results_2[0].plot()
@@ -335,6 +337,7 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
                 except Exception as e:
                     log.info(f"No object detection in the frame")
                     annotated_frame_original = rect_img
+                    #annotated_frame = out_bgr # Change to rect_img if want to track with normal video feed
                 
                 #Put it back to frame
                 frame[int(roi_obj.y):int(roi_obj.y+roi_obj.height), int(roi_obj.x):int(roi_obj.x+roi_obj.width)] = annotated_frame

@@ -13,7 +13,7 @@ log = logging.getLogger("Main RC Command")
 log.info("Main RC Command started")
 
 
-def main_rc_command(rc_pwm, is_program_state_busy):
+def main_rc_command(rc_pwm, is_program_state_busy, ping_distance):
     master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
     master.wait_heartbeat()
 

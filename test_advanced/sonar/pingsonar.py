@@ -1,10 +1,9 @@
-from brping
+from brping import Ping1D
 myPing = Ping1D()
-# myPing.connect_serial("/dev/ttyUSB0", 115200)
-# For UDP
+
 myPing.connect_udp("192.168.2.2", 9090)
 
-def get_depth(master):
+def get_distance(master):
     myPing = brping.Ping1D()
     # myPing.connect_serial("/dev/ttyUSB0", 115200)
     # For UDP

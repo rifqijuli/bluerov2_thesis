@@ -10,6 +10,7 @@ from pymavlink import mavutil
 from pymavlink.quaternion import QuaternionBase
 from misc import specLoader as spec
 from misc import stateLoader as stateLoad
+from sonar import pingsonar
 import logging
 import threading
 
@@ -22,7 +23,7 @@ import main_state as runner
 from control import attitude_control, depth_control, pid_control, thruster_control
 
 
-def main_control(rc_pwm, is_program_state_busy):
+def main_control(rc_pwm, is_program_state_busy, ping_distance):
     class control_model():
         is_depth = True # Set to True if yaw and depth, rather than attitude
 
@@ -75,11 +76,11 @@ def main_control(rc_pwm, is_program_state_busy):
             log.info("Control State: BUSY")
 
             # Set PID Constant Kp, Ki, Kd, and target
-            yaw_pid = pid_control.PIDController(1.0,0.0,0.0,0.0)
+            yaw_pid = pid_control.PIDController(1.0,0.0,0.0,0.0005)
             yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
             timePrev = time.time()
 
-            pitch_pid = pid_control.PIDController(1.0,0.0,0.0,0.0)
+            pitch_pid = pid_control.PIDController(1.0,0.0,0.0,0.0005)
             pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
 
             # Temporary, focus on yaw
@@ -155,16 +156,21 @@ def main_control(rc_pwm, is_program_state_busy):
             
             if abs(yawErrorPixel) < abs(spec.get_tolerance_pixels(specs)) and abs(pitch_error_pixel) < abs(spec.get_tolerance_pixels(specs)):
                 log.info("Target is within tolerance attitude.")
+                try:
+                    log.info(f"Distance from object: {ping_distance} cm")
+                except Exception as e:
+                    log.error(f"Error getting distance from sonar: {e}")
+                    object_distance = None
                 
                 #thruster_control.set_rc_channel_pwm(master, 5, 1800) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
-                rc_pwm[4] = check_pwm(int(1600)) # Set forward
+                #rc_pwm[4] = check_pwm(int(1600)) # Set forward
 
                 is_forward = True
             else:
                 if is_forward is True:
 
                     #thruster_control.set_rc_channel_pwm(master, 5, 1500) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
-                    rc_pwm[4] = check_pwm(int(1500)) # Set forward
+                    rc_pwm[4] = check_pwm(int(1500))
 
                     #time.sleep(0.01) # 
                     # This is.. not optimal. its recursive. But it works for now.

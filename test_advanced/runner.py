@@ -3,6 +3,7 @@ import main_control as control
 import main_state as state
 import main_cleaner as cleaner
 import main_rc_command as rc_command
+import main_sonar as sonar
 import multiprocessing as mp
 import time
 import logging
@@ -16,7 +17,7 @@ logging.basicConfig(level=logging.INFO,
 log.info("Runner started")
 
 class Process(mp.Process):
-    def __init__(self, id, flag, camera_opt=None, model_opt=None, rc_pwm=None, is_program_state_busy=None):
+    def __init__(self, id, flag, camera_opt=None, model_opt=None, rc_pwm=None, is_program_state_busy=None, ping_distance=None):
         super(Process, self).__init__()
         self.id = id
         self.flag = flag
@@ -24,6 +25,7 @@ class Process(mp.Process):
         self.model_opt = model_opt or {}
         self.rc_pwm = rc_pwm
         self.is_program_state_busy = is_program_state_busy
+        self.ping_distance = ping_distance
         
                
     def run(self):
@@ -35,17 +37,25 @@ class Process(mp.Process):
                     cameraOpt=self.camera_opt, 
                     modelOpt=self.model_opt,
                     rc_pwm=self.rc_pwm, 
-                    is_program_state_busy=self.is_program_state_busy)
+                    is_program_state_busy=self.is_program_state_busy,
+                    ping_distance=self.ping_distance)
             case "control":
                 log.info("I'm the process with id: {}".format(self.id))
-                control.main_control(rc_pwm=self.rc_pwm, is_program_state_busy=self.is_program_state_busy)
+                control.main_control(
+                    rc_pwm=self.rc_pwm, 
+                    is_program_state_busy=self.is_program_state_busy,
+                    ping_distance=self.ping_distance)
             case "cleaner":
                 log.info("I'm the process with id: {}".format(self.id))
                 cleaner.main_cleaner()
             case "rc_command":
                 log.info("I'm the process with id: {}".format(self.id))
                 rc_command.main_rc_command(rc_pwm=self.rc_pwm, 
-                                           is_program_state_busy=self.is_program_state_busy)
+                                           is_program_state_busy=self.is_program_state_busy,
+                                           ping_distance=self.ping_distance)
+            case "ping_sonar":
+                log.info("I'm the process with id: {}".format(self.id))
+                sonar.main_sonar(ping_distance=self.ping_distance)
             case "dummy":
                 log.info("I'm the process with id: {}".format(self.id))
                 while True:
