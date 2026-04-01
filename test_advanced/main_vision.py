@@ -31,8 +31,8 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
     BlueRov video capture class
     """
     frame_id = 0
-    confidence_threshold = 0.3
-    iou_threshold = 0.8
+    confidence_threshold = 0.2
+    iou_threshold = 0.6
 
     # Load the YOLO11 model
     match modelOpt["dataset"]:
@@ -66,6 +66,16 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
                     model = YOLO("object_detection_model/yolo26n_tc.pt")
                 case "yolo26s":
                     model = YOLO("object_detection_model/yolo26s_tc.pt")
+        case "Pepsi":
+            match modelOpt["which_model"]:
+                case "yolo11n":
+                    model = YOLO("object_detection_model/yolo11n_pepsi.pt")
+                case "yolo11s":
+                    model = YOLO("object_detection_model/yolo11s_pepsi.pt")
+                case "yolo26n":
+                    model = YOLO("object_detection_model/yolo26n_pepsi.pt")
+                case "yolo26s":
+                    model = YOLO("object_detection_model/yolo26s_pepsi.pt")
         
     log.info(f"Model {modelOpt['which_model']} loaded successfully")
 

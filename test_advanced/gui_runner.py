@@ -28,7 +28,7 @@ class RunnerGUI(tk.Tk):
         tk.Label(self, text="Dataset:").pack(pady=2)
         self.dataset_var = tk.StringVar(value="COU")
         ttk.Combobox(self, textvariable=self.dataset_var,
-                     values=["COCO", "COU", "TrashCan"]).pack()
+                     values=["COCO", "COU", "TrashCan", "Pepsi"]).pack()
 
         # Buttons
         tk.Button(self, text="Start Image+Control", command=self.start_main).pack(pady=5)

@@ -33,6 +33,9 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance):
     max_pwm = 1900
     min_pwm = 1100
 
+    max_distance = 5.5 # threshold for max distance considered to object
+    min_distance = 0.5
+
     specs = spec.load_specs()
 
     def check_pwm(pwm):
@@ -68,6 +71,17 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance):
         pwm = convertedValue
         return pwm
 
+    def distance_to_pwm(value, flag):
+        range_distance = max_distance - min_distance
+        range_pwm = max_pwm - min_pwm
+
+        match flag:
+            case "ping_sonar":
+                convertedValue = value * ((range_pwm/4)/(range_distance))
+
+        pwm = convertedValue
+        return pwm
+
 
 
     while True:
@@ -76,12 +90,14 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance):
             log.info("Control State: BUSY")
 
             # Set PID Constant Kp, Ki, Kd, and target
-            yaw_pid = pid_control.PIDController(1.0,0.0,0.0,0.0005)
+            yaw_pid = pid_control.PIDController(1.0,0.0,0.0,0.0001)
             yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
             timePrev = time.time()
 
-            pitch_pid = pid_control.PIDController(1.0,0.0,0.0,0.0005)
+            pitch_pid = pid_control.PIDController(1.0,0.0,0.0,0.0001)
             pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
+
+            forward_pid = pid_control.PIDController(1.0,0.0,0.0,0.0001)
 
             # Temporary, focus on yaw
             roll_angle = pitch_angle = 0
@@ -118,24 +134,29 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance):
             if (pitch_error_pwm < 0):
                 target_pitch = -target_pitch
 
+            distance_error_pwm = distance_to_pwm(ping_distance.value, "ping_sonar")
+            target_speed = forward_pid.compute(abs(distance_error_pwm), dt)
+
             # Correct attitude
             # attitude_control.set_target_attitude(roll_angle, targetPitch, targetYaw, master, boot_time)
-            log.info(f"Correction pwm to : {int(1500 + target_yaw)}")
-
-            rc_pwm[3] = check_pwm(int(1500 - target_yaw))  # Update shared PWM array for yaw control
+            if is_forward is False:                
+                log.info(f"Correction pwm to : {int(1500 + target_yaw)}")
+                rc_pwm[3] = check_pwm(int(1500 - target_yaw))  # Update shared PWM array for yaw control
+                match control_model.is_depth:
+                    case True:
+                        #thruster_control.set_rc_channel_pwm(master, 3, check_pwm(int(1500 + target_pitch)))
+                        rc_pwm[2] = check_pwm(int(1500 + target_pitch))
+                    case False:
+                        # Update current pitch so it does not reset to 1500, but rather increase or decrease based on the error and correction.
+                        current_pitch_pwm = current_pitch_pwm + target_pitch
+                        #thruster_control.set_rc_channel_pwm(master, 1, check_pwm(int(current_pitch_pwm)))
+                        rc_pwm[0] = check_pwm(int(current_pitch_pwm))  
+            else:
+                rc_pwm[3] = check_pwm(int(1500))
+                rc_pwm[2] = check_pwm(int(1500))
             #log.info(f"Updated RC PWM for Yaw: {rc_pwm[3]}")
             #thruster_control.set_rc_channel_pwm(master, 4, check_pwm(int(1500 - target_yaw))) 
             
-            
-            match control_model.is_depth:
-                case True:
-                    #thruster_control.set_rc_channel_pwm(master, 3, check_pwm(int(1500 + target_pitch)))
-                    rc_pwm[2] = check_pwm(int(1500 + target_pitch))
-                case False:
-                    # Update current pitch so it does not reset to 1500, but rather increase or decrease based on the error and correction.
-                    current_pitch_pwm = current_pitch_pwm + target_pitch
-                    #thruster_control.set_rc_channel_pwm(master, 1, check_pwm(int(current_pitch_pwm)))
-                    rc_pwm[0] = check_pwm(int(current_pitch_pwm))  
             
             # attitude_control.set_multi_rc_channel_pwm(master, {1: int(1500 + targetPitch), 4: int(1500 - target_yaw)})
 
@@ -158,10 +179,17 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance):
                 log.info("Target is within tolerance attitude.")
                 try:
                     log.info(f"Distance from object: {ping_distance} cm")
+                    if ping_distance.value > 0.5: # If distance is greater than 0.5 meter, move forward
+                        log.info(f"Setting forward speed with PWM correction: {int(1500 - target_speed)}")
+                        rc_pwm[4] = check_pwm(int(1500 - target_speed)) # Set forward
+                        is_forward = True
+                    elif ping_distance.value <= 0.5: # If distance is less than or equal to 0.5 meter, stop
+                        rc_pwm[4] = check_pwm(int(1500)) # Set neutral
+                
                 except Exception as e:
                     log.error(f"Error getting distance from sonar: {e}")
                     object_distance = None
-                
+
                 #thruster_control.set_rc_channel_pwm(master, 5, 1800) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
                 #rc_pwm[4] = check_pwm(int(1600)) # Set forward
 
