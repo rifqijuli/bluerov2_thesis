@@ -4,8 +4,8 @@ camera:
   fov_vertical_deg: 64.0
 
 vision:
-  input_width: 640
-  input_height: 480
+  input_width: 1280
+  input_height: 720
 
 tolerance:
   pixel: 50

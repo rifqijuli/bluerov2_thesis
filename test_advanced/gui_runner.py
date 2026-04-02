@@ -14,21 +14,49 @@ class RunnerGUI(tk.Tk):
         # Process references
         self.procs = {}
 
+
+        self.allowed_models = {
+            "COCO": ["yolo11n", "yolo11s", "yolo26n", "yolo26s"],
+            "COU": ["yolo11n", "yolo11s", "yolo26n", "yolo26s"],
+            "TrashCan": ["yolo11n", "yolo11s", "yolo26n", "yolo26s"],
+            "Pepsi_DTU": ["yolo26n", "yolo26s"],
+            "Pepsi_DTU_Rotate": ["yolo26n", "yolo26s"],
+            "Pepsi": ["yolo26n"],
+        }
+
         # Options
         tk.Label(self, text="Camera:").pack(pady=2)
         self.camera_var = tk.StringVar(value="bluerov")
-        ttk.Combobox(self, textvariable=self.camera_var, 
-                     values=["bluerov", "webcam"]).pack()
+        self.camera_cb = ttk.Combobox(
+            self,
+            textvariable=self.camera_var,
+            values=["bluerov", "webcam"],
+            state="readonly"
+        )
+        self.camera_cb.pack()
 
         tk.Label(self, text="Model:").pack(pady=2)
         self.model_var = tk.StringVar(value="yolo26s")
-        ttk.Combobox(self, textvariable=self.model_var,
-                     values=["yolo11n", "yolo11s", "yolo26n", "yolo26s"]).pack()
+        self.model_cb = ttk.Combobox(
+            self,
+            textvariable=self.model_var,
+            values=["yolo11n", "yolo11s", "yolo26n", "yolo26s"],
+            state="readonly"
+        )
+        self.model_cb.pack()
 
         tk.Label(self, text="Dataset:").pack(pady=2)
         self.dataset_var = tk.StringVar(value="COU")
-        ttk.Combobox(self, textvariable=self.dataset_var,
-                     values=["COCO", "COU", "TrashCan", "Pepsi"]).pack()
+        self.dataset_cb = ttk.Combobox(
+            self,
+            textvariable=self.dataset_var,
+            values=["COCO", "COU", "TrashCan", "Pepsi_DTU", "Pepsi_DTU_Rotate", "Pepsi"],
+            state="readonly"
+        )
+        self.dataset_cb.pack()
+
+        self.dataset_cb.bind("<<ComboboxSelected>>", self.on_dataset_change)
+        self.on_dataset_change()  # apply initial rule
 
         # Buttons
         tk.Button(self, text="Start Image+Control", command=self.start_main).pack(pady=5)
@@ -38,6 +66,15 @@ class RunnerGUI(tk.Tk):
         # Status
         self.status_var = tk.StringVar(value="Ready")
         tk.Label(self, textvariable=self.status_var).pack(pady=10)
+
+    def on_dataset_change(self, event=None):
+        dataset = self.dataset_var.get()
+        valid_models = self.allowed_models.get(dataset, ["yolo11n", "yolo11s", "yolo26n", "yolo26s"])
+
+        self.model_cb["values"] = valid_models
+
+        if self.model_var.get() not in valid_models:
+            self.model_var.set(valid_models[0])
 
     def start_main(self):
         if 0 not in self.procs or not self.procs[0].is_alive():

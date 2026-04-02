@@ -76,6 +76,18 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
                     model = YOLO("object_detection_model/yolo26n_pepsi.pt")
                 case "yolo26s":
                     model = YOLO("object_detection_model/yolo26s_pepsi.pt")
+        case "Pepsi_DTU":
+            match modelOpt["which_model"]:
+                case "yolo26n":
+                    model = YOLO("object_detection_model/yolo26n_pepsidtu.pt")
+                case "yolo26s":
+                    model = YOLO("object_detection_model/yolo26s_pepsidtu.pt")
+        case "Pepsi_DTU_Rotate":
+            match modelOpt["which_model"]:
+                case "yolo26n":
+                    model = YOLO("object_detection_model/yolo26n_pepsidtu_rotate.pt")
+                case "yolo26s":
+                    model = YOLO("object_detection_model/yolo26s_pepsidtu_rotate.pt")
         
     log.info(f"Model {modelOpt['which_model']} loaded successfully")
 
@@ -202,7 +214,7 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
     track_history = defaultdict(lambda: []) 
 
     # Initiate resize frame size
-    targetFrame = frameSize(640, 480)
+    targetFrame = frameSize(*spec.get_vision_resolution(specs))
 
     while True:
         is_main_state_busy = runner.program_state.get_busy_state()
@@ -212,11 +224,14 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
             if video.frame_available():
                 # Only retrieve and display a frame if it's new
                 frame = video.frame()
+            frame = cv2.resize(frame, (targetFrame.width, targetFrame.height))
         else:
             ret, frame = video.read()
             if not ret:
                 log.info("Can't receive frame (stream end?). Exiting ...")
                 break
+            frame = cv2.resize(frame, (targetFrame.width, 960))
+            frame = frame[120:840,:] # Crop to 720p
             frame = cv2.flip(frame, 1)  # Flip frame horizontally for correct orientation
         # Wait for the next frame to become available
         
