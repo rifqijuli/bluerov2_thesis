@@ -68,33 +68,3 @@ class Process(mp.Process):
                     state.program_state.set_pitch_state_to_free()
                     log.info(f"Harusnya Free (False) : {state.program_state.get_busy_state()}")
 
-'''
-if __name__ == '__main__':
-    p1 = Process(0,"image", 
-                 camera_opt="bluerov", 
-                 model_opt={
-                     "use_cou": True, 
-                     "which_model": "yolo26s"
-                     })
-    p1.start()
-    p2 = Process(1,"control")
-    p2.start()
-
-    try:
-        p1.join()
-        p2.join()
-    except KeyboardInterrupt:
-        p1.terminate()
-        p2.terminate()
-        p1.join(timeout=1)
-        p2.join(timeout=1)
-
-        p3 = Process(2,"cleaner")
-        p3.start()
-
-
-    #p = Process(2,"dummy")
-    #p.start()   
-'''    
-
-

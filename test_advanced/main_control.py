@@ -82,142 +82,74 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance):
         pwm = convertedValue
         return pwm
 
-
-
+    timeStart = time.time()
     while True:
         #if runner.program_state.get_busy_state() == True:
         if is_program_state_busy.value == 1:
             log.info("Control State: BUSY")
 
             # Set PID Constant Kp, Ki, Kd, and target
-            yaw_pid = pid_control.PIDController(1.0,0.0,0.0,0.0001)
+            yaw_pid = pid_control.PIDController(1.5,1.0,0.00000001,0.0)
             yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
             timePrev = time.time()
 
-            pitch_pid = pid_control.PIDController(1.0,0.0,0.0,0.0001)
+            pitch_pid = pid_control.PIDController(1.5,0.0,0.00000005,0.00)
             pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
 
-            forward_pid = pid_control.PIDController(1.0,0.0,0.0,0.0001)
-
-            # Temporary, focus on yaw
-            roll_angle = pitch_angle = 0
+            forward_pid = pid_control.PIDController(1.0,0.0,0,0.00)
 
             log.info("Yaw Error Pixel: {}".format(yawErrorPixel))
             log.info("Pitch Error Pixel: {}".format(pitch_error_pixel))
             
             # Get Time
             timeNow = time.time()
-            dt = timeNow - timePrev
+            dt_percycle = timeNow - timePrev
+            dt = timeNow - timeStart
             timePrev = timeNow
 
-            log.info("Time Delta: {}".format(dt))
+            log.info("Time Delta: {}".format(dt_percycle))
 
-            # Get Target Yaw Correction
-            yawErrorDegree = pixelToDegree(yawErrorPixel, "yaw")
+            # Get Target Yaw and Pitch Correction
             yaw_error_pwm = pixel_to_pwm(yawErrorPixel, "yaw")
-            #currentYaw = attitude_control.get_current_yaw(master)
-
-            # Get Target Pitch Correction
-            pitch_error_degree = pixelToDegree(pitch_error_pixel, "pitch")
             pitch_error_pwm = pixel_to_pwm(pitch_error_pixel, "pitch")
-            #current_pitch = attitude_control.get_current_pitch(master)
+            distance_error_pwm = distance_to_pwm(ping_distance.value, "ping_sonar")
 
             #targetYaw must be in degree from 0 to 360
-            #targetYaw = ((-1 * yaw_pid.compute(yawErrorDegree, dt)) + currentYaw) % 360
-            target_yaw = yaw_pid.compute(abs(yaw_error_pwm), dt)
+            target_yaw = yaw_pid.compute(abs(yaw_error_pwm), dt_percycle)
             if (yaw_error_pwm < 0):
                 target_yaw = -target_yaw
 
-            #targetPitch must be in degree from -90 to 90
-            #targetPitch = (pitch_pid.compute(pitch_error_degree, dt) + current_pitch) % 360
-            target_pitch = pitch_pid.compute(abs(pitch_error_pwm), dt)
+            target_pitch = pitch_pid.compute(abs(pitch_error_pwm), dt_percycle)
             if (pitch_error_pwm < 0):
                 target_pitch = -target_pitch
-
-            distance_error_pwm = distance_to_pwm(ping_distance.value, "ping_sonar")
-            target_speed = forward_pid.compute(abs(distance_error_pwm), dt)
-
-            # Correct attitude
-            # attitude_control.set_target_attitude(roll_angle, targetPitch, targetYaw, master, boot_time)
-            if is_forward is False:                
-                log.info(f"Correction pwm to : {int(1500 + target_yaw)}")
-                rc_pwm[3] = check_pwm(int(1500 - target_yaw))  # Update shared PWM array for yaw control
-                match control_model.is_depth:
-                    case True:
-                        #thruster_control.set_rc_channel_pwm(master, 3, check_pwm(int(1500 + target_pitch)))
-                        rc_pwm[2] = check_pwm(int(1500 + target_pitch))
-                    case False:
-                        # Update current pitch so it does not reset to 1500, but rather increase or decrease based on the error and correction.
-                        current_pitch_pwm = current_pitch_pwm + target_pitch
-                        #thruster_control.set_rc_channel_pwm(master, 1, check_pwm(int(current_pitch_pwm)))
-                        rc_pwm[0] = check_pwm(int(current_pitch_pwm))  
-            else:
-                rc_pwm[3] = check_pwm(int(1500))
-                rc_pwm[2] = check_pwm(int(1500))
-            #log.info(f"Updated RC PWM for Yaw: {rc_pwm[3]}")
-            #thruster_control.set_rc_channel_pwm(master, 4, check_pwm(int(1500 - target_yaw))) 
             
-            
-            # attitude_control.set_multi_rc_channel_pwm(master, {1: int(1500 + targetPitch), 4: int(1500 - target_yaw)})
+            target_speed = forward_pid.compute(abs(distance_error_pwm), dt_percycle)
 
-            # Might introduce race condition.
-            # set Main state to free so that new difference value can be set
-            #runner.program_state.set_state_to_free()
-            is_program_state_busy.value = 0 # Set to Free
-            
-            #time.sleep(0.02) # Sleep for 20ms.
-            yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
-            pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
+            rc_pwm[3] = check_pwm(int(1500 - target_yaw))  # Update shared PWM array for yaw control
+            log.info("Yaw Correction to: %s", int(1500 - target_yaw))
 
-            #Current PWM for debugging
-            #get_current_pwm = attitude_control.get_current_pwm(master)
-            #log.info("Current PWM: %s", get_current_pwm)
-            log.info("Yaw PWM Correction: %s", yaw_error_pwm)
+            rc_pwm[2] = check_pwm(int(1500 + target_pitch))
+            log.info("Pitch Correction to: %s", int(1500 + target_pitch))
+            # Pitch if needed
+            # current_pitch_pwm = current_pitch_pwm + target_pitch
+            # rc_pwm[0] = check_pwm(int(current_pitch_pwm))
 
             
             if abs(yawErrorPixel) < abs(spec.get_tolerance_pixels(specs)) and abs(pitch_error_pixel) < abs(spec.get_tolerance_pixels(specs)):
                 log.info("Target is within tolerance attitude.")
-                try:
-                    log.info(f"Distance from object: {ping_distance} cm")
-                    if ping_distance.value > 0.5: # If distance is greater than 0.5 meter, move forward
-                        log.info(f"Setting forward speed with PWM correction: {int(1500 - target_speed)}")
-                        rc_pwm[4] = check_pwm(int(1500 - target_speed)) # Set forward
-                        is_forward = True
-                    elif ping_distance.value <= 0.5: # If distance is less than or equal to 0.5 meter, stop
-                        rc_pwm[4] = check_pwm(int(1500)) # Set neutral
-                
-                except Exception as e:
-                    log.error(f"Error getting distance from sonar: {e}")
-                    object_distance = None
-
-                #thruster_control.set_rc_channel_pwm(master, 5, 1800) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
-                #rc_pwm[4] = check_pwm(int(1600)) # Set forward
-
+                log.info(f"Distance from object: {ping_distance.value} cm")
+                if ping_distance.value > min_distance: # If distance is greater than minimum distance, move forward
+                    rc_pwm[4] = check_pwm(int(1500 - target_speed)) # Set forward
+                elif ping_distance.value <= min_distance: # If distance is less than or equal to minimum distance, stop
+                    rc_pwm[4] = check_pwm(int(1500)) # Set neutral
                 is_forward = True
             else:
-                if is_forward is True:
-
-                    #thruster_control.set_rc_channel_pwm(master, 5, 1500) # 1100 forward, 1500 neutral, 1900 backward. or maybe im wrong
+                if is_forward == True:
+                    log.info("Target is outside of tolerance attitude.")
                     rc_pwm[4] = check_pwm(int(1500))
-
-                    #time.sleep(0.01) # 
-                    # This is.. not optimal. its recursive. But it works for now.
-                    # Will implement something better in the future, maybe with state machine or something.
-                    # main_control()
                     is_forward = False
-                    #break
-                #thruster_control.set_thruster_control(master, 0, 0, 500, 0) # Send neutral to stop cleanly
-            
-            
                 
-            # set depth hold
-            # runner.program_state.set_state_to_free()
-
-            # If Yaw already correct
-            # runner.program_state.set_state_to_free()
-
-
-
-            # clean up (disarm) at the end --> if disarmed, depth hold will also released and rov will just sink
-            # master.arducopter_disarm()
-            # master.motors_disarmed_wait()
+            is_program_state_busy.value = 0 # Set to Free
+            
+            yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
+            pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")

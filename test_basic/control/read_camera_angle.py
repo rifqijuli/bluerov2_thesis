@@ -1,0 +1,29 @@
+"""
+Example of how to filter for specific mavlink messages coming from the
+autopilot using pymavlink.
+
+Can also filter within recv_match command - see "Read all parameters" example
+"""
+# Import mavutil
+from pymavlink import mavutil
+
+# Create the connection
+# From topside computer
+master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
+
+while True:
+    msg = master.recv_match()
+    if not msg:
+        continue
+    if msg.get_type() == 'SERVO_OUTPUT_RAW':
+        print("\n\n*****Got message: %s*****" % msg.get_type())
+        print("Message: %s" % msg)
+
+        print("\nAs dictionary: %s" % msg.to_dict())
+        # Armed = MAV_STATE_STANDBY (4), Disarmed = MAV_STATE_ACTIVE (3)
+        print("\nCamera angle: %s" % msg.servo10_raw) 
+
+        # Straight camera = 1245
+        # Downward camera = 1900
+        # Upward camera = 1100
+        # desired downward = 1612

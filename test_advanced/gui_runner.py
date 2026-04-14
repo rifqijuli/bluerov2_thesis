@@ -22,6 +22,9 @@ class RunnerGUI(tk.Tk):
             "Pepsi_DTU": ["yolo26n", "yolo26s"],
             "Pepsi_DTU_Rotate": ["yolo26n", "yolo26s"],
             "Pepsi": ["yolo26n"],
+            "UNO": ["yolo26n"],
+            "Venise": ["yolo26s"],
+            "Morgane": ["yolo26n", "yolo26s"],
         }
 
         # Options
@@ -46,11 +49,11 @@ class RunnerGUI(tk.Tk):
         self.model_cb.pack()
 
         tk.Label(self, text="Dataset:").pack(pady=2)
-        self.dataset_var = tk.StringVar(value="COU")
+        self.dataset_var = tk.StringVar(value="Pepsi_DTU")
         self.dataset_cb = ttk.Combobox(
             self,
             textvariable=self.dataset_var,
-            values=["COCO", "COU", "TrashCan", "Pepsi_DTU", "Pepsi_DTU_Rotate", "Pepsi"],
+            values=["COCO", "COU", "TrashCan", "Pepsi_DTU", "Pepsi_DTU_Rotate", "Pepsi", "UNO", "Venise", "Morgane"],
             state="readonly"
         )
         self.dataset_cb.pack()

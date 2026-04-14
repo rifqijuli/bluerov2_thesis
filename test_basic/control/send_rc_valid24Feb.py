@@ -87,10 +87,10 @@ while time.time() - start_time < 5:
     #set_rc_channel_pwm(1, 1500) 
     
     #set_rc_channel_pwm(1, 1100)
-    set_rc_channel_pwm(4, 1400)
-    set_rc_channel_pwm(3, 1400)
+    set_rc_channel_pwm(4, 1700)
+    #set_rc_channel_pwm(3, 1400)
 
-    time.sleep(0.03) # Sleep for 20ms to maintain 20Hz rate
+    #time.sleep(0.02) # Sleep for 20ms to maintain 20Hz rate
 
     #if time.time() - start_time > 5:
     #    set_multi_rc_channel_pwm({
