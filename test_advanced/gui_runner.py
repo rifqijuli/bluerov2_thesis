@@ -22,8 +22,8 @@ class RunnerGUI(tk.Tk):
             "Pepsi_DTU": ["yolo26n", "yolo26s"],
             "Pepsi_DTU_Rotate": ["yolo26n", "yolo26s"],
             "Pepsi": ["yolo26n"],
-            "UNO": ["yolo26n"],
-            "Venise": ["yolo26s"],
+            "UNO": ["yolo26n", "yolo26s"],
+            "Venise": ["yolo26s", "yolo26n"],
             "Morgane": ["yolo26n", "yolo26s"],
         }
 

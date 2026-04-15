@@ -33,8 +33,8 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance):
     max_pwm = 1900
     min_pwm = 1100
 
-    max_distance = 5.5 # threshold for max distance considered to object
-    min_distance = 0.5
+    max_distance = 5.7 # threshold for max distance considered to object
+    min_distance = 0.7
 
     specs = spec.load_specs()
 

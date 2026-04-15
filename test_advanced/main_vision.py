@@ -92,6 +92,8 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
             match modelOpt["which_model"]:
                 case "yolo26n":
                     model = YOLO("object_detection_model/yolo26n_uno.pt")
+                case "yolo26s":
+                    model = YOLO("object_detection_model/yolo26s_uno.pt")
         case "Venise":
             match modelOpt["which_model"]:
                 case "yolo26n":
