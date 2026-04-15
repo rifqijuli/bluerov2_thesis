@@ -86,26 +86,33 @@ class RunnerGUI(tk.Tk):
             rc_pwm = manager.list([65535] * 18)
             is_program_state_busy = manager.Value('i', 0)  # 0: free, 1: busy
             ping_distance = manager.Value('d', 0.0)  # Shared ping distance
+            is_target_close = manager.Value('i', 0) # 0: far, 1: close
 
             self.procs[0] = Process(0, "image",
                                   camera_opt=self.camera_var.get(),
                                   model_opt={"dataset": self.dataset_var.get(), "which_model": self.model_var.get()},
-                                  rc_pwm=rc_pwm, is_program_state_busy=is_program_state_busy, ping_distance=ping_distance)
+                                  rc_pwm=rc_pwm, 
+                                  is_program_state_busy=is_program_state_busy, 
+                                  ping_distance=ping_distance, 
+                                  is_target_close=is_target_close)
             self.procs[0].start()
             self.procs[1] = Process(1, "control", 
                                     rc_pwm=rc_pwm, 
                                     is_program_state_busy=is_program_state_busy, 
-                                    ping_distance=ping_distance)
+                                    ping_distance=ping_distance, 
+                                    is_target_close=is_target_close)
             self.procs[1].start()
             self.procs[3] = Process(3, "rc_command", 
                                     rc_pwm=rc_pwm, 
                                     is_program_state_busy=is_program_state_busy, 
-                                    ping_distance=ping_distance)
+                                    ping_distance=ping_distance, 
+                                    is_target_close=is_target_close)
             self.procs[3].start()
             self.procs[4] = Process(4, "ping_sonar", 
                                     rc_pwm=rc_pwm, 
                                     is_program_state_busy=is_program_state_busy,
-                                    ping_distance=ping_distance)
+                                    ping_distance=ping_distance, 
+                                    is_target_close=is_target_close)
             self.procs[4].start()
             self.status_var.set("Main processes started")
 

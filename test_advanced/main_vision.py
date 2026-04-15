@@ -26,7 +26,7 @@ from image_enhancement.nets.funiegan import GeneratorFunieGAN as Generator  # ad
 #!/usr/bin/env python
 
 #if __name__ == '__main__':
-def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_state_busy = None, ping_distance = None):
+def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_state_busy = None, ping_distance = None, is_target_close = None):
     """
     BlueRov video capture class
     """

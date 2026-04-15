@@ -23,7 +23,7 @@ import main_state as runner
 from control import attitude_control, depth_control, pid_control, thruster_control
 
 
-def main_control(rc_pwm, is_program_state_busy, ping_distance):
+def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close):
     class control_model():
         is_depth = True # Set to True if yaw and depth, rather than attitude
 
@@ -141,7 +141,9 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance):
                 if ping_distance.value > min_distance: # If distance is greater than minimum distance, move forward
                     rc_pwm[4] = check_pwm(int(1500 - target_speed)) # Set forward
                 elif ping_distance.value <= min_distance: # If distance is less than or equal to minimum distance, stop
+                    log.info("Target is close enough. Stopping forward movement.")
                     rc_pwm[4] = check_pwm(int(1500)) # Set neutral
+                    
                 is_forward = True
             else:
                 if is_forward == True:
