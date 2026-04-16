@@ -25,6 +25,7 @@ class RunnerGUI(tk.Tk):
             "UNO": ["yolo26n", "yolo26s"],
             "Venise": ["yolo26s", "yolo26n"],
             "Morgane": ["yolo26n", "yolo26s"],
+            "Walia": ["yolo26n"]
         }
 
         # Options
@@ -53,7 +54,7 @@ class RunnerGUI(tk.Tk):
         self.dataset_cb = ttk.Combobox(
             self,
             textvariable=self.dataset_var,
-            values=["COCO", "COU", "TrashCan", "Pepsi_DTU", "Pepsi_DTU_Rotate", "Pepsi", "UNO", "Venise", "Morgane"],
+            values=["COCO", "COU", "TrashCan", "Pepsi_DTU", "Pepsi_DTU_Rotate", "UNO", "Venise", "Morgane", "Walia"],
             state="readonly"
         )
         self.dataset_cb.pack()

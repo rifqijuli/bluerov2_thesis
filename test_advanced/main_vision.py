@@ -66,16 +66,6 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
                     model = YOLO("object_detection_model/yolo26n_tc.pt")
                 case "yolo26s":
                     model = YOLO("object_detection_model/yolo26s_tc.pt")
-        case "Pepsi":
-            match modelOpt["which_model"]:
-                case "yolo11n":
-                    model = YOLO("object_detection_model/yolo11n_pepsi.pt")
-                case "yolo11s":
-                    model = YOLO("object_detection_model/yolo11s_pepsi.pt")
-                case "yolo26n":
-                    model = YOLO("object_detection_model/yolo26n_pepsi.pt")
-                case "yolo26s":
-                    model = YOLO("object_detection_model/yolo26s_pepsi.pt")
         case "Pepsi_DTU":
             match modelOpt["which_model"]:
                 case "yolo26n":
@@ -106,6 +96,10 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
                     model = YOLO("object_detection_model/yolo26n_morgane.pt")
                 case "yolo26s":
                     model = YOLO("object_detection_model/yolo26s_morgane.pt")
+        case "Walia":
+            match modelOpt["which_model"]:
+                case "yolo26n":
+                    model = YOLO("object_detection_model/yolo26n_walia.pt")
         
     log.info(f"Model {modelOpt['which_model']} loaded successfully")
 
