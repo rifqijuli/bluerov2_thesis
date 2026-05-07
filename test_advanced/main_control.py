@@ -13,6 +13,7 @@ from misc import stateLoader as stateLoad
 from sonar import pingsonar
 import logging
 import threading
+from tracking import pixel_convert
 
 log = logging.getLogger("Main Control")
 log.info("Main Control started")
@@ -21,7 +22,6 @@ rc_channel_values = [65535] * 18  # Shared PWM array
 
 import main_state as runner
 from control import attitude_control, depth_control, pid_control, thruster_control
-
 
 def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, is_target_detected):
     class control_model():
@@ -120,8 +120,8 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
             log.info("Time Delta: {}".format(dt_percycle))
 
             # Get Target Yaw and Pitch Correction
-            yaw_error_pwm = pixel_to_pwm(yawErrorPixel, "yaw")
-            pitch_error_pwm = pixel_to_pwm(pitch_error_pixel, "pitch")
+            yaw_error_pwm = pixel_convert.pixel_to_pwm(yawErrorPixel, "yaw", yaw_threshold)
+            pitch_error_pwm = pixel_convert.pixel_to_pwm(pitch_error_pixel, "pitch", pitch_threshold)
             distance_error_pwm = distance_to_pwm(ping_distance.value, "ping_sonar")
 
             #targetYaw must be in degree from 0 to 360

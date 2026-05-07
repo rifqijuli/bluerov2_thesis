@@ -4,6 +4,12 @@ import logging
 log = logging.getLogger("Main Sonar")
 log.info("Main Sonar started")
 
+def get_sonar_distance(myPing):
+    data = myPing.get_distance()
+    if data:
+        return data["distance"]/1000.0  # Convert to meters
+    return None
+
 def main_sonar(ping_distance):
     myPing = Ping1D()
     # myPing.connect_serial("/dev/ttyUSB0", 115200)
@@ -14,12 +20,12 @@ def main_sonar(ping_distance):
             if myPing.initialize() is False:
                 print("Failed to initialize Ping!")
                 return None
-            data = myPing.get_distance()
+            data = get_sonar_distance(myPing)
             log.info(f"Sonar Distance: {data['distance']} mm")
             if data:
-                ping_distance.value = data["distance"]/1000.0  # Convert to meters
+                ping_distance.value = data
             else:
-                print("Failed to get distance data")
+                ping_distance.value = ping_distance.value # Keep previous value if failed to get new data
         except Exception as e:
             print(f"An error occurred: {e}")
 

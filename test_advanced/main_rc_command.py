@@ -12,6 +12,11 @@ from control import attitude_control, depth_control, pid_control, thruster_contr
 log = logging.getLogger("Main RC Command")
 log.info("Main RC Command started")
 
+def send_rc_command(master, rc_pwm):
+    master.mav.rc_channels_override_send(
+        master.target_system,                # target_system
+        master.target_component,             # target_component
+        *rc_pwm)                  # RC channel list, in microseconds.
 
 def main_rc_command(rc_pwm, is_program_state_busy, ping_distance, is_target_close):
     master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
@@ -26,11 +31,8 @@ def main_rc_command(rc_pwm, is_program_state_busy, ping_distance, is_target_clos
     depth_control.set_depth_hold(master)
 
     while True:
-        #log.info(f"Sending RC command: {rc_pwm}")
-        master.mav.rc_channels_override_send(
-            master.target_system,                # target_system
-            master.target_component,             # target_component
-            *rc_pwm)                  # RC channel list, in microseconds.
+        send_rc_command(master, rc_pwm)
+
         time.sleep(0.02)  # Send every 0.02s (50Hz)
 
         msg = master.recv_match()

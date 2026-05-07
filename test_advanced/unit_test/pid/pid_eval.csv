@@ -1,0 +1,6 @@
+Test Name,Kp,Ki,Kd,Setpoint,Process Variable,dt,Expected Output,Actual Output,Status
+test_proportional_only,1.0,0,0,10,0,1.0,10.0,10.0,PASS
+test_integral_accumulates,0,1.0,0,10,0 (x2 steps),1.0,20.0,20.0,PASS
+test_derivative_on_error_change,0,0,1.0,10,0 then 5,1.0,-5.0,-5.0,PASS
+test_zero_error,1.0,1.0,1.0,5,5,1.0,0.0,0.0,PASS
+test_combined_output,1.0,1.0,1.0,10,0,1.0,30.0,30.0,PASS
