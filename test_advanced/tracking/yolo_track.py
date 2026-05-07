@@ -80,6 +80,7 @@ def tracker_to_center(x_coord, y_coord, width, height, frame, roi_object=None, t
     if roi_object is None:
         diff_to_center = coordinate(x_coord, y_coord, frame).difference_to_frame()
     else:
+        # Change diff to center if you want to change where point of gripper
         diff_to_center = coordinate((x_coord + roi_object.x) , (y_coord + roi_object.y), frame).difference_to_frame()
         x_coord = x_coord + roi_object.x - width / 2
         y_coord = y_coord + roi_object.y - height / 2

@@ -17,7 +17,18 @@ logging.basicConfig(level=logging.INFO,
 log.info("Runner started")
 
 class Process(mp.Process):
-    def __init__(self, id, flag, camera_opt=None, model_opt=None, rc_pwm=None, is_program_state_busy=None, ping_distance=None, is_target_close=None):
+    def __init__(
+            self, 
+            id, 
+            flag, 
+            camera_opt=None, 
+            model_opt=None, 
+            rc_pwm=None, 
+            is_program_state_busy=None, 
+            ping_distance=None, 
+            is_target_close=None, 
+            is_target_detected=None):
+        
         super(Process, self).__init__()
         self.id = id
         self.flag = flag
@@ -27,6 +38,7 @@ class Process(mp.Process):
         self.is_program_state_busy = is_program_state_busy
         self.ping_distance = ping_distance
         self.is_target_close = is_target_close
+        self.is_target_detected = is_target_detected
                
     def run(self):
         time.sleep(1)
@@ -39,14 +51,16 @@ class Process(mp.Process):
                     rc_pwm=self.rc_pwm, 
                     is_program_state_busy=self.is_program_state_busy,
                     ping_distance=self.ping_distance,
-                    is_target_close=self.is_target_close)
+                    is_target_close=self.is_target_close,
+                    is_target_detected=self.is_target_detected)
             case "control":
                 log.info("I'm the process with id: {}".format(self.id))
                 control.main_control(
                     rc_pwm=self.rc_pwm, 
                     is_program_state_busy=self.is_program_state_busy,
                     ping_distance=self.ping_distance,
-                    is_target_close=self.is_target_close)
+                    is_target_close=self.is_target_close,
+                    is_target_detected=self.is_target_detected)
             case "cleaner":
                 log.info("I'm the process with id: {}".format(self.id))
                 cleaner.main_cleaner()

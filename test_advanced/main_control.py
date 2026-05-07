@@ -23,10 +23,20 @@ import main_state as runner
 from control import attitude_control, depth_control, pid_control, thruster_control
 
 
-def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close):
+def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, is_target_detected):
     class control_model():
         is_depth = True # Set to True if yaw and depth, rather than attitude
 
+    class pwm_threshold():
+        def __init__(self, max_pwm=1900, min_pwm=1100):
+            self.max_pwm = max_pwm
+            self.min_pwm = min_pwm
+        
+        def check_pwm(self, pwm):
+            return max(self.min_pwm, min(self.max_pwm, pwm))
+    
+    yaw_threshold = pwm_threshold(max_pwm=1600, min_pwm=1400)
+    pitch_threshold = pwm_threshold(max_pwm=1900, min_pwm=1100)
 
     is_forward = False
     current_pitch_pwm = 1500
@@ -124,8 +134,10 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close):
                 target_pitch = -target_pitch
             
             target_speed = forward_pid.compute(abs(distance_error_pwm), dt_percycle)
-
-            rc_pwm[3] = check_pwm(int(1500 - target_yaw))  # Update shared PWM array for yaw control
+            '''
+            log.info("Target is detected. Adjusting movement.")
+            #rc_pwm[3] = check_pwm(int(1500 - target_yaw))  # Update shared PWM array for yaw control
+            rc_pwm[3] = yaw_threshold.check_pwm(int(1500 - target_yaw)) # Update shared PWM array for yaw control
             log.info("Yaw Correction to: %s", int(1500 - target_yaw))
 
             rc_pwm[2] = check_pwm(int(1500 + target_pitch))
@@ -133,23 +145,62 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close):
             # Pitch if needed
             # current_pitch_pwm = current_pitch_pwm + target_pitch
             # rc_pwm[0] = check_pwm(int(current_pitch_pwm))
-
             
             if abs(yawErrorPixel) < abs(spec.get_tolerance_pixels(specs)) and abs(pitch_error_pixel) < abs(spec.get_tolerance_pixels(specs)):
                 log.info("Target is within tolerance attitude.")
-                log.info(f"Distance from object: {ping_distance.value} cm")
+                log.info(f"Distance from object: {ping_distance.value} m")
                 if ping_distance.value > min_distance: # If distance is greater than minimum distance, move forward
                     rc_pwm[4] = check_pwm(int(1500 - target_speed)) # Set forward
+                    rc_pwm[2] = check_pwm(int(1450)) # Set neutral vertical
                 elif ping_distance.value <= min_distance: # If distance is less than or equal to minimum distance, stop
                     log.info("Target is close enough. Stopping forward movement.")
                     rc_pwm[4] = check_pwm(int(1500)) # Set neutral
-                    
+                    rc_pwm[2] = check_pwm(int(1500)) # Set neutral vertical
+
                 is_forward = True
             else:
                 if is_forward == True:
                     log.info("Target is outside of tolerance attitude.")
                     rc_pwm[4] = check_pwm(int(1500))
                     is_forward = False
+            '''
+            if (is_target_detected.value == 0):
+                log.info("Target is not detected. Stopping all movement.")
+                rc_pwm[2] = check_pwm(int(1500)) # Set neutral vertical
+                rc_pwm[3] = check_pwm(int(1500)) # Set neutral horizontal
+                rc_pwm[4] = check_pwm(int(1500)) # Set neutral forward
+                is_forward = False
+            else:
+                log.info("Target is detected. Adjusting movement.")
+                #rc_pwm[3] = check_pwm(int(1500 - target_yaw))  # Update shared PWM array for yaw control
+                rc_pwm[3] = yaw_threshold.check_pwm(int(1500 - target_yaw)) # Update shared PWM array for yaw control
+                log.info("Yaw Correction to: %s", int(1500 - target_yaw))
+
+                rc_pwm[2] = check_pwm(int(1500 + target_pitch))
+                log.info("Pitch Correction to: %s", int(1500 + target_pitch))
+                # Pitch if needed
+                # current_pitch_pwm = current_pitch_pwm + target_pitch
+                # rc_pwm[0] = check_pwm(int(current_pitch_pwm))
+                
+                if abs(yawErrorPixel) < abs(spec.get_tolerance_pixels(specs)) and abs(pitch_error_pixel) < abs(spec.get_tolerance_pixels(specs)):
+                    log.info("Target is within tolerance attitude.")
+                    log.info(f"Distance from object: {ping_distance.value} m")
+                    if ping_distance.value > min_distance: # If distance is greater than minimum distance, move forward
+                        rc_pwm[4] = check_pwm(int(1500 - target_speed)) # Set forward
+                        #rc_pwm[2] = check_pwm(int(1400)) # Set neutral vertical
+                    elif ping_distance.value <= min_distance: # If distance is less than or equal to minimum distance, stop
+                        log.info("Target is close enough. Stopping forward movement.")
+                        rc_pwm[4] = check_pwm(int(1500)) # Set neutral
+                        #rc_pwm[2] = check_pwm(int(1500)) # Set neutral vertical
+
+                    is_forward = True
+                else:
+                    if is_forward == True:
+                        log.info("Target is outside of tolerance attitude.")
+                        rc_pwm[4] = check_pwm(int(1500))
+                        is_forward = False
+            
+            
                 
             is_program_state_busy.value = 0 # Set to Free
             

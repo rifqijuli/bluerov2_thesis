@@ -13,7 +13,7 @@ log = logging.getLogger("Main RC Command")
 log.info("Main RC Command started")
 
 
-def main_rc_command(rc_pwm, is_program_state_busy, ping_distance):
+def main_rc_command(rc_pwm, is_program_state_busy, ping_distance, is_target_close):
     master = mavutil.mavlink_connection('udpin:0.0.0.0:14550')
     master.wait_heartbeat()
 
@@ -32,3 +32,15 @@ def main_rc_command(rc_pwm, is_program_state_busy, ping_distance):
             master.target_component,             # target_component
             *rc_pwm)                  # RC channel list, in microseconds.
         time.sleep(0.02)  # Send every 0.02s (50Hz)
+
+        msg = master.recv_match()
+        if not msg:
+            continue
+        if msg.get_type() == 'SERVO_OUTPUT_RAW':
+
+            log.info("Camera angle: %s" % msg.servo10_raw) 
+
+            # Straight camera = 1245
+            # Downward camera = 1900
+            # Upward camera = 1100
+            # desired downward = 1612

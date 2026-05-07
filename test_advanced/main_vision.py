@@ -26,7 +26,14 @@ from image_enhancement.nets.funiegan import GeneratorFunieGAN as Generator  # ad
 #!/usr/bin/env python
 
 #if __name__ == '__main__':
-def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_state_busy = None, ping_distance = None, is_target_close = None):
+def image_main(
+        cameraOpt = False, 
+        modelOpt = False, 
+        rc_pwm = None, 
+        is_program_state_busy = None, 
+        ping_distance = None, 
+        is_target_close = None, 
+        is_target_detected = None):
     """
     BlueRov video capture class
     """
@@ -69,9 +76,11 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
         case "Pepsi_DTU":
             match modelOpt["which_model"]:
                 case "yolo26n":
-                    model = YOLO("object_detection_model/yolo26n_pepsidtu.pt")
+                    #model = YOLO("object_detection_model/yolo26n_pepsidtu.pt")
+                    model = YOLO("object_detection_model/yolo26n_pepsidtu_v2.pt")
                 case "yolo26s":
-                    model = YOLO("object_detection_model/yolo26s_pepsidtu.pt")
+                    #model = YOLO("object_detection_model/yolo26s_pepsidtu.pt")
+                    model = YOLO("object_detection_model/yolo26s_pepsidtu_v2.pt")
         case "Pepsi_DTU_Rotate":
             match modelOpt["which_model"]:
                 case "yolo26n":
@@ -80,6 +89,10 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
                     model = YOLO("object_detection_model/yolo26s_pepsidtu_rotate.pt")
         case "UNO":
             match modelOpt["which_model"]:
+                case "yolo11n":
+                    model = YOLO("object_detection_model/yolo11n_uno.pt")
+                case "yolo11s":
+                    model = YOLO("object_detection_model/yolo11s_uno.pt")
                 case "yolo26n":
                     model = YOLO("object_detection_model/yolo26n_uno.pt")
                 case "yolo26s":
@@ -98,8 +111,14 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
                     model = YOLO("object_detection_model/yolo26s_morgane.pt")
         case "Walia":
             match modelOpt["which_model"]:
+                case "yolo11n":
+                    model = YOLO("object_detection_model/yolo11n_walia.pt")
+                case "yolo11s":
+                    model = YOLO("object_detection_model/yolo11s_walia.pt")
                 case "yolo26n":
                     model = YOLO("object_detection_model/yolo26n_walia.pt")
+                case "yolo26s":
+                    model = YOLO("object_detection_model/yolo26s_walia.pt")
         
     log.info(f"Model {modelOpt['which_model']} loaded successfully")
 
@@ -228,7 +247,11 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
     # Initiate resize frame size
     targetFrame = frameSize(*spec.get_vision_resolution(specs))
 
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+    out = cv2.VideoWriter("output.mp4", fourcc, 30, (targetFrame.width, targetFrame.height))
+
     while True:
+        #rc_pwm[9] = int(1612) # Set camera face downward
         is_main_state_busy = runner.program_state.get_busy_state()
         is_yaw_state_busy = runner.program_state.get_yaw_busy_state()
         is_pitch_state_busy = runner.program_state.get_pitch_busy_state()
@@ -254,8 +277,10 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
                 # When Object is Selected
                 # if (runner.program_state.get_state() == 'FREE'): <-- If you want to set only when FREE
                 results = model.track(frame, persist=True,conf=confidence_threshold, iou=iou_threshold, classes=target_object.target_class)
+                log.info(f"Tracking target ID: {results[0].boxes.cls} with class {target_object.target_class}")
+
                 annotated_frame = results[0].plot()
-                track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_object.target_id, tracks_file=tracks_file, frame_id=frame_id)
+                track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_object.target_id, tracks_file=tracks_file, frame_id=frame_id) 
                 frame = track_objects[0]['frame']
 
                 # Set Heading Difference to runner
@@ -391,7 +416,11 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
             # Tracker
             if target_object.target_status is True:
                 frame_id += 1
+                is_target_detected.value = 1
+            else:
+                is_target_detected.value = 0
             # Show both
+            #out.write(frame)
             cv2.namedWindow('Original')
             cv2.circle(frame, center=(int(targetFrame.center()[0]), int(targetFrame.center()[1])), radius=5, color=(0, 255, 255), thickness=-1)
             cv2.imshow("Original", frame)
@@ -410,6 +439,7 @@ def image_main(cameraOpt = False, modelOpt = False, rc_pwm = None, is_program_st
             if key == ord('q'):
                 #runner.program_state.set_state_to_free()
                 is_program_state_busy.value = 0 # Set to Free
+                #out.release()
                 break
             elif key == ord('s'):
                 #Send back state to runner
