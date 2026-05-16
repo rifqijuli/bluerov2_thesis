@@ -31,3 +31,8 @@ def get_tolerance_pixels(specs):
     """Return (horizontal_tolerance, vertical_tolerance) from loaded specs dict."""
     tol = specs["tolerance"]
     return tol["pixel"]
+
+def get_tolerance_filled_area(specs):
+    """Return filled area tolerance from loaded specs dict."""
+    tol = specs["tolerance"]
+    return tol["filled_area"]

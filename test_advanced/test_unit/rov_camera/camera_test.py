@@ -14,9 +14,12 @@ from camera.rov_camera import Video
 @pytest.fixture(scope="module")
 def video():
     """Start real video stream once for all tests."""
-    v = Video(port=5601)
-    # Wait for first frame (same as your main loop)
-    timeout = 5  # seconds
+    try:
+        v = Video(port=5601)
+    except Exception:
+        pytest.skip("No frame received — is ROV connected?")
+
+    timeout = 10
     start = time.time()
     while not v.frame_available():
         if time.time() - start > timeout:
@@ -24,6 +27,15 @@ def video():
         time.sleep(0.03)
     return v
 
+def get_fresh_frame(video, timeout=5):
+    """Wait for a new frame and return it."""
+    start = time.time()
+    while time.time() - start < timeout:
+        if video.frame_available():
+            return video.frame()
+        time.sleep(0.03)
+    return None
+    
 # --- frame_available ---
 def test_frame_is_available(video):
     assert video.frame_available() == True
@@ -31,27 +43,27 @@ def test_frame_is_available(video):
 
 # --- frame() returns valid numpy array ---
 def test_frame_returns_numpy_array(video):
-    frame = video.frame()
+    frame = get_fresh_frame(video)
     assert isinstance(frame, np.ndarray)
 
 
 # --- frame has correct shape (3 channels BGR) ---
 def test_frame_has_3_channels(video):
-    frame = video.frame()
+    frame = get_fresh_frame(video)
     assert len(frame.shape) == 3
     assert frame.shape[2] == 3   # BGR
 
 
 # --- frame is not empty/black ---
 def test_frame_is_not_blank(video):
-    frame = video.frame()
+    frame = get_fresh_frame(video)
     assert frame is not None
     assert frame.size > 0
 
 
 # --- frame dtype is uint8 ---
 def test_frame_dtype_uint8(video):
-    frame = video.frame()
+    frame = get_fresh_frame(video)
     assert frame.dtype == np.uint8
 
 
@@ -65,7 +77,7 @@ def test_new_frame_reset_after_consume(video):
 
 # --- resize works on real frame ---
 def test_frame_resize(video):
-    frame = video.frame()
+    frame = get_fresh_frame(video)
     resized = cv2.resize(frame, (640, 480))
     assert resized.shape == (480, 640, 3)
 

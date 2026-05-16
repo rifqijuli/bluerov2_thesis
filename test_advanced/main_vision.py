@@ -7,13 +7,14 @@ import gi
 from camera import rov_camera
 from ultralytics import YOLO
 import string
-from tracking import yolo_track
+from tracking import yolo_track, pixel_convert
 from collections import defaultdict
 from image_enhancement import funie
 import main_state as runner
 import logging
 from misc import stateLoader as stateLoad
 from misc import specLoader as spec
+from object.select_object import click_mouse_position
 
 specs = spec.load_specs()
 tracks_file = open('live_pool_tracks.txt', 'w')  # MOT format
@@ -188,39 +189,20 @@ def image_main(
             target_object.target_status = not target_object.target_status
 
 
-    #Mouse Position
-    class click_mouse_position:
-        x = 0
-        y = 0
+    def handle_object_click(object):
+        """Handles all the state changes after a click — call this separately."""
+        if click_mouse_position.is_within_object(object):
+            target_object.set_target(object['track_id'], object['obj_class'])
 
-        def set_position(x_pos, y_pos):
-            click_mouse_position.x = x_pos
-            click_mouse_position.y = y_pos
-        
-        def is_within_object(object):
-            #log.info(f"Object coords and size: X={object['x_coord']}, Y={object['y_coord']}, Width={object['width']}, Height={object['height']}")
-            #log.info(f"Mouse Poisition: X={click_mouse_position.x}, Y={click_mouse_position.y}")
-            if (click_mouse_position.x >= object['x_coord'] and click_mouse_position.x <= object['x_coord'] + object['width'] and
-                click_mouse_position.y >= object['y_coord'] and click_mouse_position.y <= object['y_coord'] + object['height']):
-                target_object.set_target(object['track_id'], object['obj_class'])
-                
-                # Set selecting target to True
-                if target_object.target_status is False:
-                    target_object.toggle_target()
-                
-                if system_state.roi_selected is True:
-                    system_state.toggle_roi()
-                    
-                    #Send back state to runner
-                    runner.isObjectSelected.set_state(True)
-                return ( object['track_id'])
-            else:
-                return False
-        
-        def reset():
-            click_mouse_position.x = 0
-            click_mouse_position.y = 0
+            if target_object.target_status is False:
+                target_object.toggle_target()
 
+            if system_state.roi_selected is True:
+                system_state.toggle_roi()
+                runner.isObjectSelected.set_state(True)
+
+            return object['track_id']
+        return False
 
     log.info('Initialising stream...')
     log.info('Press q to quit')
@@ -278,7 +260,12 @@ def image_main(
                 # if (runner.program_state.get_state() == 'FREE'): <-- If you want to set only when FREE
                 results = model.track(frame, persist=True,conf=confidence_threshold, iou=iou_threshold, classes=target_object.target_class)
                 log.info(f"Tracking target ID: {results[0].boxes.cls} with class {target_object.target_class}")
-
+                if results[0].boxes is not None and len(results[0].boxes) > 0:
+                    log.info("Set detection to 1")
+                    is_target_detected.value = 1
+                else:
+                    log.info("Set detection to 2 (In the loop, but no object detected)")
+                    is_target_detected.value = 2
                 annotated_frame = results[0].plot()
                 track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_object.target_id, tracks_file=tracks_file, frame_id=frame_id) 
                 frame = track_objects[0]['frame']
@@ -292,54 +279,15 @@ def image_main(
 
                 distance = np.linalg.norm(p2 - p1)
                 log.info(f"Distance to target: {distance} pixels")
-
-                # First approach - only set when main state is FREE
-                '''
-                if abs(distance) >= 50:
-                    if is_main_state_busy == False: #Is Free
-                        runner.program_state.set_state_to_busy()
-                        if abs(horizontal_diff) >= 50:
-                            if is_yaw_state_busy == False: #Is Free
-                                runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
-                                runner.program_state.set_yaw_state_to_busy()
-                        else:
-                            if is_yaw_state_busy == True: #Is Busy
-                                log.info("Set yaw difference back to default")
-                                runner.horizontalHeadingDifference.set_pixel_value(0.0) # Reset to 0
-                                runner.program_state.set_yaw_state_to_free()
-                            log.info("Yaw position accepted")
-                        
-                        if abs(vertical_diff) >= 50:
-                            if is_pitch_state_busy == False: #Is Free
-                                runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
-                                runner.program_state.set_pitch_state_to_busy()
-                        else:
-                            if is_pitch_state_busy == True: #Is Busy
-                                log.info("Set pitch difference back to default")
-                                runner.verticalHeadingDifference.set_pixel_value(0.0) # Reset to 0
-                                runner.program_state.set_pitch_state_to_free()
-                            log.info("Pitch position accepted")
+                
+                approx_filled_area = pixel_convert.pixel_filled(track_objects[0]['detected_object']['width'], track_objects[0]['detected_object']['height'])
+                log.info(f"Approximate filled area: {approx_filled_area * 100} % of the frame")
+                if approx_filled_area >= spec.get_tolerance_filled_area(specs):
+                    log.info("Target is close based on filled area. Setting is_target_close to True.")
+                    is_target_close.value = 1
                 else:
-                    if is_main_state_busy == True: #Is Busy
-                        log.info("Set pitch difference back to default")
-                        runner.verticalHeadingDifference.set_pixel_value(0.0) # Reset to 0
-                        runner.program_state.set_pitch_state_to_free()
-
-                        log.info("Set yaw difference back to default")
-                        runner.horizontalHeadingDifference.set_pixel_value(0.0) # Reset to 0
-                        runner.program_state.set_yaw_state_to_free()
-
-                        runner.program_state.set_state_to_free()
-                    log.info("All Position accepted")
-                '''
-
-                # Second approach - always set
-                '''
-                runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
-                runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
-                '''
-
-                # Third approach - only use 1 set flag
+                    log.info("Target is not close based on filled area. Setting is_target_close to False.")
+                    is_target_close.value = 0
                 
                 if abs(distance) >= spec.get_tolerance_pixels(specs):
                     #if is_main_state_busy == False: # Is Free
@@ -416,9 +364,6 @@ def image_main(
             # Tracker
             if target_object.target_status is True:
                 frame_id += 1
-                is_target_detected.value = 1
-            else:
-                is_target_detected.value = 0
             # Show both
             #out.write(frame)
             cv2.namedWindow('Original')
@@ -430,6 +375,8 @@ def image_main(
                     for each in track_objects:
                         if target_object.target_status is False:
                             isInObject = click_mouse_position.is_within_object(each['detected_object'])
+                            if isInObject:
+                                handle_object_click(each['detected_object'])
                             #log.info(f"Is within object: {isInObject}")
                 except:
                     log.info("No object")
@@ -439,6 +386,7 @@ def image_main(
             if key == ord('q'):
                 #runner.program_state.set_state_to_free()
                 is_program_state_busy.value = 0 # Set to Free
+                is_target_detected.value = 0 # Set to Not Detected
                 #out.release()
                 break
             elif key == ord('s'):
@@ -447,6 +395,8 @@ def image_main(
 
                 if target_object.target_status is True:
                     target_object.toggle_target()
+                
+                is_target_detected.value = 0 # Set to Not Detected
 
                 showCrosshair = False
                 fromCenter = False

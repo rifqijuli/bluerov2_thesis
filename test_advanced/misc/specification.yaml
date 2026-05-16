@@ -8,4 +8,5 @@ vision:
   input_height: 720
 
 tolerance:
-  pixel: 50
+  pixel: 100
+  filled_area: 0.2

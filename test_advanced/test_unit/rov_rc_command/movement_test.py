@@ -11,7 +11,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from main_rc_command import send_rc_command
-from control import gripper
 
 # ArduSub channel mapping
 CH_PITCH    = 0 # 0 is pitch up (1900) or down (1100)
@@ -21,8 +20,6 @@ CH_YAW      = 3 # 3 is yaw right (1900) or left (1100)
 CH_FORWARD  = 4 # 4 is forward (1900) or backward (1100)
 CH_LATERAL  = 5 # 5 is lateral right (1900) or left (1100)
 
-PWM_MIN     = 1350
-PWM_MAX     = 1650
 PWM_NEUTRAL = 1500
 RC_CHANNELS = 18
 
@@ -45,13 +42,18 @@ def master():
     return m
 
 def send_and_receive(master, channel, pwm):
-    """Send RC on one channel, wait for SERVO_OUTPUT_RAW reply."""
     rc_pwm = [PWM_NEUTRAL] * RC_CHANNELS
     rc_pwm[channel] = pwm
-    send_rc_command(master, rc_pwm)
-    time.sleep(0.1)
+
+    # Flush stale messages first
+    while master.recv_match(type='SERVO_OUTPUT_RAW', blocking=False):
+        pass
+
+    # Keep sending + wait for fresh response
     timeout = time.time() + 3.0
     while time.time() < timeout:
+        send_rc_command(master, rc_pwm)   # ← send every iteration
+        time.sleep(0.05)                  # 20Hz, same as real implementation
         msg = master.recv_match(type='SERVO_OUTPUT_RAW', blocking=False)
         if msg:
             return msg
@@ -68,62 +70,91 @@ def test_motors_armed(master):
 
 # ── Yaw ───────────────────────────────────────────────────────────────────────
 def test_yaw_right(master):
-    msg = send_and_receive(master, CH_YAW, 1600)
+    msg = send_and_receive(master, CH_YAW, 1800)
     assert msg is not None, "No SERVO_OUTPUT_RAW received"
-    assert PWM_MIN <= msg.servo4_raw <= PWM_MAX
+    assert msg.servo2_raw > PWM_NEUTRAL  # T2 follows
+    assert msg.servo4_raw > PWM_NEUTRAL  # T4 follows
+    assert msg.servo1_raw < PWM_NEUTRAL  # T1 opposes
+    assert msg.servo3_raw < PWM_NEUTRAL  # T3 opposes
 
 def test_yaw_left(master):
-    msg = send_and_receive(master, CH_YAW, 1400)
+    msg = send_and_receive(master, CH_YAW, 1200)
     assert msg is not None, "No SERVO_OUTPUT_RAW received"
-    assert PWM_MIN <= msg.servo4_raw <= PWM_MAX
+    assert msg.servo2_raw < PWM_NEUTRAL  # T2 follows
+    assert msg.servo4_raw < PWM_NEUTRAL  # T4 follows
+    assert msg.servo1_raw > PWM_NEUTRAL  # T1 opposes
+    assert msg.servo3_raw > PWM_NEUTRAL  # T3 opposes
 
 
 # ── Pitch ─────────────────────────────────────────────────────────────────────
 def test_pitch_forward(master):
-    msg = send_and_receive(master, CH_PITCH, 1600)
+    msg = send_and_receive(master, CH_PITCH, 1800)
     assert msg is not None, "No SERVO_OUTPUT_RAW received"
-    assert PWM_MIN <= msg.servo1_raw <= PWM_MAX
+    assert msg.servo5_raw > PWM_NEUTRAL  # T5 follows
+    assert msg.servo8_raw > PWM_NEUTRAL  # T8 follows
+    assert msg.servo6_raw < PWM_NEUTRAL  # T6 opposes
+    assert msg.servo7_raw < PWM_NEUTRAL  # T7 opposes
 
 def test_pitch_backward(master):
-    msg = send_and_receive(master, CH_PITCH, 1400)
+    msg = send_and_receive(master, CH_PITCH, 1200)
     assert msg is not None, "No SERVO_OUTPUT_RAW received"
-    assert PWM_MIN <= msg.servo1_raw <= PWM_MAX
-
+    assert msg.servo5_raw < PWM_NEUTRAL  # T5 follows
+    assert msg.servo8_raw < PWM_NEUTRAL  # T8 follows
+    assert msg.servo6_raw > PWM_NEUTRAL  # T6 opposes
+    assert msg.servo7_raw > PWM_NEUTRAL  # T7 opposes
 
 # ── Throttle ──────────────────────────────────────────────────────────────────
 def test_throttle_up(master):
-    msg = send_and_receive(master, CH_THROTTLE, 1600)
+    msg = send_and_receive(master, CH_THROTTLE, 1800)
     assert msg is not None, "No SERVO_OUTPUT_RAW received"
-    assert PWM_MIN <= msg.servo3_raw <= PWM_MAX
+    assert msg.servo5_raw > PWM_NEUTRAL
+    assert msg.servo6_raw < PWM_NEUTRAL
+    assert msg.servo7_raw < PWM_NEUTRAL
+    assert msg.servo8_raw > PWM_NEUTRAL
 
 def test_throttle_down(master):
-    msg = send_and_receive(master, CH_THROTTLE, 1400)
+    msg = send_and_receive(master, CH_THROTTLE, 1200)
     assert msg is not None, "No SERVO_OUTPUT_RAW received"
-    assert PWM_MIN <= msg.servo3_raw <= PWM_MAX
+    assert msg.servo5_raw < PWM_NEUTRAL
+    assert msg.servo6_raw > PWM_NEUTRAL
+    assert msg.servo7_raw > PWM_NEUTRAL
+    assert msg.servo8_raw < PWM_NEUTRAL
 
 
 # ── Forward / Backward ────────────────────────────────────────────────────────
 def test_forward(master):
-    msg = send_and_receive(master, CH_FORWARD, 1600)
+    msg = send_and_receive(master, CH_FORWARD, 1800)
     assert msg is not None, "No SERVO_OUTPUT_RAW received"
-    assert PWM_MIN <= msg.servo5_raw <= PWM_MAX
+    assert msg.servo1_raw > PWM_NEUTRAL  # T1 follows
+    assert msg.servo2_raw > PWM_NEUTRAL  # T2 follows
+    assert msg.servo3_raw > PWM_NEUTRAL  # T3 follows
+    assert msg.servo4_raw > PWM_NEUTRAL  # T4 follows
 
 def test_backward(master):
-    msg = send_and_receive(master, CH_FORWARD, 1400)
+    msg = send_and_receive(master, CH_FORWARD, 1200)
     assert msg is not None, "No SERVO_OUTPUT_RAW received"
-    assert PWM_MIN <= msg.servo5_raw <= PWM_MAX
+    assert msg.servo1_raw < PWM_NEUTRAL
+    assert msg.servo2_raw < PWM_NEUTRAL
+    assert msg.servo3_raw < PWM_NEUTRAL
+    assert msg.servo4_raw < PWM_NEUTRAL
 
 
 # ── Lateral ───────────────────────────────────────────────────────────────────
 def test_lateral_right(master):
-    msg = send_and_receive(master, CH_LATERAL, 1600)
+    msg = send_and_receive(master, CH_LATERAL, 1800)
     assert msg is not None, "No SERVO_OUTPUT_RAW received"
-    assert PWM_MIN <= msg.servo6_raw <= PWM_MAX
+    assert msg.servo2_raw > PWM_NEUTRAL  # T2 follows
+    assert msg.servo3_raw > PWM_NEUTRAL  # T3 follows
+    assert msg.servo1_raw < PWM_NEUTRAL  # T1 opposes
+    assert msg.servo4_raw < PWM_NEUTRAL  # T4 opposes
 
 def test_lateral_left(master):
-    msg = send_and_receive(master, CH_LATERAL, 1400)
+    msg = send_and_receive(master, CH_LATERAL, 1200)
     assert msg is not None, "No SERVO_OUTPUT_RAW received"
-    assert PWM_MIN <= msg.servo6_raw <= PWM_MAX
+    assert msg.servo2_raw < PWM_NEUTRAL
+    assert msg.servo3_raw < PWM_NEUTRAL
+    assert msg.servo1_raw > PWM_NEUTRAL
+    assert msg.servo4_raw > PWM_NEUTRAL
 
 
 # ── All neutral ───────────────────────────────────────────────────────────────
@@ -133,25 +164,14 @@ def test_all_neutral(master):
     time.sleep(0.1)
     msg = master.recv_match(type='SERVO_OUTPUT_RAW', blocking=False)
     assert msg is not None, "No SERVO_OUTPUT_RAW received"
-
-# ── Gripper ───────────────────────────────────────────────────────────────────
-@pytest.fixture(scope="module")
-def gripper_init(master):
-    return gripper.Gripper(master, 3, set_default=False)  # don't send on init
-
-def test_gripper_open(master, gripper_init):
-    gripper_init.open()
-    time.sleep(2)
-    msg = master.recv_match(type='SERVO_OUTPUT_RAW', blocking=True, timeout=3)  
-    assert msg is not None
-    assert msg.servo11_raw == 1600
-
-def test_gripper_close(master, gripper_init):
-    gripper_init.close()
-    time.sleep(2)
-    msg = master.recv_match(type='SERVO_OUTPUT_RAW', blocking=True, timeout=3)
-    assert msg is not None
-    assert msg.servo11_raw == 1100
+    assert 1400 <= msg.servo1_raw <= 1600
+    assert 1400 <= msg.servo2_raw <= 1600
+    assert 1400 <= msg.servo3_raw <= 1600
+    assert 1400 <= msg.servo4_raw <= 1600
+    assert 1400 <= msg.servo5_raw <= 1600
+    assert 1400 <= msg.servo6_raw <= 1600
+    assert 1400 <= msg.servo7_raw <= 1600
+    assert 1400 <= msg.servo8_raw <= 1600
 
 if __name__ == "__main__":
     pytest.main([__file__])

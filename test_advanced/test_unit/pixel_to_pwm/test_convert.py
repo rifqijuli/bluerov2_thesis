@@ -8,11 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from tracking import pixel_convert
-
-class pwm_threshold():
-    def __init__(self, max_pwm=1900, min_pwm=1100):
-        self.max_pwm = max_pwm
-        self.min_pwm = min_pwm
+from control.pwm_threshold import pwm_threshold
 
 threshold_low = pwm_threshold(max_pwm=1600, min_pwm=1400)
 

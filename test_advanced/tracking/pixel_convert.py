@@ -24,3 +24,11 @@ def distance_to_pwm(value, flag, pwm_threshold, distance_threshold):
 
     pwm = convertedValue
     return pwm
+
+def pixel_filled(width, height):
+    imgWidth, imgHeight = spec.get_vision_resolution(specs)
+
+    resolution_area = imgWidth * imgHeight
+    filled_area = width * height
+
+    return round(filled_area / resolution_area, 2)

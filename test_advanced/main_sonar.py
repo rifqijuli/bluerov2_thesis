@@ -21,7 +21,7 @@ def main_sonar(ping_distance):
                 print("Failed to initialize Ping!")
                 return None
             data = get_sonar_distance(myPing)
-            log.info(f"Sonar Distance: {data['distance']} mm")
+            log.info(f"Sonar Distance: {data} mm")
             if data:
                 ping_distance.value = data
             else:
