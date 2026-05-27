@@ -1,0 +1,5 @@
+sequence,model,mAP50,mAP50-95,precision,recall
+cou_combined,cou_n_26,0.0528,0.0321,0.0966,0.0467
+cou_combined,cou_s_26,0.0233,0.0147,0.0453,0.0155
+cou_combined,cou_n_11,0.0035,0.0026,0.007,0.0012
+cou_combined,cou_s_11,0.0,0.0,0.0,0.0

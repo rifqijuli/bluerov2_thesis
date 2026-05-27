@@ -1,10 +1,13 @@
-# tests/unit/test_camera.py
 import pytest
 import numpy as np
 import cv2
 import time
 import sys
 from pathlib import Path
+
+import gi
+gi.require_version('Gst', '1.0')
+from gi.repository import Gst
 
 # Always points to test_advanced/, regardless of where you run from
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -15,17 +18,22 @@ from camera.rov_camera import Video
 def video():
     """Start real video stream once for all tests."""
     try:
-        v = Video(port=5601)
-    except Exception:
-        pytest.skip("No frame received — is ROV connected?")
+        v = Video(port=5602)
+    except Exception as e:
+        print(f"\n[front_camera] Video() failed: {type(e).__name__}: {e}")
+        pytest.skip("No frame received — is PORT ROV connected?")
 
     timeout = 10
     start = time.time()
     while not v.frame_available():
         if time.time() - start > timeout:
-            pytest.skip("No frame received — is ROV connected?")
+            pytest.skip("Timeout — is ROV connected?")
         time.sleep(0.03)
-    return v
+    yield v
+
+    # In both test files
+    v.video_pipe.set_state(Gst.State.NULL)
+    v.video_pipe = None
 
 def get_fresh_frame(video, timeout=5):
     """Wait for a new frame and return it."""
@@ -83,12 +91,13 @@ def test_frame_resize(video):
 
 
 # --- port config ---
-def test_port_is_5601(video):
-    assert video.port == 5601
+def test_port_is_5602(video):
+    assert video.port == 5602
 
 
 def test_video_source_contains_port(video):
-    assert "5601" in video.video_source
+    assert "5602" in video.video_source
 
 if __name__ == "__main__":
     pytest.main([__file__]) 
+

@@ -22,6 +22,21 @@ def get_camera_fov(specs):
     cam = specs["camera"]
     return cam["fov_horizontal_deg"], cam["fov_vertical_deg"]
 
+def get_camera_port(specs):
+    """Return port from loaded specs dict."""
+    cam = specs["camera"]
+    return cam["port"]
+
+def get_camera_dwe_fov(specs):
+    """Return (h_fov_deg, v_fov_deg) from loaded specs dict."""
+    cam = specs["camera_2"]
+    return cam["fov_horizontal_deg"], cam["fov_vertical_deg"]
+
+def get_camera_dwe_port(specs):
+    """Return port from loaded specs dict."""
+    cam = specs["camera_2"]
+    return cam["port"]
+
 def get_vision_resolution(specs):
     """Return (width, height) from loaded specs dict."""
     vis = specs["vision"]

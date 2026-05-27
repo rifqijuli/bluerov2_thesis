@@ -15,6 +15,9 @@ import logging
 from misc import stateLoader as stateLoad
 from misc import specLoader as spec
 from object.select_object import click_mouse_position
+from object_detection_model.model_loader import get_model_path
+from log.object_detection_logger import object_logger
+import time
 
 specs = spec.load_specs()
 tracks_file = open('live_pool_tracks.txt', 'w')  # MOT format
@@ -34,14 +37,17 @@ def image_main(
         is_program_state_busy = None, 
         ping_distance = None, 
         is_target_close = None, 
-        is_target_detected = None):
+        is_target_detected = None,
+        target_class = None,
+        target_id = None,
+        is_crane_view = None):
     """
     BlueRov video capture class
     """
     frame_id = 0
     confidence_threshold = 0.2
     iou_threshold = 0.6
-
+    '''
     # Load the YOLO11 model
     match modelOpt["dataset"]:
         case "COU":
@@ -120,8 +126,12 @@ def image_main(
                     model = YOLO("object_detection_model/yolo26n_walia.pt")
                 case "yolo26s":
                     model = YOLO("object_detection_model/yolo26s_walia.pt")
-        
-    log.info(f"Model {modelOpt['which_model']} loaded successfully")
+    '''
+     
+    obj_logger = object_logger("detection_log.csv")
+
+    model = YOLO(get_model_path(modelOpt))
+    log.info(f"Model {modelOpt['which_model']} on dataset {modelOpt['dataset']} loaded successfully")
 
     # FUnIE-GAN
     # --- Load pretrained FUnIE-GAN model ---
@@ -184,7 +194,9 @@ def image_main(
         def set_target(selected_id, selected_class):
             target_object.target_id = selected_id
             target_object.target_class = selected_class
-        
+            target_class.value = selected_class
+            target_id.value = selected_id
+
         def toggle_target():
             target_object.target_status = not target_object.target_status
 
@@ -213,7 +225,7 @@ def image_main(
 
      # Create the video object
     if cameraOpt == 'bluerov':
-        video = rov_camera.Video()
+        video = rov_camera.Video(port=spec.get_camera_port(specs))
         # Add port= if is necessary to use a different one
         while not video.frame_available():
             waited += 1
@@ -233,6 +245,8 @@ def image_main(
     out = cv2.VideoWriter("output.mp4", fourcc, 30, (targetFrame.width, targetFrame.height))
 
     while True:
+        time_to_log = time.time()
+        time_to_track = 0
         #rc_pwm[9] = int(1612) # Set camera face downward
         is_main_state_busy = runner.program_state.get_busy_state()
         is_yaw_state_busy = runner.program_state.get_yaw_busy_state()
@@ -258,6 +272,7 @@ def image_main(
             if target_object.target_status is True:
                 # When Object is Selected
                 # if (runner.program_state.get_state() == 'FREE'): <-- If you want to set only when FREE
+                time_to_track = time.time() * 1000
                 results = model.track(frame, persist=True,conf=confidence_threshold, iou=iou_threshold, classes=target_object.target_class)
                 log.info(f"Tracking target ID: {results[0].boxes.cls} with class {target_object.target_class}")
                 if results[0].boxes is not None and len(results[0].boxes) > 0:
@@ -269,6 +284,7 @@ def image_main(
                 annotated_frame = results[0].plot()
                 track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_object.target_id, tracks_file=tracks_file, frame_id=frame_id) 
                 frame = track_objects[0]['frame']
+                time_to_track = (time.time() - time_to_track) * 1000
 
                 # Set Heading Difference to runner
                 horizontal_diff = track_objects[0]['detected_object']['x_diff']
@@ -281,6 +297,7 @@ def image_main(
                 log.info(f"Distance to target: {distance} pixels")
                 
                 approx_filled_area = pixel_convert.pixel_filled(track_objects[0]['detected_object']['width'], track_objects[0]['detected_object']['height'])
+                runner.filledAreaDifference.set_value(approx_filled_area)
                 log.info(f"Approximate filled area: {approx_filled_area * 100} % of the frame")
                 if approx_filled_area >= spec.get_tolerance_filled_area(specs):
                     log.info("Target is close based on filled area. Setting is_target_close to True.")
@@ -299,12 +316,14 @@ def image_main(
                         else:
                             runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
                             log.info("Yaw position accepted")
-                        
-                        if abs(vertical_diff) >= spec.get_tolerance_pixels(specs):
-                            runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
-                        else:
-                            runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
+                        if is_crane_view.value == 0: # If not in crane view, use normal vertical difference
+                            if abs(vertical_diff) >= spec.get_tolerance_pixels(specs):
+                                runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
+                            else:
+                                runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
                             log.info("Pitch position accepted")
+                        else: # If in crane view, use closeness value for vertical difference. Let second vision set closeness value.
+                            pass
                 else: # SET HERE TO READY FOR DISTANCE MEASUREMENT
                     log.info("All Position accepted")
                     runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
@@ -361,6 +380,16 @@ def image_main(
         except:
             pass
         finally:
+            # Log Process
+            loop_ms = (time.time() - time_to_log) * 1000
+            obj_logger.log(
+                timestamp = time_to_log,
+                frame_id = frame_id, 
+                loop_ms = loop_ms, 
+                fps = 1000 / loop_ms if loop_ms > 0 else 0, 
+                tracking_ms = time_to_track
+            )
+
             # Tracker
             if target_object.target_status is True:
                 frame_id += 1
@@ -381,6 +410,8 @@ def image_main(
                 except:
                     log.info("No object")
             click_mouse_position.reset()
+
+
             # Allow frame to display, and check if user wants to quit
             key = cv2.waitKey(50)
             if key == ord('q'):
@@ -412,4 +443,7 @@ def image_main(
 
                     system_state.toggle_roi()
                 cv2.destroyAllWindows()
+            elif key == ord('n'):
+                # Manual change to near camera setup
+                pass
     cv2.destroyAllWindows()

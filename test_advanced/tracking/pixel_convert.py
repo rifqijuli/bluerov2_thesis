@@ -10,6 +10,8 @@ def pixel_to_pwm(value, flag, pwm_threshold):
             convertedValue = value * ((range_pwm/8)/(imgWidth/2))
         case "pitch":
             convertedValue = value * ((range_pwm/4)/(imgHeight/2))
+        case "forward":
+            convertedValue = value * ((range_pwm/6)/(imgHeight/2))
 
     pwm = convertedValue
     return pwm
@@ -21,6 +23,14 @@ def distance_to_pwm(value, flag, pwm_threshold, distance_threshold):
     match flag:
         case "ping_sonar":
             convertedValue = value * ((range_pwm/4)/(range_distance))
+
+    pwm = convertedValue
+    return pwm
+
+def filled_area_to_pwm(value, pwm_threshold):
+    range_pwm = pwm_threshold.max_pwm - pwm_threshold.min_pwm
+
+    convertedValue = (1 - value) * (range_pwm/4)
 
     pwm = convertedValue
     return pwm

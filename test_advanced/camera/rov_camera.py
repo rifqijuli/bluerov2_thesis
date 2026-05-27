@@ -30,6 +30,7 @@ class Video():
 
         self.port = port
         self.latest_frame = self._new_frame = None
+        self.sink_name = f'sink_{port}'
 
         # [Software component diagram](https://www.ardusub.com/software/components.html)
         # UDP video stream (:5600)
@@ -42,7 +43,7 @@ class Video():
             '! decodebin ! videoconvert ! video/x-raw,format=(string)BGR ! videoconvert'
         # Create a sink to get data
         self.video_sink_conf = \
-            '! appsink emit-signals=true sync=false max-buffers=2 drop=true'
+            f'! appsink name={self.sink_name} emit-signals=true sync=false max-buffers=2 drop=true'
 
         self.video_pipe = None
         self.video_sink = None
@@ -73,7 +74,7 @@ class Video():
         command = ' '.join(config)
         self.video_pipe = Gst.parse_launch(command)
         self.video_pipe.set_state(Gst.State.PLAYING)
-        self.video_sink = self.video_pipe.get_by_name('appsink0')
+        self.video_sink = self.video_pipe.get_by_name(self.sink_name)
 
     @staticmethod
     def gst_to_opencv(sample):

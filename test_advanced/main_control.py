@@ -14,6 +14,7 @@ from sonar import pingsonar
 import logging
 import threading
 from tracking import pixel_convert
+from log.pid_logger import PIDLogger
 
 log = logging.getLogger("Main Control")
 log.info("Main Control started")
@@ -24,12 +25,15 @@ import main_state as runner
 from control import attitude_control, depth_control, pid_control, thruster_control
 from control.pwm_threshold import pwm_threshold
 
-def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, is_target_detected):
+def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, is_target_detected, is_crane_view):
     class control_model():
         is_depth = True # Set to True if yaw and depth, rather than attitude
 
-    yaw_threshold = pwm_threshold(max_pwm=1700, min_pwm=1200)
-    pitch_threshold = pwm_threshold(max_pwm=1700, min_pwm=1200)
+    pid_logger = PIDLogger("pid_log.csv")
+
+    yaw_threshold = pwm_threshold(max_pwm=1700, min_pwm=1300)
+    pitch_threshold = pwm_threshold(max_pwm=1700, min_pwm=1300)
+    forward_threshold = pwm_threshold(max_pwm=1800, min_pwm=1200)
 
     is_forward = False
     current_pitch_pwm = 1500
@@ -90,6 +94,7 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
     pitch_pid = pid_control.PIDController(0.0,0.0,0.0,0.0)
     forward_pid = pid_control.PIDController(0.0,0.0,0.0,0.0)
     while True:
+        time_to_log = time.time()
         #if runner.program_state.get_busy_state() == True:
         if is_program_state_busy.value == 1:
             log.info("Control State: BUSY")
@@ -110,7 +115,7 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
             yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
             timePrev = time.time()
 
-            pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
+            pitch_error_pixel = runner.verticalHeadingDifference.get_value("pixel")
 
             log.info("Yaw Error Pixel: {}".format(yawErrorPixel))
             log.info("Pitch Error Pixel: {}".format(pitch_error_pixel))
@@ -126,7 +131,14 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
             # Get Target Yaw and Pitch Correction
             yaw_error_pwm = pixel_convert.pixel_to_pwm(yawErrorPixel, "yaw", yaw_threshold)
             pitch_error_pwm = pixel_convert.pixel_to_pwm(pitch_error_pixel, "pitch", pitch_threshold)
-            distance_error_pwm = distance_to_pwm(ping_distance.value, "ping_sonar")
+            match is_crane_view.value:
+                case 1:
+                    # In crane view
+                    distance_error_pixel = runner.verticalHeadingDifference.get_closeness_value("pixel")
+                    distance_error_pwm = pixel_convert.pixel_to_pwm(distance_error_pixel, "forward", forward_threshold)
+                case 0:
+                    # Not in crane view, normal operation
+                    distance_error_pwm = distance_to_pwm(ping_distance.value, "ping_sonar")
             
             target_yaw = yaw_pid.compute(abs(yaw_error_pwm), dt_percycle)
             target_pitch = pitch_pid.compute(abs(pitch_error_pwm), dt_percycle)
@@ -138,41 +150,73 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
             if (pitch_error_pwm < 0):
                 target_pitch = -target_pitch
             
+            yaw_pwm_values = yaw_threshold.check_pwm(int(1500 - target_yaw))
+            pitch_pwm_values = pitch_threshold.check_pwm(int(1500 + target_pitch))
+            forward_pwm_values = forward_threshold.check_pwm(int(1500 - target_speed))
+
+            pid_logger.log(
+                timestamp = time_to_log,
+                processing_time = time_to_log - time.time(),
+                pixel_error_x = yawErrorPixel,
+                pixel_error_y = pitch_error_pixel,
+                sonar_distance = ping_distance.value,
+                yaw_out = target_yaw,
+                pitch_out = target_pitch,
+                forward_out = target_speed,
+                pwm_yaw = yaw_pwm_values,
+                pwm_pitch = pitch_pwm_values,
+                pwm_forward = forward_pwm_values
+            )
+
             if (is_target_detected.value == 0):
                 log.info("Target is not detected. Stopping all movement.")
-                rc_pwm[2] = check_pwm(int(1500)) # Set neutral vertical
-                rc_pwm[3] = check_pwm(int(1500)) # Set neutral horizontal
-                rc_pwm[4] = check_pwm(int(1500)) # Set neutral forward
+                rc_pwm[2] = 1500 # Set neutral vertical
+                rc_pwm[3] = 1500 # Set neutral horizontal
+                rc_pwm[4] = 1500 # Set neutral forward
                 is_forward = False
             else:
                 log.info("Target is detected. Adjusting movement.")
                 #rc_pwm[3] = check_pwm(int(1500 - target_yaw))  # Update shared PWM array for yaw control
-                rc_pwm[3] = yaw_threshold.check_pwm(int(1500 - target_yaw)) # Update shared PWM array for yaw control
+                rc_pwm[3] = yaw_pwm_values # Update shared PWM array for yaw control
                 log.info("Yaw Correction to: %s", int(1500 - target_yaw))
 
-                rc_pwm[2] = pitch_threshold.check_pwm(int(1500 + target_pitch))
+                rc_pwm[2] = pitch_pwm_values # Update shared PWM array for pitch control
                 log.info("Pitch Correction to: %s", int(1500 + target_pitch))
                 # Pitch if needed
                 # current_pitch_pwm = current_pitch_pwm + target_pitch
                 # rc_pwm[0] = check_pwm(int(current_pitch_pwm))
                 
-                if abs(yawErrorPixel) < abs(spec.get_tolerance_pixels(specs)) and abs(pitch_error_pixel) < abs(spec.get_tolerance_pixels(specs)):
-                    log.info("Target is within tolerance attitude.")
-                    log.info(f"Distance from object: {ping_distance.value} m")
-                    if ping_distance.value > min_distance: # If distance is greater than minimum distance, move forward
-                        rc_pwm[4] = check_pwm(int(1500 - target_speed)) # Set forward
-                        #rc_pwm[2] = check_pwm(int(1500 + target_speed)) # Set neutral vertical
-                    elif ping_distance.value <= min_distance: # If distance is less than or equal to minimum distance, stop
-                        log.info("Target is close enough. Stopping forward movement.")
-                        rc_pwm[4] = check_pwm(int(1500)) # Set neutral
-                        #rc_pwm[2] = check_pwm(int(1500)) # Set neutral vertical
+                match is_crane_view.value:
+                    case 1:
+                        if abs(yawErrorPixel) < abs(spec.get_tolerance_pixels(specs)):
+                            log.info("Target is within tolerance attitude in crane view.")
+                            log.info("In crane view, using forward PID based on closeness value.")
+                            rc_pwm[4] = forward_pwm_values # Set forward based on closeness value
+                            log.info("Forward Correction to: %s", int(1500 - target_speed))
+                            is_forward = True
+                        else:
+                            log.info("Target is outside of tolerance attitude in crane view.")
+                            rc_pwm[4] = 1500 # Set neutral forward
+                            is_forward = False
+                    case 0:
+                        log.info("Not in crane view, using forward PID based on sonar distance.")
+                        if abs(yawErrorPixel) < abs(spec.get_tolerance_pixels(specs)) and abs(pitch_error_pixel) < abs(spec.get_tolerance_pixels(specs)):
+                            log.info("Target is within tolerance attitude.")
+                            log.info(f"Distance from object: {ping_distance.value} m")
+                            if ping_distance.value > min_distance: # If distance is greater than minimum distance, move forward
+                                rc_pwm[4] = forward_pwm_values # Set forward
+                                #rc_pwm[2] = check_pwm(int(1500 + target_speed)) # Set neutral vertical
+                            elif ping_distance.value <= min_distance: # If distance is less than or equal to minimum distance, stop
+                                log.info("Target is close enough. Stopping forward movement.")
+                                rc_pwm[4] = 1500 # Set neutral
+                                #rc_pwm[2] = check_pwm(int(1500)) # Set neutral vertical
 
-                    is_forward = True
-                else:
-                    if is_forward == True:
-                        log.info("Target is outside of tolerance attitude.")
-                        rc_pwm[4] = check_pwm(int(1500))
-                        is_forward = False
+                            is_forward = True
+                        else:
+                            if is_forward == True:
+                                log.info("Target is outside of tolerance attitude.")
+                                rc_pwm[4] = 1500 # Set neutral forward
+                                is_forward = False
                 
             is_program_state_busy.value = 0 # Set to Free
             
@@ -181,7 +225,7 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
         else:
             if (is_target_detected.value == 2):
                 log.info("Target is not detected. Stopping all movement.")
-                rc_pwm[2] = check_pwm(int(1500)) # Set neutral vertical
-                rc_pwm[3] = check_pwm(int(1500)) # Set neutral horizontal
-                rc_pwm[4] = check_pwm(int(1500)) # Set neutral forward
+                rc_pwm[2] = 1500 # Set neutral vertical
+                rc_pwm[3] = 1500 # Set neutral horizontal
+                rc_pwm[4] = 1500 # Set neutral forward
                 is_forward = False

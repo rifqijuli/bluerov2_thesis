@@ -21,11 +21,6 @@ def master():
     m.arducopter_arm()
     m.motors_armed_wait()
 
-    DEPTH_HOLD = 'ALT_HOLD'
-    DEPTH_HOLD_MODE = m.mode_mapping()[DEPTH_HOLD]
-    while not m.wait_heartbeat().custom_mode == DEPTH_HOLD_MODE:
-        m.set_mode(DEPTH_HOLD)
-
     return m
 
 

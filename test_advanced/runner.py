@@ -4,6 +4,7 @@ import main_state as state
 import main_cleaner as cleaner
 import main_rc_command as rc_command
 import main_sonar as sonar
+import second_vision as crane_view
 import multiprocessing as mp
 import time
 import logging
@@ -27,7 +28,11 @@ class Process(mp.Process):
             is_program_state_busy=None, 
             ping_distance=None, 
             is_target_close=None, 
-            is_target_detected=None):
+            is_target_detected=None,
+            target_class=None,
+            target_id=None,
+            is_crane_view=None
+            ):
         
         super(Process, self).__init__()
         self.id = id
@@ -39,7 +44,10 @@ class Process(mp.Process):
         self.ping_distance = ping_distance
         self.is_target_close = is_target_close
         self.is_target_detected = is_target_detected
-               
+        self.target_class = target_class
+        self.target_id = target_id
+        self.is_crane_view = is_crane_view
+
     def run(self):
         time.sleep(1)
         match self.flag:
@@ -52,7 +60,11 @@ class Process(mp.Process):
                     is_program_state_busy=self.is_program_state_busy,
                     ping_distance=self.ping_distance,
                     is_target_close=self.is_target_close,
-                    is_target_detected=self.is_target_detected)
+                    is_target_detected=self.is_target_detected,
+                    target_class=self.target_class,
+                    target_id=self.target_id,
+                    is_crane_view=self.is_crane_view
+                    )
             case "control":
                 log.info("I'm the process with id: {}".format(self.id))
                 control.main_control(
@@ -60,7 +72,9 @@ class Process(mp.Process):
                     is_program_state_busy=self.is_program_state_busy,
                     ping_distance=self.ping_distance,
                     is_target_close=self.is_target_close,
-                    is_target_detected=self.is_target_detected)
+                    is_target_detected=self.is_target_detected,
+                    is_crane_view=self.is_crane_view
+                    )
             case "cleaner":
                 log.info("I'm the process with id: {}".format(self.id))
                 cleaner.main_cleaner()
@@ -73,6 +87,16 @@ class Process(mp.Process):
             case "ping_sonar":
                 log.info("I'm the process with id: {}".format(self.id))
                 sonar.main_sonar(ping_distance=self.ping_distance)
+            case "crane_view":
+                log.info("I'm the process with id: {}".format(self.id))
+                crane_view.image_main(
+                    modelOpt=self.model_opt,
+                    is_program_state_busy=self.is_program_state_busy,
+                    is_target_detected=self.is_target_detected,
+                    target_class=self.target_class,
+                    target_id=self.target_id,
+                    is_crane_view=self.is_crane_view
+                    )
             case "dummy":
                 log.info("I'm the process with id: {}".format(self.id))
                 while True:

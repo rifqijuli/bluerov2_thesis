@@ -66,6 +66,23 @@ class isObjectSelected:
         isObjectSelected.state = state
         return isObjectSelected.state
 
+class filledAreaDifference:
+
+    def get_value():
+        load_difference = heading_difference_loader.load_difference()
+        area_difference = heading_difference_loader.get_filled_area_difference(load_difference)
+        return area_difference
+    
+    def set_value(new_value):
+        try:
+            float(new_value)
+            heading_difference_loader.set_filled_area_difference(area_difference=new_value)
+            log.info(f"New Value [Filled Area Difference] has been set")
+            return filledAreaDifference.get_value()
+        except ValueError:
+            log.info("Input must be a number.")
+            return filledAreaDifference.get_value()
+
 #Difference in Horizontal Heading
 class horizontalHeadingDifference:
 
@@ -143,6 +160,17 @@ class verticalHeadingDifference:
                     degree_difference : degree_difference
                 }
     
+    def get_closeness_value(flag):
+        load_difference = heading_difference_loader.load_difference()
+        closeness_pixel_difference = heading_difference_loader.get_closeness_difference(load_difference)
+        match flag:
+            case "pixel":
+                return closeness_pixel_difference
+            case "all":
+                return {
+                    closeness_pixel_difference : closeness_pixel_difference
+                }
+    
     def set_pixel_value(new_value):
         try:
             float(new_value)
@@ -164,6 +192,18 @@ class verticalHeadingDifference:
         except ValueError:
             log.info("Input must be a number.")
             return verticalHeadingDifference.get_value("pixel")
+    
+    def set_pixel_closeness_value(new_value):
+        try:
+            float(new_value)
+
+            heading_difference_loader.set_closeness_difference(pixel_difference=new_value)
+            log.info(f"New Value [Closeness] has been set")
+
+            return verticalHeadingDifference.get_value("closeness_pixel")
+        except ValueError:
+            log.info("Input must be a number.")
+            return verticalHeadingDifference.get_value("closeness_pixel")
 
     def set_degree_value(new_value):
         try:
