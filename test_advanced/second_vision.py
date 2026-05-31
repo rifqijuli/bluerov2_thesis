@@ -23,7 +23,9 @@ def image_main(
         is_target_detected = None,
         target_class = None,
         target_id = None,
-        is_crane_view = None):
+        is_crane_view = None,
+        crane_view_horizontal = None,
+        crane_view_vertical = None):
     """
     BlueRov video capture class
     """
@@ -48,7 +50,7 @@ def image_main(
     waited = 0
 
      # Create the video object
-    video = rov_camera.Video(port=spec.get_camera_dwe_port(specs))
+    video = rov_camera.Video(port=spec.get_camera_port(specs))
     while not video.frame_available():
         waited += 1
         print('\r  Frame not available (x{})'.format(waited), end='')
@@ -68,52 +70,39 @@ def image_main(
         frame = cv2.resize(frame, (targetFrame.width, targetFrame.height))
 
         try:
-            results = model.track(frame, persist=True,conf=confidence_threshold, iou=iou_threshold, classes=target_class)
-            is_crane_view.value = 1 # Set to Crane View
+            results = model.track(frame, persist=True,conf=confidence_threshold, iou=iou_threshold, classes=target_class.value)
             if results[0].boxes is not None and len(results[0].boxes) > 0:
-                log.info("Set detection to 1")
-                is_target_detected.value = 1
-            else:
-                log.info("Set detection to 2 (In the loop, but no object detected)")
-                is_target_detected.value = 2
-            track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_id, frame_id=frame_id) 
-            frame = track_objects[0]['frame']
+                is_crane_view.value = 1 # Set to Crane View
+                track_objects = yolo_track.draw_tracker(results[0], track_history, frame, target_id=target_id, frame_id=frame_id) 
+                frame = track_objects[0]['frame']
 
-            # Set Heading Difference to runner
-            horizontal_diff = track_objects[0]['detected_object']['x_diff']
-            vertical_diff = track_objects[0]['detected_object']['y_diff']
+                # Set Heading Difference to runner
+                horizontal_diff = track_objects[0]['detected_object']['x_diff']
+                vertical_diff = track_objects[0]['detected_object']['y_diff']
 
-            p1 = np.array((0, 0))
-            p2 = np.array((horizontal_diff, vertical_diff))
+                p1 = np.array((0, 0))
+                p2 = np.array((horizontal_diff, vertical_diff))
 
-            distance = np.linalg.norm(p2 - p1)
-            log.info(f"Distance to target: {distance} pixels")
-            
-            if abs(distance) >= spec.get_tolerance_pixels(specs):
-                #if is_main_state_busy == False: # Is Free
-                if is_program_state_busy.value == 0: # Is Free
-                    #runner.program_state.set_state_to_busy()
-                    is_program_state_busy.value = 1 # Set to Busy
-                    if abs(horizontal_diff) >= spec.get_tolerance_pixels(specs):
-                        runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
-                    else:
-                        runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
-                        log.info("Yaw position accepted")
-                    
-                    if abs(vertical_diff) >= spec.get_tolerance_pixels(specs):
-                        runner.verticalHeadingDifference.set_pixel_closeness_value(vertical_diff)
-                    else:
-                        runner.verticalHeadingDifference.set_pixel_closeness_value(vertical_diff)
-                        log.info("Close position accepted")
-            else: # SET HERE TO READY FOR DISTANCE MEASUREMENT
-                log.info("All Position accepted")
-                runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
-                runner.verticalHeadingDifference.set_pixel_closeness_value(vertical_diff)
-
-                is_program_state_busy.value = 1 # Set to Busy
+                distance = np.linalg.norm(p2 - p1)
+                log.info(f"Distance to target: {distance} pixels")
+    
+                if abs(horizontal_diff) >= spec.get_tolerance_pixels(specs):
+                    crane_view_horizontal.value = horizontal_diff
+                else:
+                    crane_view_horizontal.value = horizontal_diff
+                    log.info("Yaw position accepted")
+                
+                if abs(vertical_diff) > 0:#ram into center
+                    crane_view_vertical.value = vertical_diff
+                    runner.verticalHeadingDifference.set_pixel_closeness_value(crane_view_vertical.value)
+                else:
+                    crane_view_vertical.value = vertical_diff
+                    runner.verticalHeadingDifference.set_pixel_closeness_value(crane_view_vertical.value)
+                    log.info("Close position accepted")
         except:
             is_crane_view.value = 0
             log.info("Object detection failed, waiting for next frame.")
+            log.info(f"Target detected class: {target_class}, Target detected id: {target_id}")
         finally:
             #out.write(frame)
             cv2.namedWindow('CraneView')

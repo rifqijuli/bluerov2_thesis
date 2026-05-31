@@ -40,93 +40,15 @@ def image_main(
         is_target_detected = None,
         target_class = None,
         target_id = None,
-        is_crane_view = None):
+        is_crane_view = None,
+        crane_view_horizontal = None,
+        crane_view_vertical = None):
     """
     BlueRov video capture class
     """
     frame_id = 0
     confidence_threshold = 0.2
     iou_threshold = 0.6
-    '''
-    # Load the YOLO11 model
-    match modelOpt["dataset"]:
-        case "COU":
-            match modelOpt["which_model"]:
-                case "yolo11n":
-                    model = YOLO("object_detection_model/yolo11n_cou.pt")
-                case "yolo11s":
-                    model = YOLO("object_detection_model/yolo11s_cou.pt")
-                case "yolo26n":
-                    model = YOLO("object_detection_model/yolo26n_cou.pt")
-                case "yolo26s":
-                    model = YOLO("object_detection_model/yolo26s_cou.pt")
-        case "COCO":
-            match modelOpt["which_model"]:
-                case "yolo11n":
-                    model = YOLO("object_detection_model/yolo11n.pt")
-                case "yolo11s":
-                    model = YOLO("object_detection_model/yolo11s.pt")
-                case "yolo26n":
-                    model = YOLO("object_detection_model/yolo26n.pt")
-                case "yolo26s":
-                    model = YOLO("object_detection_model/yolo26s.pt")
-        case "TrashCan":
-            match modelOpt["which_model"]:
-                case "yolo11n":
-                    model = YOLO("object_detection_model/yolo11n_tc.pt")
-                case "yolo11s":
-                    model = YOLO("object_detection_model/yolo11s_tc.pt")
-                case "yolo26n":
-                    model = YOLO("object_detection_model/yolo26n_tc.pt")
-                case "yolo26s":
-                    model = YOLO("object_detection_model/yolo26s_tc.pt")
-        case "Pepsi_DTU":
-            match modelOpt["which_model"]:
-                case "yolo26n":
-                    #model = YOLO("object_detection_model/yolo26n_pepsidtu.pt")
-                    model = YOLO("object_detection_model/yolo26n_pepsidtu_v2.pt")
-                case "yolo26s":
-                    #model = YOLO("object_detection_model/yolo26s_pepsidtu.pt")
-                    model = YOLO("object_detection_model/yolo26s_pepsidtu_v2.pt")
-        case "Pepsi_DTU_Rotate":
-            match modelOpt["which_model"]:
-                case "yolo26n":
-                    model = YOLO("object_detection_model/yolo26n_pepsidtu_rotate.pt")
-                case "yolo26s":
-                    model = YOLO("object_detection_model/yolo26s_pepsidtu_rotate.pt")
-        case "UNO":
-            match modelOpt["which_model"]:
-                case "yolo11n":
-                    model = YOLO("object_detection_model/yolo11n_uno.pt")
-                case "yolo11s":
-                    model = YOLO("object_detection_model/yolo11s_uno.pt")
-                case "yolo26n":
-                    model = YOLO("object_detection_model/yolo26n_uno.pt")
-                case "yolo26s":
-                    model = YOLO("object_detection_model/yolo26s_uno.pt")
-        case "Venise":
-            match modelOpt["which_model"]:
-                case "yolo26n":
-                    model = YOLO("object_detection_model/yolo26n_venise.pt")
-                case "yolo26s":
-                    model = YOLO("object_detection_model/yolo26s_venise.pt")
-        case "Morgane":
-            match modelOpt["which_model"]:
-                case "yolo26n":
-                    model = YOLO("object_detection_model/yolo26n_morgane.pt")
-                case "yolo26s":
-                    model = YOLO("object_detection_model/yolo26s_morgane.pt")
-        case "Walia":
-            match modelOpt["which_model"]:
-                case "yolo11n":
-                    model = YOLO("object_detection_model/yolo11n_walia.pt")
-                case "yolo11s":
-                    model = YOLO("object_detection_model/yolo11s_walia.pt")
-                case "yolo26n":
-                    model = YOLO("object_detection_model/yolo26n_walia.pt")
-                case "yolo26s":
-                    model = YOLO("object_detection_model/yolo26s_walia.pt")
-    '''
      
     obj_logger = object_logger("detection_log.csv")
 
@@ -225,7 +147,7 @@ def image_main(
 
      # Create the video object
     if cameraOpt == 'bluerov':
-        video = rov_camera.Video(port=spec.get_camera_port(specs))
+        video = rov_camera.Video(port=spec.get_camera_dwe_port(specs))
         # Add port= if is necessary to use a different one
         while not video.frame_available():
             waited += 1
@@ -295,11 +217,13 @@ def image_main(
 
                 distance = np.linalg.norm(p2 - p1)
                 log.info(f"Distance to target: {distance} pixels")
+                log.info(f"object width: {track_objects[0]['detected_object']['width']} pixels, object height: {track_objects[0]['detected_object']['height']} pixels")
                 
                 approx_filled_area = pixel_convert.pixel_filled(track_objects[0]['detected_object']['width'], track_objects[0]['detected_object']['height'])
-                runner.filledAreaDifference.set_value(approx_filled_area)
                 log.info(f"Approximate filled area: {approx_filled_area * 100} % of the frame")
-                if approx_filled_area >= spec.get_tolerance_filled_area(specs):
+                #runner.filledAreaDifference.set_value(approx_filled_area)
+                
+                if (approx_filled_area * 100) >= 0.5:
                     log.info("Target is close based on filled area. Setting is_target_close to True.")
                     is_target_close.value = 1
                 else:
@@ -307,23 +231,35 @@ def image_main(
                     is_target_close.value = 0
                 
                 if abs(distance) >= spec.get_tolerance_pixels(specs):
+                    log.info("Target is far based on pixel distance. Setting program state to Busy.")
                     #if is_main_state_busy == False: # Is Free
                     if is_program_state_busy.value == 0: # Is Free
                         #runner.program_state.set_state_to_busy()
-                        is_program_state_busy.value = 1 # Set to Busy
-                        if abs(horizontal_diff) >= spec.get_tolerance_pixels(specs):
-                            runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
-                        else:
-                            runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
-                            log.info("Yaw position accepted")
+                        log.info("Setting program state to Busy.")
                         if is_crane_view.value == 0: # If not in crane view, use normal vertical difference
+                            is_program_state_busy.value = 1 # Set to Busy
+                            if abs(horizontal_diff) >= spec.get_tolerance_pixels(specs):
+                                runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
+                            else:
+                                runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)
+                                log.info("Yaw position accepted")
                             if abs(vertical_diff) >= spec.get_tolerance_pixels(specs):
                                 runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
                             else:
                                 runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
                             log.info("Pitch position accepted")
                         else: # If in crane view, use closeness value for vertical difference. Let second vision set closeness value.
-                            pass
+                            is_program_state_busy.value = 1 # Set to Busy
+                            if abs(crane_view_horizontal.value) >= spec.get_tolerance_pixels(specs):
+                                runner.horizontalHeadingDifference.set_pixel_value(crane_view_horizontal.value)
+                            else:
+                                runner.horizontalHeadingDifference.set_pixel_value(crane_view_horizontal.value)
+                                log.info("Yaw position accepted")
+                            if abs(vertical_diff) >= spec.get_tolerance_pixels(specs):
+                                runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
+                            else:
+                                runner.verticalHeadingDifference.set_pixel_value(vertical_diff)
+                            log.info("Pitch position accepted")
                 else: # SET HERE TO READY FOR DISTANCE MEASUREMENT
                     log.info("All Position accepted")
                     runner.horizontalHeadingDifference.set_pixel_value(horizontal_diff)

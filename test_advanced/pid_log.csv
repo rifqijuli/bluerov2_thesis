@@ -1,1 +1,0 @@
-timestamp,processing_time,pixel_error_x,pixel_error_y,sonar_distance,yaw_pid_output,pitch_pid_output,forward_pid_output,pwm_yaw,pwm_pitch,pwm_forward

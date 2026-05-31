@@ -1,4 +1,8 @@
+import tempfile
+
 import yaml
+import os
+import tempfile
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -30,7 +34,7 @@ def get_pitch_difference(file):
 def get_closeness_difference(file):
     if file is None or "closeness" not in file or file["closeness"] is None:
         print("get_closeness_difference: invalid data, returning defaults")
-        return 0.0, 0.0  # pixel_diff, degree_diff defaults
+        return 0.0
     
     difference = file["closeness"]
     return difference["pixel_difference"]
@@ -57,8 +61,10 @@ def set_yaw_difference(pixel_difference: float = 0.0, degree_difference: float =
     data["yaw"]["pixel_difference"] = float(pixel_difference)
     data["yaw"]["degree_difference"] = float(degree_difference)
 
-    with path.open("w") as f:
-        yaml.safe_dump(data, f)
+    with tempfile.NamedTemporaryFile('w', dir=path.parent, delete=False, suffix='.tmp') as tmp:
+        yaml.safe_dump(data, tmp)
+        tmp_path = tmp.name
+    os.replace(tmp_path, path)
 
 def set_pitch_difference(pixel_difference: float = 0.0, degree_difference: float = 0.0, path: str | Path = DEFAULT_PATH):
     path = Path(path)
@@ -74,8 +80,10 @@ def set_pitch_difference(pixel_difference: float = 0.0, degree_difference: float
     data["pitch"]["pixel_difference"] = float(pixel_difference)
     data["pitch"]["degree_difference"] = float(degree_difference)
 
-    with path.open("w") as f:
-        yaml.safe_dump(data, f)
+    with tempfile.NamedTemporaryFile('w', dir=path.parent, delete=False, suffix='.tmp') as tmp:
+        yaml.safe_dump(data, tmp)
+        tmp_path = tmp.name
+    os.replace(tmp_path, path)
 
 def set_closeness_difference(pixel_difference: float = 0.0, path: str | Path = DEFAULT_PATH):
     path = Path(path)
@@ -90,8 +98,10 @@ def set_closeness_difference(pixel_difference: float = 0.0, path: str | Path = D
         data["closeness"] = {}
     data["closeness"]["pixel_difference"] = float(pixel_difference)
 
-    with path.open("w") as f:
-        yaml.safe_dump(data, f)
+    with tempfile.NamedTemporaryFile('w', dir=path.parent, delete=False, suffix='.tmp') as tmp:
+        yaml.safe_dump(data, tmp)
+        tmp_path = tmp.name
+    os.replace(tmp_path, path)
 
 def set_filled_area_difference(area_difference: float = 0.0, path: str | Path = DEFAULT_PATH):
     path = Path(path)
@@ -106,5 +116,7 @@ def set_filled_area_difference(area_difference: float = 0.0, path: str | Path = 
         data["filled_area"] = {}
     data["filled_area"]["area_difference"] = float(area_difference)
 
-    with path.open("w") as f:
-        yaml.safe_dump(data, f)
+    with tempfile.NamedTemporaryFile('w', dir=path.parent, delete=False, suffix='.tmp') as tmp:
+        yaml.safe_dump(data, tmp)
+        tmp_path = tmp.name
+    os.replace(tmp_path, path)

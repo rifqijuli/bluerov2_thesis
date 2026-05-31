@@ -1,3 +1,5 @@
+from torch import log
+
 from misc import specLoader as spec
 specs = spec.load_specs()
 
@@ -40,5 +42,7 @@ def pixel_filled(width, height):
 
     resolution_area = imgWidth * imgHeight
     filled_area = width * height
-
-    return round(filled_area / resolution_area, 2)
+    print(f"Filled area: {filled_area} pixels, Resolution area: {resolution_area} pixels")
+    approx_filled_area = filled_area / resolution_area
+    print(f"Filled area: {filled_area} pixels, Resolution area: {resolution_area} pixels, Approximate filled area: {approx_filled_area * 100} % of the frame")
+    return approx_filled_area

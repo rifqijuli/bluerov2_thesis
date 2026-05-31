@@ -1,0 +1,5 @@
+sequence,model,mAP50,mAP50-95,precision,recall
+combined,sd35_n_26,0.1946,0.1639,0.2932,0.1154
+combined,sd35_s_26,0.3556,0.3008,0.5498,0.127
+combined,sd35_n_11,0.2396,0.2022,0.4375,0.0882
+combined,sd35_s_11,0.2176,0.1799,0.327,0.1048

@@ -2,13 +2,13 @@ camera:
   name: bluerov_low_light_usb
   fov_horizontal_deg: 80.0
   fov_vertical_deg: 64.0
-  port: 5602
+  port: 5601
 
 camera_2:
   name: dwe_explorer_usb
   fov_horizontal_deg: 138.0
   fov_vertical_deg: 70.0
-  port: 5601
+  port: 5602
 
 vision:
   input_width: 1280
@@ -16,4 +16,4 @@ vision:
 
 tolerance:
   pixel: 100
-  filled_area: 0.2
+  filled_area: 0.05

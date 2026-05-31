@@ -1,0 +1,74 @@
+id,module,name,file,doc,markers,status,message,duration
+test_unit/connection/test_camera_connection.py::test_frame_is_available,test_unit.connection.test_camera_connection,test_frame_is_available,test_unit/connection/test_camera_connection.py,,,passed,,0.00022631699539488181
+test_unit/connection/test_rc_connection.py::test_heartbeat_received,test_unit.connection.test_rc_connection,test_heartbeat_received,test_unit/connection/test_rc_connection.py,,,passed,,0.00026638599956640974
+test_unit/connection/test_rc_connection.py::test_motors_armed,test_unit.connection.test_rc_connection,test_motors_armed,test_unit/connection/test_rc_connection.py,,,passed,,0.00015659800556022674
+test_unit/connection/test_sonar_connection.py::test_sonar_returns_value,test_unit.connection.test_sonar_connection,test_sonar_returns_value,test_unit/connection/test_sonar_connection.py,,,passed,,0.16032976400310872
+test_unit/object_selection/selection_test.py::test_set_position,test_unit.object_selection.selection_test,test_set_position,test_unit/object_selection/selection_test.py,,,passed,,0.00012666499969782308
+test_unit/object_selection/selection_test.py::test_reset_position,test_unit.object_selection.selection_test,test_reset_position,test_unit/object_selection/selection_test.py,,,passed,,0.0001328269936493598
+test_unit/object_selection/selection_test.py::test_click_inside_bbox_returns_true,test_unit.object_selection.selection_test,test_click_inside_bbox_returns_true,test_unit/object_selection/selection_test.py,,,passed,,0.00013417800073511899
+test_unit/object_selection/selection_test.py::test_click_outside_bbox_returns_false,test_unit.object_selection.selection_test,test_click_outside_bbox_returns_false,test_unit/object_selection/selection_test.py,,,passed,,0.000119727999845054
+test_unit/object_selection/selection_test.py::test_click_on_edge_of_bbox,test_unit.object_selection.selection_test,test_click_on_edge_of_bbox,test_unit/object_selection/selection_test.py,,,passed,,0.0001794500058167614
+test_unit/object_selection/selection_test.py::test_click_bottom_right_edge,test_unit.object_selection.selection_test,test_click_bottom_right_edge,test_unit/object_selection/selection_test.py,,,passed,,0.00013236800441518426
+test_unit/object_selection/selection_test.py::test_click_just_outside_right_edge,test_unit.object_selection.selection_test,test_click_just_outside_right_edge,test_unit/object_selection/selection_test.py,,,passed,,0.00016564499674132094
+test_unit/object_selection/selection_test.py::test_correct_object_selected_when_multiple,test_unit.object_selection.selection_test,test_correct_object_selected_when_multiple,test_unit/object_selection/selection_test.py,,,passed,,0.00013068800035398453
+test_unit/object_to_center/test_center.py::test_coordinate_nw,test_unit.object_to_center.test_center,test_coordinate_nw,test_unit/object_to_center/test_center.py,,,passed,,0.0004178159942966886
+test_unit/object_to_center/test_center.py::test_coordinate_ne,test_unit.object_to_center.test_center,test_coordinate_ne,test_unit/object_to_center/test_center.py,,,passed,,0.00015102099860087037
+test_unit/object_to_center/test_center.py::test_coordinate_sw,test_unit.object_to_center.test_center,test_coordinate_sw,test_unit/object_to_center/test_center.py,,,passed,,0.00013804599439026788
+test_unit/object_to_center/test_center.py::test_coordinate_se,test_unit.object_to_center.test_center,test_coordinate_se,test_unit/object_to_center/test_center.py,,,passed,,0.00013240000407677144
+test_unit/object_to_center/test_center.py::test_coordinate_center,test_unit.object_to_center.test_center,test_coordinate_center,test_unit/object_to_center/test_center.py,,,passed,,0.00015318700025090948
+test_unit/pid/test_pid.py::test_proportional_only,test_unit.pid.test_pid,test_proportional_only,unit_test/pid/test_pid.py,,,passed,,0.00015132599946809933
+test_unit/pid/test_pid.py::test_integral_accumulates,test_unit.pid.test_pid,test_integral_accumulates,unit_test/pid/test_pid.py,,,passed,,0.0001409780015819706
+test_unit/pid/test_pid.py::test_derivative_on_error_change,test_unit.pid.test_pid,test_derivative_on_error_change,unit_test/pid/test_pid.py,,,passed,,0.00012298300134716555
+test_unit/pid/test_pid.py::test_zero_error,test_unit.pid.test_pid,test_zero_error,unit_test/pid/test_pid.py,,,passed,,0.00011823599925264716
+test_unit/pid/test_pid.py::test_combined_output,test_unit.pid.test_pid,test_combined_output,unit_test/pid/test_pid.py,,,passed,,0.00012434399832272902
+test_unit/pixel_to_pwm/test_convert.py::test_yaw_low_edge_positive,test_unit.pixel_to_pwm.test_convert,test_yaw_low_edge_positive,test_unit/pixel_to_pwm/test_convert.py,,,passed,,0.0001253239970537834
+test_unit/pixel_to_pwm/test_convert.py::test_yaw_low_edge_negative,test_unit.pixel_to_pwm.test_convert,test_yaw_low_edge_negative,test_unit/pixel_to_pwm/test_convert.py,,,passed,,0.00012319700181251392
+test_unit/pixel_to_pwm/test_convert.py::test_yaw_high_edge_positive,test_unit.pixel_to_pwm.test_convert,test_yaw_high_edge_positive,test_unit/pixel_to_pwm/test_convert.py,,,passed,,0.00011421200179029256
+test_unit/pixel_to_pwm/test_convert.py::test_yaw_high_edge_negative,test_unit.pixel_to_pwm.test_convert,test_yaw_high_edge_negative,test_unit/pixel_to_pwm/test_convert.py,,,passed,,0.00011397200432838872
+test_unit/pixel_to_pwm/test_convert.py::test_pitch_high_edge_positive,test_unit.pixel_to_pwm.test_convert,test_pitch_high_edge_positive,test_unit/pixel_to_pwm/test_convert.py,,,passed,,0.0001007390019367449
+test_unit/pixel_to_pwm/test_convert.py::test_pitch_high_edge_negative,test_unit.pixel_to_pwm.test_convert,test_pitch_high_edge_negative,test_unit/pixel_to_pwm/test_convert.py,,,passed,,0.00011909499880857766
+test_unit/pixel_to_pwm/test_convert.py::test_pitch_low_edge_positive,test_unit.pixel_to_pwm.test_convert,test_pitch_low_edge_positive,test_unit/pixel_to_pwm/test_convert.py,,,passed,,0.00011605199688347057
+test_unit/pixel_to_pwm/test_convert.py::test_pitch_low_edge_negative,test_unit.pixel_to_pwm.test_convert,test_pitch_low_edge_negative,test_unit/pixel_to_pwm/test_convert.py,,,passed,,9.68469976214692e-05
+test_unit/pixel_to_pwm/test_convert.py::test_yaw_center,test_unit.pixel_to_pwm.test_convert,test_yaw_center,test_unit/pixel_to_pwm/test_convert.py,,,passed,,9.079000301426277e-05
+test_unit/pixel_to_pwm/test_convert.py::test_pitch_center,test_unit.pixel_to_pwm.test_convert,test_pitch_center,test_unit/pixel_to_pwm/test_convert.py,,,passed,,9.6543000836391e-05
+test_unit/pwm_clamp/test_pwm_clamp.py::test_below_threshold,test_unit.pwm_clamp.test_pwm_clamp,test_below_threshold,test_unit/pwm_clamp/test_pwm_clamp.py,,,passed,,8.768600673647597e-05
+test_unit/pwm_clamp/test_pwm_clamp.py::test_above_threshold,test_unit.pwm_clamp.test_pwm_clamp,test_above_threshold,test_unit/pwm_clamp/test_pwm_clamp.py,,,passed,,8.13490041764453e-05
+test_unit/pwm_clamp/test_pwm_clamp.py::test_within_threshold,test_unit.pwm_clamp.test_pwm_clamp,test_within_threshold,test_unit/pwm_clamp/test_pwm_clamp.py,,,passed,,8.53750025271438e-05
+test_unit/rov_camera/crane_camera_test.py::test_frame_is_available,test_unit.rov_camera.crane_camera_test,test_frame_is_available,test_unit/rov_camera/crane_camera_test.py,,,skipped,Skipped: Timeout — is ROV connected?,10.036046619003173
+test_unit/rov_camera/crane_camera_test.py::test_frame_returns_numpy_array,test_unit.rov_camera.crane_camera_test,test_frame_returns_numpy_array,test_unit/rov_camera/crane_camera_test.py,,,skipped,Skipped: Timeout — is ROV connected?,0.00023377199977403507
+test_unit/rov_camera/crane_camera_test.py::test_frame_has_3_channels,test_unit.rov_camera.crane_camera_test,test_frame_has_3_channels,test_unit/rov_camera/crane_camera_test.py,,,skipped,Skipped: Timeout — is ROV connected?,0.0006352279960992746
+test_unit/rov_camera/crane_camera_test.py::test_frame_is_not_blank,test_unit.rov_camera.crane_camera_test,test_frame_is_not_blank,test_unit/rov_camera/crane_camera_test.py,,,skipped,Skipped: Timeout — is ROV connected?,0.0002609879957162775
+test_unit/rov_camera/crane_camera_test.py::test_frame_dtype_uint8,test_unit.rov_camera.crane_camera_test,test_frame_dtype_uint8,test_unit/rov_camera/crane_camera_test.py,,,skipped,Skipped: Timeout — is ROV connected?,0.00021112000104039907
+test_unit/rov_camera/crane_camera_test.py::test_new_frame_reset_after_consume,test_unit.rov_camera.crane_camera_test,test_new_frame_reset_after_consume,test_unit/rov_camera/crane_camera_test.py,,,skipped,Skipped: Timeout — is ROV connected?,0.0001913820015033707
+test_unit/rov_camera/crane_camera_test.py::test_frame_resize,test_unit.rov_camera.crane_camera_test,test_frame_resize,test_unit/rov_camera/crane_camera_test.py,,,skipped,Skipped: Timeout — is ROV connected?,0.00019795600383076817
+test_unit/rov_camera/crane_camera_test.py::test_port_is_5601,test_unit.rov_camera.crane_camera_test,test_port_is_5601,test_unit/rov_camera/crane_camera_test.py,,,skipped,Skipped: Timeout — is ROV connected?,0.00016885600052773952
+test_unit/rov_camera/crane_camera_test.py::test_video_source_contains_port,test_unit.rov_camera.crane_camera_test,test_video_source_contains_port,test_unit/rov_camera/crane_camera_test.py,,,skipped,Skipped: Timeout — is ROV connected?,0.00018090399680659175
+test_unit/rov_camera/front_camera_test.py::test_frame_is_available,test_unit.rov_camera.front_camera_test,test_frame_is_available,test_unit/rov_camera/front_camera_test.py,,,passed,,0.0002315379970241338
+test_unit/rov_camera/front_camera_test.py::test_frame_returns_numpy_array,test_unit.rov_camera.front_camera_test,test_frame_returns_numpy_array,test_unit/rov_camera/front_camera_test.py,,,passed,,0.00011866899876622483
+test_unit/rov_camera/front_camera_test.py::test_frame_has_3_channels,test_unit.rov_camera.front_camera_test,test_frame_has_3_channels,test_unit/rov_camera/front_camera_test.py,,,passed,,0.03046429800451733
+test_unit/rov_camera/front_camera_test.py::test_frame_is_not_blank,test_unit.rov_camera.front_camera_test,test_frame_is_not_blank,test_unit/rov_camera/front_camera_test.py,,,passed,,0.030461152004136238
+test_unit/rov_camera/front_camera_test.py::test_frame_dtype_uint8,test_unit.rov_camera.front_camera_test,test_frame_dtype_uint8,test_unit/rov_camera/front_camera_test.py,,,passed,,0.06054564499936532
+test_unit/rov_camera/front_camera_test.py::test_new_frame_reset_after_consume,test_unit.rov_camera.front_camera_test,test_new_frame_reset_after_consume,test_unit/rov_camera/front_camera_test.py,,,passed,,0.00024036800459725782
+test_unit/rov_camera/front_camera_test.py::test_frame_resize,test_unit.rov_camera.front_camera_test,test_frame_resize,test_unit/rov_camera/front_camera_test.py,,,passed,,0.03210552300151903
+test_unit/rov_camera/front_camera_test.py::test_port_is_5602,test_unit.rov_camera.front_camera_test,test_port_is_5602,test_unit/rov_camera/front_camera_test.py,,,passed,,0.00012356200022622943
+test_unit/rov_camera/front_camera_test.py::test_video_source_contains_port,test_unit.rov_camera.front_camera_test,test_video_source_contains_port,test_unit/rov_camera/front_camera_test.py,,,passed,,0.00014282700431067497
+test_unit/rov_rc_command/gripper_test.py::test_gripper_open,test_unit.rov_rc_command.gripper_test,test_gripper_open,test_unit/rov_rc_command/gripper_test.py,,,passed,,0.5492257139994763
+test_unit/rov_rc_command/gripper_test.py::test_gripper_close,test_unit.rov_rc_command.gripper_test,test_gripper_close,test_unit/rov_rc_command/gripper_test.py,,,passed,,0.9576019439991796
+test_unit/rov_rc_command/movement_test.py::test_heartbeat_received,test_unit.rov_rc_command.movement_test,test_heartbeat_received,test_unit/rov_rc_command/movement_test.py,,,passed,,0.00019841999892378226
+test_unit/rov_rc_command/movement_test.py::test_motors_armed,test_unit.rov_rc_command.movement_test,test_motors_armed,test_unit/rov_rc_command/movement_test.py,,,passed,,0.00010867799574043602
+test_unit/rov_rc_command/movement_test.py::test_yaw_right,test_unit.rov_rc_command.movement_test,test_yaw_right,test_unit/rov_rc_command/movement_test.py,,,passed,,0.05101237099734135
+test_unit/rov_rc_command/movement_test.py::test_yaw_left,test_unit.rov_rc_command.movement_test,test_yaw_left,test_unit/rov_rc_command/movement_test.py,,,passed,,0.4561834779960918
+test_unit/rov_rc_command/movement_test.py::test_pitch_forward,test_unit.rov_rc_command.movement_test,test_pitch_forward,test_unit/rov_rc_command/movement_test.py,,,passed,,0.5072030300070764
+test_unit/rov_rc_command/movement_test.py::test_pitch_backward,test_unit.rov_rc_command.movement_test,test_pitch_backward,test_unit/rov_rc_command/movement_test.py,,,passed,,0.5056598200026201
+test_unit/rov_rc_command/movement_test.py::test_throttle_up,test_unit.rov_rc_command.movement_test,test_throttle_up,test_unit/rov_rc_command/movement_test.py,,,passed,,0.507448659001966
+test_unit/rov_rc_command/movement_test.py::test_throttle_down,test_unit.rov_rc_command.movement_test,test_throttle_down,test_unit/rov_rc_command/movement_test.py,,,passed,,0.5061957529978827
+test_unit/rov_rc_command/movement_test.py::test_forward,test_unit.rov_rc_command.movement_test,test_forward,test_unit/rov_rc_command/movement_test.py,,,passed,,0.5083483610069379
+test_unit/rov_rc_command/movement_test.py::test_backward,test_unit.rov_rc_command.movement_test,test_backward,test_unit/rov_rc_command/movement_test.py,,,passed,,0.4556828429995221
+test_unit/rov_rc_command/movement_test.py::test_lateral_right,test_unit.rov_rc_command.movement_test,test_lateral_right,test_unit/rov_rc_command/movement_test.py,,,passed,,0.5068363870013854
+test_unit/rov_rc_command/movement_test.py::test_lateral_left,test_unit.rov_rc_command.movement_test,test_lateral_left,test_unit/rov_rc_command/movement_test.py,,,passed,,0.5060990490019321
+test_unit/rov_rc_command/movement_test.py::test_disarmed,test_unit.rov_rc_command.movement_test,test_disarmed,test_unit/rov_rc_command/movement_test.py,,,passed,,0.5071801079975558
+test_unit/sonar/sonar_test.py::test_sonar_returns_value,test_unit.sonar.sonar_test,test_sonar_returns_value,test_unit/sonar/sonar_test.py,,,passed,,0.14472622399625834
+test_unit/sonar/sonar_test.py::test_sonar_is_a_number,test_unit.sonar.sonar_test,test_sonar_is_a_number,test_unit/sonar/sonar_test.py,,,passed,,0.1546485250000842
+test_unit/sonar/sonar_test.py::test_sonar_is_positive,test_unit.sonar.sonar_test,test_sonar_is_positive,test_unit/sonar/sonar_test.py,,,passed,,0.16109977599990088
+test_unit/sonar/sonar_test.py::test_sonar_is_in_meters,test_unit.sonar.sonar_test,test_sonar_is_in_meters,test_unit/sonar/sonar_test.py,,,passed,,0.15918530799535802
+test_unit/sonar/sonar_test.py::test_sonar_confidence_is_valid,test_unit.sonar.sonar_test,test_sonar_confidence_is_valid,test_unit/sonar/sonar_test.py,,,passed,,0.17566418900241842

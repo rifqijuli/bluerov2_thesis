@@ -2,6 +2,7 @@
 Example of how to set target depth in depth hold mode with pymavlink
 """
 
+import datetime
 import time
 import math
 # Import mavutil
@@ -29,7 +30,7 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
     class control_model():
         is_depth = True # Set to True if yaw and depth, rather than attitude
 
-    pid_logger = PIDLogger("pid_log.csv")
+    pid_logger = PIDLogger(f"pid_log_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.csv")
 
     yaw_threshold = pwm_threshold(max_pwm=1700, min_pwm=1300)
     pitch_threshold = pwm_threshold(max_pwm=1700, min_pwm=1300)
@@ -93,6 +94,7 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
     yaw_pid = pid_control.PIDController(0.0,0.0,0.0,0.0)
     pitch_pid = pid_control.PIDController(0.0,0.0,0.0,0.0)
     forward_pid = pid_control.PIDController(0.0,0.0,0.0,0.0)
+    log.info("Control process initialized, entering main loop.")
     while True:
         time_to_log = time.time()
         #if runner.program_state.get_busy_state() == True:
@@ -103,14 +105,24 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
             match is_target_close.value:
                 case 1:
                     # Target is close, 
-                    yaw_pid.Kp, yaw_pid.Ki, yaw_pid.Kd = 0.5, 1.0, 0.00000001
-                    pitch_pid.Kp, pitch_pid.Ki, pitch_pid.Kd = 0.5, 0.5, 0.00000005
-                    forward_pid.Kp, forward_pid.Ki, forward_pid.Kd = 0.5, 0.0, 0.0
+                    yaw_pid.Kp, yaw_pid.Ki, yaw_pid.Kd = 3.0, 0.0, 0.0
+                    pitch_pid.Kp, pitch_pid.Ki, pitch_pid.Kd = 3.0, 0.0, 0.0
+                    forward_pid.Kp, forward_pid.Ki, forward_pid.Kd = 2.0, 0.0, 0.0
+                    '''
+                    yaw_pid.Kp, yaw_pid.Ki, yaw_pid.Kd = 0.2, 0.1, 0.05
+                    pitch_pid.Kp, pitch_pid.Ki, pitch_pid.Kd = 0.1, 0.1, 0.05
+                    forward_pid.Kp, forward_pid.Ki, forward_pid.Kd = 0.5, 0.02, 0.01
+                    '''
                 case 0:
                     # Target is not close
-                    yaw_pid.Kp, yaw_pid.Ki, yaw_pid.Kd = 1.5, 1.0, 0.00000002
-                    pitch_pid.Kp, pitch_pid.Ki, pitch_pid.Kd = 1.5, 0.0, 0.00000005
+                    yaw_pid.Kp, yaw_pid.Ki, yaw_pid.Kd = 3.0, 0.0, 0.0
+                    pitch_pid.Kp, pitch_pid.Ki, pitch_pid.Kd = 3.0, 0.0, 0.0
+                    forward_pid.Kp, forward_pid.Ki, forward_pid.Kd = 2.0, 0.0, 0.0
+                    '''
+                    yaw_pid.Kp, yaw_pid.Ki, yaw_pid.Kd = 1.0, 0.5, 0.01
+                    pitch_pid.Kp, pitch_pid.Ki, pitch_pid.Kd = 1.0, 0.5, 0.01
                     forward_pid.Kp, forward_pid.Ki, forward_pid.Kd = 1.0, 0.0, 0.0
+                    '''
 
             yawErrorPixel = runner.horizontalHeadingDifference.get_value("pixel")
             timePrev = time.time()
@@ -135,7 +147,7 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
                 case 1:
                     # In crane view
                     distance_error_pixel = runner.verticalHeadingDifference.get_closeness_value("pixel")
-                    distance_error_pwm = pixel_convert.pixel_to_pwm(distance_error_pixel, "forward", forward_threshold)
+                    distance_error_pwm = pixel_convert.pixel_to_pwm(int(distance_error_pixel), "forward", forward_threshold)
                 case 0:
                     # Not in crane view, normal operation
                     distance_error_pwm = distance_to_pwm(ping_distance.value, "ping_sonar")
@@ -165,26 +177,31 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
                 forward_out = target_speed,
                 pwm_yaw = yaw_pwm_values,
                 pwm_pitch = pitch_pwm_values,
-                pwm_forward = forward_pwm_values
+                pwm_forward = forward_pwm_values,
+                yaw_kp = yaw_pid.Kp,
+                yaw_ki = yaw_pid.Ki,
+                yaw_kd = yaw_pid.Kd,
+                pitch_kp = pitch_pid.Kp,
+                pitch_ki = pitch_pid.Ki,
+                pitch_kd = pitch_pid.Kd,
+                forward_kp = forward_pid.Kp,
+                forward_ki = forward_pid.Ki,
+                forward_kd = forward_pid.Kd
             )
 
             if (is_target_detected.value == 0):
-                log.info("Target is not detected. Stopping all movement.")
+                log.info("Target is not detected. Stopping all movement. (satu)")
                 rc_pwm[2] = 1500 # Set neutral vertical
                 rc_pwm[3] = 1500 # Set neutral horizontal
                 rc_pwm[4] = 1500 # Set neutral forward
                 is_forward = False
             else:
                 log.info("Target is detected. Adjusting movement.")
-                #rc_pwm[3] = check_pwm(int(1500 - target_yaw))  # Update shared PWM array for yaw control
                 rc_pwm[3] = yaw_pwm_values # Update shared PWM array for yaw control
                 log.info("Yaw Correction to: %s", int(1500 - target_yaw))
 
                 rc_pwm[2] = pitch_pwm_values # Update shared PWM array for pitch control
                 log.info("Pitch Correction to: %s", int(1500 + target_pitch))
-                # Pitch if needed
-                # current_pitch_pwm = current_pitch_pwm + target_pitch
-                # rc_pwm[0] = check_pwm(int(current_pitch_pwm))
                 
                 match is_crane_view.value:
                     case 1:
@@ -204,13 +221,11 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
                             log.info("Target is within tolerance attitude.")
                             log.info(f"Distance from object: {ping_distance.value} m")
                             if ping_distance.value > min_distance: # If distance is greater than minimum distance, move forward
+                                log.info("Target is far. Moving forward.")
                                 rc_pwm[4] = forward_pwm_values # Set forward
-                                #rc_pwm[2] = check_pwm(int(1500 + target_speed)) # Set neutral vertical
                             elif ping_distance.value <= min_distance: # If distance is less than or equal to minimum distance, stop
                                 log.info("Target is close enough. Stopping forward movement.")
                                 rc_pwm[4] = 1500 # Set neutral
-                                #rc_pwm[2] = check_pwm(int(1500)) # Set neutral vertical
-
                             is_forward = True
                         else:
                             if is_forward == True:
@@ -224,7 +239,6 @@ def main_control(rc_pwm, is_program_state_busy, ping_distance, is_target_close, 
             pitch_error_pixel= runner.verticalHeadingDifference.get_value("pixel")
         else:
             if (is_target_detected.value == 2):
-                log.info("Target is not detected. Stopping all movement.")
                 rc_pwm[2] = 1500 # Set neutral vertical
                 rc_pwm[3] = 1500 # Set neutral horizontal
                 rc_pwm[4] = 1500 # Set neutral forward

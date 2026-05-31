@@ -11,6 +11,7 @@ training/
 training_2/
 runs/
 test_basic/camera/video/
+test_advanced/log/pid
 
 # Ignore Python cache files
 _pycache_/

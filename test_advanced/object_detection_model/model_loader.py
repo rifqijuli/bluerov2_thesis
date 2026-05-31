@@ -76,4 +76,14 @@ def get_model_path(modelOpt):
                     model_path = "object_detection_model/yolo26n_walia.pt"
                 case "yolo26s":
                     model_path = "object_detection_model/yolo26s_walia.pt"
+        case "sd35":
+            match modelOpt["which_model"]:
+                case "yolo26n":
+                    model_path = "object_detection_model/yolo26n_sd35.pt"
+                case "yolo26s":
+                    model_path = "object_detection_model/yolo26s_sd35.pt"
+                case "yolo11n":
+                    model_path = "object_detection_model/yolo11n_sd35.pt"
+                case "yolo11s":
+                    model_path = "object_detection_model/yolo11s_sd35.pt"
     return model_path

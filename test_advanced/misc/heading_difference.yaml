@@ -1,6 +1,8 @@
+closeness:
+  pixel_difference: -348.5583190917969
 pitch:
   degree_difference: 0.0
-  pixel_difference: -25.637176513671875
+  pixel_difference: 15.5267333984375
 yaw:
   degree_difference: 0.0
-  pixel_difference: -52.0621337890625
+  pixel_difference: -532.1346435546875

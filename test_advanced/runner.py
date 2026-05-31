@@ -31,7 +31,9 @@ class Process(mp.Process):
             is_target_detected=None,
             target_class=None,
             target_id=None,
-            is_crane_view=None
+            is_crane_view=None,
+            crane_view_horizontal=None,
+            crane_view_vertical=None
             ):
         
         super(Process, self).__init__()
@@ -47,6 +49,8 @@ class Process(mp.Process):
         self.target_class = target_class
         self.target_id = target_id
         self.is_crane_view = is_crane_view
+        self.crane_view_horizontal = crane_view_horizontal
+        self.crane_view_vertical = crane_view_vertical
 
     def run(self):
         time.sleep(1)
@@ -63,7 +67,9 @@ class Process(mp.Process):
                     is_target_detected=self.is_target_detected,
                     target_class=self.target_class,
                     target_id=self.target_id,
-                    is_crane_view=self.is_crane_view
+                    is_crane_view=self.is_crane_view,
+                    crane_view_horizontal=self.crane_view_horizontal,
+                    crane_view_vertical=self.crane_view_vertical
                     )
             case "control":
                 log.info("I'm the process with id: {}".format(self.id))
@@ -95,7 +101,9 @@ class Process(mp.Process):
                     is_target_detected=self.is_target_detected,
                     target_class=self.target_class,
                     target_id=self.target_id,
-                    is_crane_view=self.is_crane_view
+                    is_crane_view=self.is_crane_view,
+                    crane_view_horizontal=self.crane_view_horizontal,
+                    crane_view_vertical=self.crane_view_vertical
                     )
             case "dummy":
                 log.info("I'm the process with id: {}".format(self.id))

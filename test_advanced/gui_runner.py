@@ -92,6 +92,8 @@ class RunnerGUI(tk.Tk):
             target_class = manager.Value('i', -1) # -1: no class, otherwise class id
             target_id = manager.Value('i', -1) # -1: no id, otherwise track id
             is_crane_view = manager.Value('i', 0) # 0: false, 1: true
+            crane_view_horizontal = manager.Value('d', 0.0) # Horizontal difference from crane view
+            crane_view_vertical = manager.Value('d', 0.0) # Vertical difference from crane view
 
             self.procs[0] = Process(0, "image",
                                   camera_opt=self.camera_var.get(),
@@ -103,7 +105,9 @@ class RunnerGUI(tk.Tk):
                                   is_target_detected=is_target_detected,
                                   target_class=target_class,
                                   target_id=target_id,
-                                  is_crane_view=is_crane_view)
+                                  is_crane_view=is_crane_view,
+                                  crane_view_horizontal=crane_view_horizontal,
+                                  crane_view_vertical=crane_view_vertical)
             self.procs[0].start()
             self.procs[1] = Process(1, "control", 
                                     rc_pwm=rc_pwm, 
@@ -112,13 +116,13 @@ class RunnerGUI(tk.Tk):
                                     is_target_close=is_target_close,
                                     is_target_detected=is_target_detected,
                                     is_crane_view=is_crane_view)
-            #self.procs[1].start()
+            self.procs[1].start()
             self.procs[3] = Process(3, "rc_command", 
                                     rc_pwm=rc_pwm, 
                                     is_program_state_busy=is_program_state_busy, 
                                     ping_distance=ping_distance, 
                                     is_target_close=is_target_close)
-            #self.procs[3].start()
+            self.procs[3].start()
             self.procs[4] = Process(4, "ping_sonar", 
                                     rc_pwm=rc_pwm, 
                                     is_program_state_busy=is_program_state_busy,
@@ -131,7 +135,9 @@ class RunnerGUI(tk.Tk):
                                     is_target_detected=is_target_detected,
                                     target_class=target_class,
                                     target_id=target_id,
-                                    is_crane_view=is_crane_view)
+                                    is_crane_view=is_crane_view,
+                                    crane_view_horizontal=crane_view_horizontal,
+                                    crane_view_vertical=crane_view_vertical)
             self.procs[5].start()
             self.status_var.set("Main processes started")
 

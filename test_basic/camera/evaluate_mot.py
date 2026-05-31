@@ -6,21 +6,25 @@ model_uno_s = YOLO("../../test_advanced/object_detection_model/yolo26s_uno.pt")
 model_cou_s = YOLO("../../test_advanced/object_detection_model/yolo26s_cou.pt")
 model_walia_s = YOLO("../../test_advanced/object_detection_model/yolo26s_walia.pt")
 model_tc_s = YOLO("../../test_advanced/object_detection_model/yolo26s_tc.pt")
+model_sd35_s = YOLO("../../test_advanced/object_detection_model/yolo26s_sd35.pt")
 
 model_uno_n = YOLO("../../test_advanced/object_detection_model/yolo26n_uno.pt")
 model_cou_n = YOLO("../../test_advanced/object_detection_model/yolo26n_cou.pt")
 model_walia_n = YOLO("../../test_advanced/object_detection_model/yolo26n_walia.pt")
 model_tc_n = YOLO("../../test_advanced/object_detection_model/yolo26n_tc.pt")
+model_sd35_n = YOLO("../../test_advanced/object_detection_model/yolo26n_sd35.pt")
 
 model_uno_s_11 = YOLO("../../test_advanced/object_detection_model/yolo11s_uno.pt")
 model_cou_s_11 = YOLO("../../test_advanced/object_detection_model/yolo11s_cou.pt")
 model_walia_s_11 = YOLO("../../test_advanced/object_detection_model/yolo11s_walia.pt")
 model_tc_s_11 = YOLO("../../test_advanced/object_detection_model/yolo11s_tc.pt")
+model_sd35_s_11 = YOLO("../../test_advanced/object_detection_model/yolo11s_sd35.pt")
 
 model_uno_n_11 = YOLO("../../test_advanced/object_detection_model/yolo11n_uno.pt")
 model_cou_n_11 = YOLO("../../test_advanced/object_detection_model/yolo11n_cou.pt")
 model_walia_n_11 = YOLO("../../test_advanced/object_detection_model/yolo11n_walia.pt")
 model_tc_n_11 = YOLO("../../test_advanced/object_detection_model/yolo11n_tc.pt")
+model_sd35_n_11 = YOLO("../../test_advanced/object_detection_model/yolo11n_sd35.pt")
 
 model_overfit = YOLO("../../test_advanced/object_detection_model/yolo26s_pepsidtu_v2.pt")
 
@@ -56,6 +60,7 @@ def video_evaluate(source, model, filename):
 
 def eval(name):
     filename = f"video/mot_{name}.mp4"
+    '''
     video_evaluate(filename, model_overfit, f"mot_eval/overfit/data/mot_{name}.txt")
     video_evaluate(filename, model_uno_n, f"mot_eval/uno_n/data/mot_{name}.txt")
     video_evaluate(filename, model_uno_s, f"mot_eval/uno_s/data/mot_{name}.txt")
@@ -65,7 +70,6 @@ def eval(name):
     video_evaluate(filename, model_walia_s, f"mot_eval/walia_s/data/mot_{name}.txt")
     video_evaluate(filename, model_tc_n, f"mot_eval/tc_n/data/mot_{name}.txt")
     video_evaluate(filename, model_tc_s, f"mot_eval/tc_s/data/mot_{name}.txt")
-
     video_evaluate(filename, model_uno_n_11, f"mot_eval/uno_n_11/data/mot_{name}.txt")
     video_evaluate(filename, model_uno_s_11, f"mot_eval/uno_s_11/data/mot_{name}.txt")
     video_evaluate(filename, model_cou_n_11, f"mot_eval/cou_n_11/data/mot_{name}.txt")
@@ -74,6 +78,11 @@ def eval(name):
     video_evaluate(filename, model_walia_s_11, f"mot_eval/walia_s_11/data/mot_{name}.txt")
     video_evaluate(filename, model_tc_n_11, f"mot_eval/tc_n_11/data/mot_{name}.txt")
     video_evaluate(filename, model_tc_s_11, f"mot_eval/tc_s_11/data/mot_{name}.txt")
+    '''
+    video_evaluate(filename, model_sd35_n, f"mot_eval/sd35_n/data/mot_{name}.txt")
+    video_evaluate(filename, model_sd35_s, f"mot_eval/sd35_s/data/mot_{name}.txt")
+    video_evaluate(filename, model_sd35_n_11, f"mot_eval/sd35_n_11/data/mot_{name}.txt")
+    video_evaluate(filename, model_sd35_s_11, f"mot_eval/sd35_s_11/data/mot_{name}.txt")
 
 if __name__ == "__main__":
     
