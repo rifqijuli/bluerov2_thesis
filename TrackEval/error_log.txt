@@ -1,0 +1,575 @@
+MotChallenge2DBox
+MPNTrack
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 218, in eval_sequence
+    raw_data = dataset.get_raw_seq_data(tracker, seq)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/_base_dataset.py", line 92, in get_raw_seq_data
+    raw_gt_data = self._load_raw_file(tracker, seq, is_gt=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 228, in _load_raw_file
+    time_data = np.asarray(read_data[time_key], dtype=np.float)
+                                                      ^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/.venv/lib/python3.12/site-packages/numpy/__init__.py", line 775, in __getattr__
+    raise AttributeError(__former_attrs__[attr], name=None)
+AttributeError: module 'numpy' has no attribute 'float'.
+`np.float` was a deprecated alias for the builtin `float`. To avoid this error in existing code, use `float` by itself. Doing this will not modify any behavior and is safe. If you specifically wanted the numpy scalar type, use `np.float64` here.
+The aliases was originally deprecated in NumPy 1.20; for more details and guidance see the original release note at:
+    https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+
+
+
+
+
+MotChallenge2DBox
+MPNTrack
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 218, in eval_sequence
+    raw_data = dataset.get_raw_seq_data(tracker, seq)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/_base_dataset.py", line 92, in get_raw_seq_data
+    raw_gt_data = self._load_raw_file(tracker, seq, is_gt=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 228, in _load_raw_file
+    time_data = np.asarray(read_data[time_key], dtype=np.float)
+                                                      ^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/.venv/lib/python3.12/site-packages/numpy/__init__.py", line 324, in __getattr__
+    raise AttributeError(__former_attrs__[attr])
+AttributeError: module 'numpy' has no attribute 'float'.
+`np.float` was a deprecated alias for the builtin `float`. To avoid this error in existing code, use `float` by itself. Doing this will not modify any behavior and is safe. If you specifically wanted the numpy scalar type, use `np.float64` here.
+The aliases was originally deprecated in NumPy 1.20; for more details and guidance see the original release note at:
+    https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations. Did you mean: 'cfloat'?
+
+
+
+
+
+MotChallenge2DBox
+MPNTrack
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 218, in eval_sequence
+    raw_data = dataset.get_raw_seq_data(tracker, seq)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/_base_dataset.py", line 92, in get_raw_seq_data
+    raw_gt_data = self._load_raw_file(tracker, seq, is_gt=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 228, in _load_raw_file
+    time_data = np.asarray(read_data[time_key], dtype=np.float)
+                                                      ^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/.venv/lib/python3.12/site-packages/numpy/__init__.py", line 324, in __getattr__
+    raise AttributeError(__former_attrs__[attr])
+AttributeError: module 'numpy' has no attribute 'float'.
+`np.float` was a deprecated alias for the builtin `float`. To avoid this error in existing code, use `float` by itself. Doing this will not modify any behavior and is safe. If you specifically wanted the numpy scalar type, use `np.float64` here.
+The aliases was originally deprecated in NumPy 1.20; for more details and guidance see the original release note at:
+    https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations. Did you mean: 'cfloat'?
+
+
+
+
+
+MotChallenge2DBox
+MPNTrack
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 359, in get_preprocessed_seq_data
+    to_remove_tracker = np.array([], np.int)
+                                     ^^^^^^
+  File "/home/rifqi/Documents/TrackEval/.venv/lib/python3.12/site-packages/numpy/__init__.py", line 775, in __getattr__
+    raise AttributeError(__former_attrs__[attr], name=None)
+AttributeError: module 'numpy' has no attribute 'int'.
+`np.int` was a deprecated alias for the builtin `int`. To avoid this error in existing code, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+The aliases was originally deprecated in NumPy 1.20; for more details and guidance see the original release note at:
+    https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+
+
+
+
+
+MotChallenge2DBox
+MPNTrack
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 224, in eval_sequence
+    seq_res[cls][met_name] = metric.eval_sequence(data)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/metrics/hota.py", line 31, in eval_sequence
+    res[field] = np.zeros((len(self.array_labels)), dtype=np.float)
+                                                          ^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/.venv/lib/python3.12/site-packages/numpy/__init__.py", line 775, in __getattr__
+    raise AttributeError(__former_attrs__[attr], name=None)
+AttributeError: module 'numpy' has no attribute 'float'.
+`np.float` was a deprecated alias for the builtin `float`. To avoid this error in existing code, use `float` by itself. Doing this will not modify any behavior and is safe. If you specifically wanted the numpy scalar type, use `np.float64` here.
+The aliases was originally deprecated in NumPy 1.20; for more details and guidance see the original release note at:
+    https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+
+
+
+
+
+MotChallenge2DBox
+MPNTrack
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 224, in eval_sequence
+    seq_res[cls][met_name] = metric.eval_sequence(data)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/metrics/identity.py", line 83, in eval_sequence
+    res['IDFN'] = fn_mat[match_rows, match_cols].sum().astype(np.int)
+                                                              ^^^^^^
+  File "/home/rifqi/Documents/TrackEval/.venv/lib/python3.12/site-packages/numpy/__init__.py", line 775, in __getattr__
+    raise AttributeError(__former_attrs__[attr], name=None)
+AttributeError: module 'numpy' has no attribute 'int'.
+`np.int` was a deprecated alias for the builtin `int`. To avoid this error in existing code, use `int` by itself. Doing this will not modify any behavior and is safe. When replacing `np.int`, you may wish to use e.g. `np.int64` or `np.int32` to specify the precision. If you wish to review your current use, check the release note link for additional information.
+The aliases was originally deprecated in NumPy 1.20; for more details and guidance see the original release note at:
+    https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 366, in get_preprocessed_seq_data
+    raise(TrackEvalException('Attempting to evaluate using invalid gt classes. '
+trackeval.utils.TrackEvalException: Attempting to evaluate using invalid gt classes. This warning only triggers if preprocessing is performed, e.g. not for MOT15 or where prepropressing is explicitly disabled. Please either check your gt data, or disable preprocessing. The following invalid classes were found in timestep 20: 21
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 366, in get_preprocessed_seq_data
+    raise(TrackEvalException('Attempting to evaluate using invalid gt classes. '
+trackeval.utils.TrackEvalException: Attempting to evaluate using invalid gt classes. This warning only triggers if preprocessing is performed, e.g. not for MOT15 or where prepropressing is explicitly disabled. Please either check your gt data, or disable preprocessing. The following invalid classes were found in timestep 20: 21
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 366, in get_preprocessed_seq_data
+    raise(TrackEvalException('Attempting to evaluate using invalid gt classes. '
+trackeval.utils.TrackEvalException: Attempting to evaluate using invalid gt classes. This warning only triggers if preprocessing is performed, e.g. not for MOT15 or where prepropressing is explicitly disabled. Please either check your gt data, or disable preprocessing. The following invalid classes were found in timestep 20: 21
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 353, in get_preprocessed_seq_data
+    distractor_classes = [self.class_name_to_class_id[x] for x in distractor_class_names]
+                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^
+KeyError: 'person_on_vehicle'
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 397, in get_preprocessed_seq_data
+    is_distractor_class = np.isin(gt_classes[match_rows], distractor_classes)
+                                                          ^^^^^^^^^^^^^^^^^^
+NameError: name 'distractor_classes' is not defined. Did you mean: 'distractor_class_names'?
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 406, in get_preprocessed_seq_data
+    cls_id = self.class_name_to_class_id[cls]
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+KeyError: '5'
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 406, in get_preprocessed_seq_data
+    cls_id = self.class_name_to_class_id[cls]
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+KeyError: '6'
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 360, in get_preprocessed_seq_data
+    raise(TrackEvalException('Attempting to evaluate using invalid gt classes. '
+trackeval.utils.TrackEvalException: Attempting to evaluate using invalid gt classes. This warning only triggers if preprocessing is performed, e.g. not for MOT15 or where prepropressing is explicitly disabled. Please either check your gt data, or disable preprocessing. The following invalid classes were found in timestep 0: 1
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 360, in get_preprocessed_seq_data
+    raise(TrackEvalException('Attempting to evaluate using invalid gt classes. '
+trackeval.utils.TrackEvalException: Attempting to evaluate using invalid gt classes. This warning only triggers if preprocessing is performed, e.g. not for MOT15 or where prepropressing is explicitly disabled. Please either check your gt data, or disable preprocessing. The following invalid classes were found in timestep 0: 0
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 360, in get_preprocessed_seq_data
+    raise(TrackEvalException('Attempting to evaluate using invalid gt classes. '
+trackeval.utils.TrackEvalException: Attempting to evaluate using invalid gt classes. This warning only triggers if preprocessing is performed, e.g. not for MOT15 or where prepropressing is explicitly disabled. Please either check your gt data, or disable preprocessing. The following invalid classes were found in timestep 0: 0
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 360, in get_preprocessed_seq_data
+    raise(TrackEvalException('Attempting to evaluate using invalid gt classes. '
+trackeval.utils.TrackEvalException: Attempting to evaluate using invalid gt classes. This warning only triggers if preprocessing is performed, e.g. not for MOT15 or where prepropressing is explicitly disabled. Please either check your gt data, or disable preprocessing. The following invalid classes were found in timestep 0: 1
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 383, in get_preprocessed_seq_data
+    cls_id = self.class_name_to_class_id[cls]
+             ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+KeyError: 'Plastic Bag'
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/_base_dataset.py", line 159, in _load_simple_text_file
+    dialect = csv.Sniffer().sniff(fp.readline(), delimiters=force_delimiters)  # Auto determine structure.
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/csv.py", line 194, in sniff
+    raise Error("Could not determine delimiter")
+_csv.Error: Could not determine delimiter
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 218, in eval_sequence
+    raw_data = dataset.get_raw_seq_data(tracker, seq)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/_base_dataset.py", line 93, in get_raw_seq_data
+    raw_tracker_data = self._load_raw_file(tracker, seq, is_gt=False)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 203, in _load_raw_file
+    read_data, ignore_data = self._load_simple_text_file(file, is_zipped=self.data_is_zipped, zip_file=zip_file)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/_base_dataset.py", line 209, in _load_simple_text_file
+    raise TrackEvalException(
+trackeval.utils.TrackEvalException: File mot_center_descend_cou_n.txt cannot be read because it is either not present or invalidly formatted
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 360, in get_preprocessed_seq_data
+    raise(TrackEvalException('Attempting to evaluate using invalid gt classes. '
+trackeval.utils.TrackEvalException: Attempting to evaluate using invalid gt classes. This warning only triggers if preprocessing is performed, e.g. not for MOT15 or where prepropressing is explicitly disabled. Please either check your gt data, or disable preprocessing. The following invalid classes were found in timestep 46: 13
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 222, in eval_sequence
+    data = dataset.get_preprocessed_seq_data(raw_data, cls)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 360, in get_preprocessed_seq_data
+    raise(TrackEvalException('Attempting to evaluate using invalid gt classes. '
+trackeval.utils.TrackEvalException: Attempting to evaluate using invalid gt classes. This warning only triggers if preprocessing is performed, e.g. not for MOT15 or where prepropressing is explicitly disabled. Please either check your gt data, or disable preprocessing. The following invalid classes were found in timestep 46: 13
+
+
+
+
+
+MotChallenge2DBox
+yolo_tracker/uno_s
+Traceback (most recent call last):
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 113, in evaluate
+    res[curr_seq] = eval_sequence(curr_seq, dataset, tracker, class_list, metrics_list,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/eval.py", line 218, in eval_sequence
+    raw_data = dataset.get_raw_seq_data(tracker, seq)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/_timing.py", line 17, in wrap
+    result = f(*args, **kw)
+             ^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/_base_dataset.py", line 93, in get_raw_seq_data
+    raw_tracker_data = self._load_raw_file(tracker, seq, is_gt=False)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rifqi/Documents/TrackEval/trackeval/datasets/mot_challenge_2d_box.py", line 222, in _load_raw_file
+    raise TrackEvalException(
+trackeval.utils.TrackEvalException: Tracking data contains the following invalid timesteps in seq mot_north_forward: 318, 
+
+
+
+
+

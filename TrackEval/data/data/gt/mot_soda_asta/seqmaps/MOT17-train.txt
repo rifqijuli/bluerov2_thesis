@@ -1,0 +1,16 @@
+name
+mot_center_descend
+mot_center_forward_2
+mot_center_yaw
+mot_east_forward
+mot_north_forward
+mot_north_yaw
+mot_northeast_forward
+mot_northwest_forward
+mot_south_forward
+mot_south_yaw_2
+mot_southeast_forward
+mot_southeast_yawascend_2
+mot_southwest_forward
+mot_southwest_yawascend_2
+mot_west_forward

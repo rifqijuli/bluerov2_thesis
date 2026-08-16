@@ -1,0 +1,12 @@
+Get yolo tracking result
+~/Documents/bluerov2_thesis/test_basic/camera$ python3 evaluate.py 
+
+Good FPS
+ffmpeg -i mot_west_forward.mp4 -vf fps=32.465 mot_west_forward/frame_%04d.png
+
+to mp4
+ffmpeg -i mot_south_yaw_2.mkv -codec copy mot_south_yaw_2.mp4
+
+
+eval
+python scripts/run_mot_challenge.py --GT_FOLDER data/gt/mot_challenge   --TRACKERS_FOLDER data/trackers/mot_challenge   --TRACKERS_TO_EVAL soda_can/cou_n soda_can/tc_n soda_can/cou_s soda_can/tc_s soda_can/uno_s soda_can/uno_n soda_can/walia_n soda_can/walia_s soda_can/overfit soda_can/cou_n_11 soda_can/tc_n_11 soda_can/cou_s_11 soda_can/tc_s_11 soda_can/uno_s_11 soda_can/uno_n_11 soda_can/walia_n_11 soda_can/walia_s_11 --METRICS HOTA CLEAR Identity

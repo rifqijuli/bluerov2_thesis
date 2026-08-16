@@ -1,0 +1,48 @@
+Collecting numpy
+  Using cached numpy-2.4.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scipy
+  Downloading scipy-1.17.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.1/62.1 kB 444.4 kB/s eta 0:00:00
+Collecting motmetrics
+  Downloading motmetrics-1.4.0-py3-none-any.whl.metadata (20 kB)
+Collecting cython-bbox
+  Downloading cython_bbox-0.1.5.tar.gz (4.4 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Installing backend dependencies: started
+  Installing backend dependencies: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting lap
+  Downloading lap-0.5.13-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (6.6 kB)
+Collecting pandas>=0.23.1 (from motmetrics)
+  Using cached pandas-3.0.2-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (79 kB)
+Collecting xmltodict>=0.12.0 (from motmetrics)
+  Downloading xmltodict-1.0.4-py3-none-any.whl.metadata (14 kB)
+Collecting Cython (from cython-bbox)
+  Using cached cython-3.2.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (7.5 kB)
+Collecting python-dateutil>=2.8.2 (from pandas>=0.23.1->motmetrics)
+  Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+Collecting six>=1.5 (from python-dateutil>=2.8.2->pandas>=0.23.1->motmetrics)
+  Using cached six-1.17.0-py2.py3-none-any.whl.metadata (1.7 kB)
+Using cached numpy-2.4.4-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.6 MB)
+Downloading scipy-1.17.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.2/35.2 MB 2.7 MB/s eta 0:00:00
+Downloading motmetrics-1.4.0-py3-none-any.whl (161 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 161.5/161.5 kB 1.9 MB/s eta 0:00:00
+Downloading lap-0.5.13-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (1.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 2.5 MB/s eta 0:00:00
+Using cached pandas-3.0.2-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (10.9 MB)
+Downloading xmltodict-1.0.4-py3-none-any.whl (13 kB)
+Using cached cython-3.2.4-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (3.4 MB)
+Using cached python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+Using cached six-1.17.0-py2.py3-none-any.whl (11 kB)
+Building wheels for collected packages: cython-bbox
+  Building wheel for cython-bbox (pyproject.toml): started
+  Building wheel for cython-bbox (pyproject.toml): finished with status 'done'
+  Created wheel for cython-bbox: filename=cython_bbox-0.1.5-cp312-cp312-linux_x86_64.whl size=115436 sha256=e77f90bb5294957d505b2c13ba91679aaa6ff215e1a9bd0833a80a85dc4779c6
+  Stored in directory: /home/rifqi/.cache/pip/wheels/f1/e7/0a/7c310ac8921f2c1e61e58f80585f1ce0be9e4a36d280771857
+Successfully built cython-bbox
+Installing collected packages: xmltodict, six, numpy, Cython, scipy, python-dateutil, lap, cython-bbox, pandas, motmetrics
